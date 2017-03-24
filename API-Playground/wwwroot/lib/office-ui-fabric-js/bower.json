@@ -1,0 +1,28 @@
+{
+  "name": "office-ui-fabric-js",
+  "author": "Office UI Fabric Team",
+  "version": "1.4.0",
+  "description": "The JavaScript front-end framework for building experiences for Office 365.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OfficeDev/Office-UI-Fabric-JS"
+  },
+  "main": "dist/css/fabric.components.css",
+  "private": false,
+  "ignore": [
+    "node_modules",
+    "bower_components",
+    "*.sublime*",
+    "typings",
+    "ghdocs",
+    "server",
+    "gulp",
+    ".travis.yml",
+    ".sass-lint.yml",
+    ".pullapprove.yml",
+    ".htmllintrc",
+    ".jshintrc",
+    ".csscomb.json"
+  ]
+}

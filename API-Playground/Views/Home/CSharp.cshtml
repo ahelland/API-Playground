@@ -1,0 +1,150 @@
+﻿@model API_Playground.Models.Code
+@{
+    ViewData["Title"] = "C#";
+}
+
+<div id="defaultCsx" style="display: none;">@Html.Raw(Model.csx)</div>
+<div id="defaultOutput" style="display: none;">@Html.Raw(Model.output)</div>
+
+<div class="ms-Grid">
+    <div class="ms-Grid-row" style="max-width:none;width:1920px;">
+        <div class="ms-Grid-col ms-u-lg12">
+            <div class="ms-font-xxl">C#</div>
+            <div class="ms-font-m-plus">
+                You can type your code in the input box, or load up one of the templates to get you started. <br />
+                Hit "Compile and run" and watch the results in the output box.<br />
+                Note that the compilation and running of the code is done remotely, (aka in the cloud), so you will need internet access for this to work.
+            </div>
+            <br />
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
+            {
+                <div id="status" class="ms-Icon--Label">Status: Ready</div>
+                <br />
+                <button id="btnExecuteGET" type="submit" class="ms-Button ms-Button--compound" onclick="save()">
+                    <span class="ms-Button-label">Compile and run!</span>
+                    <span class="ms-Button-description">Will execute the code in the input box.</span>
+                </button>
+                <span class="ms-font-xl">Templates</span>
+                <span class="ms-Table-cell ms-font-xl">
+                    <button id="btnTemplateGET" type="button" class="ms-Button ms-Button--compound" onclick="loadGet()">
+                        <span class="ms-Button-label">HTTP GET</span>
+                        <span class="ms-Button-description">https://api.contoso.local/FOO</span>
+                    </button>
+                </span>
+                <br />
+                <span class="ms-Table-cell ms-font-xl">
+                    <button id="btnExecutePOST" type="button" class="ms-Button ms-Button--compound" onclick="loadPost()">
+                        <span class="ms-Button-label">HTTP POST</span>
+                        <span class="ms-Button-description">https://api.contoso.local/FOO</span>
+                    </button>
+                </span>
+                <div class="ms-Table">
+                    <div class="ms-Table-row">
+                        <span class="ms-Table-cell ms-font-xl">Input</span>
+                        <span class="ms-Table-cell ms-font-xl">Output</span>
+                    </div>
+                    <div class="ms-Table-row">
+                        <div id="csxEditor" class="ms-Table-cell" style="width:50%; height:600px;border: 0px solid grey;border-image:none;left:0px;padding:0px;"></div>
+                        <div id="output" class="ms-Table-cell" style="width:50%; height:600px;border: 0px solid grey;border-image:none;left:0px;padding:0px;"></div>
+                    </div>
+                    <div id="behindthescenes">
+                        @Html.EditorFor(model => model.csx, new { htmlAttributes = new { style = "display:none" } })
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+<script src="../lib/monaco-editor/min/vs/loader.js"></script>
+<script>
+    require.config({ paths: { 'vs': '../lib/monaco-editor/min/vs' } });
+
+    require(['vs/editor/editor.main'], function () {
+        var strCsx = document.getElementById('defaultCsx').innerHTML;
+        var strCsxArray = strCsx.split('<br>');
+
+        window.editor = monaco.editor.create(document.getElementById('csxEditor'), {
+            value: strCsxArray.join('\n'),
+            language: 'csharp',
+            wrappingColumn: '0',
+            wrappingIndent: 'indent'
+        });
+
+        var strOutput = document.getElementById('defaultOutput').innerHTML;
+        var strOutputArray = strOutput.split('<br>');
+
+        var output = monaco.editor.create(document.getElementById('output'), {
+            value: strOutputArray.join('\n'),
+            language: 'json',
+            readOnly: true
+        });
+
+    });
+
+    function save() {
+        document.getElementById("status").innerText = 'Status: Bits are in the pipe';
+        var x = window.editor.getValue();
+        document.getElementById("csx").innerText = x;
+    }
+
+    function loadGet() {
+        document.getElementById("csxEditor").innerHTML = "";
+        var strGetTemplate = [
+            'using System;',
+            'using System.Net.Http;',
+            '\npublic class HelloAPI',
+            '{',
+            '\tpublic static void Main()',
+            '\t{',
+            '\t\tusing (var client = new HttpClient())',
+            '\t\t{',
+            '\t\t\tstring requestUrl = $\"https://api01.contoso.local/api/HttpGET?name=Azure\";',
+            '\t\t\tHttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, requestUrl);',
+            '\t\t\tHttpResponseMessage response = client.SendAsync(request).Result;',
+            '\t\t\tvar responseString = response.Content.ReadAsStringAsync().Result;',
+            '\t\t\tConsole.WriteLine(responseString);',
+            '\t\t}\n\t}\n}',
+        ];
+        window.editor = monaco.editor.create(document.getElementById('csxEditor'), {
+            value: strGetTemplate.join('\n'),
+            language: 'csharp',
+            wrappingColumn: '0',
+            wrappingIndent: 'indent'
+        });
+    }
+
+    function loadPost() {
+        document.getElementById("csxEditor").innerHTML = "";
+        var strPostTemplate = [
+            'using System;',
+            'using System.Net.Http;',
+            'using System.Net.Http.Headers;',
+            'using System.Text;',
+            '\npublic class HelloAPI',
+            '{',
+            '\tpublic static void Main()',
+            '\t{',
+            '\t\tvar request_content = "{\\"name\\":\\"Andreas\\"}";',
+            '\t\t',
+            '\t\tusing (var client = new HttpClient())',
+            '\t\t{',
+            '\t\t\tstring requestUrl = $\"https://api02.contoso.local/api/HttpPOST";',
+            '\t\t\tHttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, requestUrl);',
+            '\t\t\trequest.Content = new StringContent(request_content, Encoding.UTF8, "application/json");',
+            '\t\t\tclient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));',
+            '\t\t\tHttpResponseMessage response = client.SendAsync(request).Result;',
+            '\t\t\tvar responseString = response.Content.ReadAsStringAsync().Result;',
+            '\t\t\tConsole.WriteLine(responseString);',
+            '\t\t}\n\t}\n}',
+        ];
+
+        window.editor = monaco.editor.create(document.getElementById('csxEditor'), {
+            value: strPostTemplate.join('\n'),
+            language: 'csharp',
+            wrappingColumn: '0',
+            wrappingIndent: 'indent'
+        });
+    }
+</script>   

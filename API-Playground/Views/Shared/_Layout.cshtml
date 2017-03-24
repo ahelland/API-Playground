@@ -1,0 +1,88 @@
+﻿@inject Microsoft.ApplicationInsights.AspNetCore.JavaScriptSnippet JavaScriptSnippet
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - API Playground</title>
+
+    <environment names="Development">
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <link rel="stylesheet" href="~/lib/office-ui-fabric-core/dist/css/fabric.css" />
+        <link rel="stylesheet" href="~/lib/office-ui-fabric-js/dist/css/fabric.components.css" />
+    </environment>
+    <environment names="Staging,Production">
+        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css"
+              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+        <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+        <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/4.1.0/css/fabric.min.css">
+        <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.4.0/css/fabric.components.min.css">
+    </environment>
+    @Html.Raw(JavaScriptSnippet.FullScript)
+</head>
+<body>
+    <div class="ms-Grid">
+        <div class="ms-Grid-row">
+            <div class="ms-Grid-col ms-u-lg12">
+                <div class="ms-font-su">API Playground</div>
+            </div>
+        </div>
+    </div>
+    @*Details: https://dev.office.com/fabric-js/Components/CommandBar/CommandBar.html*@
+    <div class="ms-CommandBar">
+        <div class="ms-CommandBar-mainArea">
+            <div class="ms-CommandButton">
+                <div class="ms-CommandButton ms-CommandButton--pivot">
+                    <a class="ms-CommandButton-button" href="/Home/Index"> <span class="ms-CommandButton-label">Index</span>  </a>
+                </div>
+                <div class="ms-CommandButton ms-CommandButton--pivot">
+                    <a class="ms-CommandButton-button" href="/Home/HTTP"> <span class="ms-CommandButton-label">HTTP</span>  </a>
+                </div>
+                <div class="ms-CommandButton ms-CommandButton--pivot">
+                    <a class="ms-CommandButton-button" href="/Home/CSharp"> <span class="ms-CommandButton-label">C#</span>  </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container body-content" style="margin-left:4px;">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; <a href="https://github.com/ahelland">github.com/ahelland</a></p>
+        </footer>
+    </div>
+
+    <environment names="Development">
+        <script src="~/lib/jquery/dist/jquery.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/lib/office-ui-fabric-js/dist/js/fabric.js"></script>
+    </environment>
+    <environment names="Staging,Production">
+        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
+                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
+                asp-fallback-test="window.jQuery"
+                crossorigin="anonymous"
+                integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
+        </script>
+        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
+                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
+                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+                crossorigin="anonymous"
+                integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
+        </script>
+        <script src="~/js/site.min.js" asp-append-version="true"></script>
+        <script src="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-js/1.2.0/js/fabric.min.js"></script>
+    </environment>
+
+    @RenderSection("Scripts", required: false)
+    <script type="text/javascript">
+        var CommandBarElements = document.querySelectorAll(".ms-CommandBar");
+        for (var i = 0; i < CommandBarElements.length; i++) {
+            new fabric['CommandBar'](CommandBarElements[i]);
+        }
+    </script>
+</body>
+</html>
