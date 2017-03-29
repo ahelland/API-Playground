@@ -10,10 +10,14 @@ This method works similar to SwaggerUI in which you get to choose which HTTP cal
 
 Currently the only option is to create the templated buttons in HTML, and no custom calls are available directly in the UI. (Yes, it is sort of a poor man's Postman/Fiddler in this respect.)
 
+![HTTP-based Test](Assets/API_Playground_HTTP_01.png)
+
 #### C#
 The more interesting option is using the option for specifying the actual code that will be used for calling into the APIs. There are templates for a generic GET or POST call which you can edit to your liking to create a more realistic test scenario.
 
 Adding more templates currently requires you to add in a JavaScript function, and a button html tag, to load into the editor view. Slighly unflexible, but there is no actual templating system implemented yet.
+
+![Code-based Test](Assets/API_Playground_CSharp_01.png)
 
 #### Notes
 The editor view is provided by using the Monaco-Editor: [https://github.com/Microsoft/monaco-editor](https://github.com/Microsoft/monaco-editor)
