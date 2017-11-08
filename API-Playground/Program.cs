@@ -1,5 +1,6 @@
-﻿using System.IO;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore;
+using Microsoft.Extensions.Configuration;
 
 namespace API_Playground
 {
@@ -7,15 +8,19 @@ namespace API_Playground
     {
         public static void Main(string[] args)
         {
-            var host = new WebHostBuilder()
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseIISIntegration()
-                .UseStartup<Startup>()
-                .UseApplicationInsights()
-                .Build();
-
-            host.Run();
+            BuildWebHost(args).Run();
         }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .ConfigureAppConfiguration((hostContext, config) =>
+                {
+                    // delete all default configuration providers
+                    config.Sources.Clear();
+                    config.AddJsonFile($"appsettings.json", optional: false,reloadOnChange:true);
+                    config.AddJsonFile($"appsettings.{hostContext.HostingEnvironment}.json", optional: true);                    
+                })
+                .Build();
     }
 }
