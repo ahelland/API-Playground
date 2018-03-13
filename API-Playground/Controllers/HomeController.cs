@@ -19,62 +19,6 @@ namespace API_Playground.Controllers
         }
 
         [HttpGet]
-        public IActionResult HTTP()
-        {
-            Code c = new Code
-            {
-                csx = "{<br />\t\"name\":\"Azure\"<br />}",
-                output = "{<br />\t\"foo\":\"bar\"<br />}"
-            };
-            return View(c);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Http(Code code)
-        {
-            string output = code.csx;
-
-            using (var client = new HttpClient())
-            {
-                var reqInput = code.csx;
-                var req = JsonConvert.DeserializeObject<HttpTestRequest>(reqInput);
-                var requestUrl = req.url;
-                var request_content = req.body;
-
-                var responseString = "";
-
-                //For HTTP GET requests (assumption that no body == GET)
-                if (request_content == "")
-                {
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, new Uri(requestUrl));
-                    HttpResponseMessage response = await client.SendAsync(request);
-                    responseString = await response.Content.ReadAsStringAsync();
-                    //We feed the default body back into the view just for the sake of visibility; looks weird when it gets cleared
-                    code.csx = "{<br />\t\"name\":\"Azure\"<br />}";
-                }
-
-                //For HTTP POST requests
-                if (request_content != "")
-                {
-                    HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, new Uri(requestUrl))
-                    {
-                        Content = new StringContent(request_content, Encoding.UTF8, "application/json")
-                    };
-                    //No support for XML bodies at the moment
-                    //Considering adding this header in the UI
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    HttpResponseMessage response = await client.SendAsync(request);
-                    responseString = await response.Content.ReadAsStringAsync();
-                    code.csx = req.body;
-                }
-
-                code.output = "{<br />\t\"result\":" + responseString + "<br />}";
-            }
-
-            return View(code);
-        }
-
-        [HttpGet]
         public IActionResult CSharp()
         {
             //Init page with "Hello World" code
