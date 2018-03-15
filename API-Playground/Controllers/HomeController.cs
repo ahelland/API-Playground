@@ -57,7 +57,19 @@ namespace API_Playground.Controllers
 
                 var responseString = await response.Content.ReadAsStringAsync();
                 var codeOutput = JsonConvert.DeserializeObject<CodeResponse>(responseString);
-                code.output = codeOutput.Output[0];
+
+                //We need to account for multiline responses
+                if (codeOutput.Output.Length == 1)
+                {
+                    code.output = codeOutput.Output[0];
+                }
+                if(codeOutput.Output.Length > 1)
+                {
+                    foreach (var line in codeOutput.Output)
+                    {
+                        code.output += line + "<br />";
+                    }
+                }
             }
 
             return View(code);

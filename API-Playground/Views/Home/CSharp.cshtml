@@ -17,41 +17,47 @@
             </div>
             <br />
             @using (Html.BeginForm(null, null, FormMethod.Post, new { name = "frm", id = "frm" }))
-            {
-                <div id="status" class="ms-Icon--Label">Status: Ready</div>
-                <br />
-                <button id="btnExecuteGET" type="submit" class="ms-Button ms-Button--compound" onclick="save()">
-                    <span class="ms-Button-label">Compile and run!</span>
-                    <span class="ms-Button-description">Will execute the code in the input box.</span>
-                </button>
-                <span class="ms-font-xl">Templates</span>
-                <span class="ms-Table-cell ms-font-xl">
-                    <button id="btnTemplateGET" type="button" class="ms-Button ms-Button--compound" onclick="loadGet()">
-                        <span class="ms-Button-label">HTTP GET</span>
-                        <span class="ms-Button-description">https://api.contoso.local/FOO</span>
-                    </button>
-                </span>
-                <br />
-                <span class="ms-Table-cell ms-font-xl">
-                    <button id="btnExecutePOST" type="button" class="ms-Button ms-Button--compound" onclick="loadPost()">
-                        <span class="ms-Button-label">HTTP POST</span>
-                        <span class="ms-Button-description">https://api.contoso.local/FOO</span>
-                    </button>
-                </span>
-                <div class="ms-Table">
-                    <div class="ms-Table-row">
-                        <span class="ms-Table-cell ms-font-xl">Input</span>
-                        <span class="ms-Table-cell ms-font-xl">Output</span>
-                    </div>
-                    <div class="ms-Table-row">
-                        <div id="csxEditor" class="ms-Table-cell" style="width:50%; height:600px;border: 0px solid grey;border-image:none;left:0px;padding:0px;"></div>
-                        <div id="output" class="ms-Table-cell" style="width:50%; height:600px;border: 0px solid grey;border-image:none;left:0px;padding:0px;"></div>
-                    </div>
-                    <div id="behindthescenes">
-                        @Html.EditorFor(model => model.csx, new { htmlAttributes = new { style = "display:none" } })
-                    </div>
-                </div>
-            }
+    {
+        <div id="status" class="ms-Icon--Label">Status: Ready</div>
+        <br />
+        <button id="btnExecuteGET" type="submit" class="ms-Button ms-Button--compound" onclick="save()">
+            <span class="ms-Button-label">Compile and run!</span>
+            <span class="ms-Button-description">Will execute the code in the input box.</span>
+        </button>
+        <span class="ms-font-xl">Templates</span>
+        <span class="ms-Table-cell ms-font-xl">
+            <button id="btnTemplateGET" type="button" class="ms-Button ms-Button--compound" onclick="loadGet()">
+                <span class="ms-Button-label">HTTP GET</span>
+                <span class="ms-Button-description">https://api.contoso.local/FOO</span>
+            </button>
+        </span>
+        <span class="ms-Table-cell ms-font-xl">
+            <button id="btnTemplateGET" type="button" class="ms-Button ms-Button--compound" onclick="loadFibonacci()">
+                <span class="ms-Button-label">Fibonacci</span>
+                <span class="ms-Button-description">Because...Do the math.</span>
+            </button>
+        </span>
+        <br />
+        <span class="ms-Table-cell ms-font-xl">
+            <button id="btnExecutePOST" type="button" class="ms-Button ms-Button--compound" onclick="loadPost()">
+                <span class="ms-Button-label">HTTP POST</span>
+                <span class="ms-Button-description">https://api.contoso.local/FOO</span>
+            </button>
+        </span>
+        <div class="ms-Table">
+            <div class="ms-Table-row">
+                <span class="ms-Table-cell ms-font-xl">Input</span>
+                <span class="ms-Table-cell ms-font-xl">Output</span>
+            </div>
+            <div class="ms-Table-row">
+                <div id="csxEditor" class="ms-Table-cell" style="width:50%; height:600px;border: 0px solid grey;border-image:none;left:0px;padding:0px;"></div>
+                <div id="output" class="ms-Table-cell" style="width:50%; height:600px;border: 0px solid grey;border-image:none;left:0px;padding:0px;"></div>
+            </div>
+            <div id="behindthescenes">
+                @Html.EditorFor(model => model.csx, new { htmlAttributes = new { style = "display:none" } })
+            </div>
+        </div>
+}
         </div>
     </div>
 </div>
@@ -114,6 +120,42 @@
             wrappingIndent: 'indent'
         });
     }
+
+    //Known issue - .innerHTML will be so gracious as to close tags automatically.
+    //And <int> apparently needs to be closed, so when returning from compile and run will
+    //append </int>
+    function loadFibonacci() {
+        document.getElementById("csxEditor").innerHTML = "";
+        var strGetTemplate = [
+            'using System;',
+            'using System.Collections.Generic;',
+            'using System.Linq;',
+            '\npublic class Program',
+            '{',
+            '\tpublic static void Main()',
+            '\t{',
+            '\t\tforeach (var i in Fibonacci().Take(20))',
+            '\t\t{',
+            '\t\t\tConsole.WriteLine(i);',            
+            '\t\t}\n',
+            '\t}\n',            
+            '\t\private static IEnumerable<int>Fibonacci()',
+            '\t{',            
+            '\t\tint current = 1, next = 1;',
+            '\t\twhile (true)',
+            '\t\t{',
+            '\t\t\tyield return current;',
+            '\t\t\tnext = current + (current = next);',
+            '\t\t}\n\t}\n}',            
+        ];
+        window.editor = monaco.editor.create(document.getElementById('csxEditor'), {
+            value: strGetTemplate.join('\n'),
+            language: 'csharp',
+            wrappingColumn: '0',
+            wrappingIndent: 'indent'
+        });
+    }
+
 
     function loadPost() {
         document.getElementById("csxEditor").innerHTML = "";
