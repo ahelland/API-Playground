@@ -10,6 +10,6 @@
     "gulp-htmlmin": "^4.0.0",
     "gulp-uglify": "^3.0.0",
     "merge-stream": "^1.0.1",
-    "monaco-editor": "^0.10.1"
+    "monaco-editor": "0.15.6"
   }
 }

@@ -1,12 +1,12 @@
 /*!-----------------------------------------------------------
  * Copyright (c) Microsoft Corporation. All rights reserved.
- * Version: 0.10.1(ebbf400719be21761361804bf63fb3916e64a845)
+ * Version: 0.15.5(3d42593a5844407ab71d47b348ea3a8de5fec848)
  * Released under the MIT license
  * https://github.com/Microsoft/vscode/blob/master/LICENSE.txt
  *-----------------------------------------------------------*/
 
 (function() {
-var __m = ["exports","require","vs/base/common/winjs.base","vs/editor/common/core/position","vs/base/common/platform","vs/editor/common/core/range","vs/base/common/uri","vs/editor/common/core/uint","vs/base/common/errors","vs/base/common/event","vs/base/common/lifecycle","vs/base/common/functional","vs/base/common/diff/diff","vs/base/common/cancellation","vs/base/common/types","vs/base/common/callbackList","vs/base/common/diff/diffChange","vs/base/common/map","vs/base/common/async","vs/editor/common/viewModel/prefixSumComputer","vs/base/common/strings","vs/base/common/keyCodes","vs/editor/common/core/selection","vs/editor/common/core/token","vs/editor/common/model/mirrorModel","vs/editor/common/core/characterClassifier","vs/editor/common/diff/diffComputer","vs/editor/common/model/wordHelper","vs/editor/common/modes/linkComputer","vs/editor/common/modes/supports/inplaceReplaceSupport","vs/editor/common/standalone/standaloneBase","vs/base/common/worker/simpleWorker","vs/base/common/winjs.base.raw","vs/editor/common/services/editorSimpleWorker"];
+var __m = ["require","exports","vs/editor/common/core/position","vs/base/common/platform","vs/base/common/errors","vs/editor/common/core/range","vs/editor/common/core/uint","vs/base/common/lifecycle","vs/base/common/winjs.base","vs/base/common/event","vs/base/common/cancellation","vs/base/common/uri","vs/base/common/iterator","vs/base/common/diff/diff","vs/base/common/async","vs/base/common/linkedList","vs/base/common/functional","vs/base/common/strings","vs/base/common/winjs.polyfill.promise","vs/editor/common/model/mirrorTextModel","vs/base/common/diff/diffChange","vs/base/common/keyCodes","vs/editor/common/core/selection","vs/editor/common/core/token","vs/base/common/arrays","vs/editor/common/core/characterClassifier","vs/editor/common/diff/diffComputer","vs/editor/common/model/wordHelper","vs/editor/common/modes/linkComputer","vs/editor/common/modes/supports/inplaceReplaceSupport","vs/editor/common/standalone/standaloneEnums","vs/editor/common/standalone/standaloneBase","vs/editor/common/viewModel/prefixSumComputer","vs/base/common/worker/simpleWorker","vs/editor/common/services/editorSimpleWorker"];
 var __M = function(deps) {
   var result = [];
   for (var i = 0, len = deps.length; i < len; i++) {
@@ -35,23 +35,59 @@ var __M = function(deps) {
  *---------------------------------------------------------------------------------------------
  *--------------------------------------------------------------------------------------------*/
 var _amdLoaderGlobal = this;
+var _commonjsGlobal = typeof global === 'object' ? global : {};
 var AMDLoader;
 (function (AMDLoader) {
     AMDLoader.global = _amdLoaderGlobal;
     var Environment = (function () {
-        function Environment(opts) {
-            this.isWindows = opts.isWindows;
-            this.isNode = opts.isNode;
-            this.isElectronRenderer = opts.isElectronRenderer;
-            this.isWebWorker = opts.isWebWorker;
+        function Environment() {
+            this._detected = false;
+            this._isWindows = false;
+            this._isNode = false;
+            this._isElectronRenderer = false;
+            this._isWebWorker = false;
         }
-        Environment.detect = function () {
-            return new Environment({
-                isWindows: this._isWindows(),
-                isNode: (typeof module !== 'undefined' && !!module.exports),
-                isElectronRenderer: (typeof process !== 'undefined' && typeof process.versions !== 'undefined' && typeof process.versions.electron !== 'undefined' && process.type === 'renderer'),
-                isWebWorker: (typeof AMDLoader.global.importScripts === 'function')
-            });
+        Object.defineProperty(Environment.prototype, "isWindows", {
+            get: function () {
+                this._detect();
+                return this._isWindows;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Environment.prototype, "isNode", {
+            get: function () {
+                this._detect();
+                return this._isNode;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Environment.prototype, "isElectronRenderer", {
+            get: function () {
+                this._detect();
+                return this._isElectronRenderer;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Environment.prototype, "isWebWorker", {
+            get: function () {
+                this._detect();
+                return this._isWebWorker;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Environment.prototype._detect = function () {
+            if (this._detected) {
+                return;
+            }
+            this._detected = true;
+            this._isWindows = Environment._isWindows();
+            this._isNode = (typeof module !== 'undefined' && !!module.exports);
+            this._isElectronRenderer = (typeof process !== 'undefined' && typeof process.versions !== 'undefined' && typeof process.versions.electron !== 'undefined' && process.type === 'renderer');
+            this._isWebWorker = (typeof AMDLoader.global.importScripts === 'function');
         };
         Environment._isWindows = function () {
             if (typeof navigator !== 'undefined') {
@@ -74,19 +110,6 @@ var AMDLoader;
  *--------------------------------------------------------------------------------------------*/
 var AMDLoader;
 (function (AMDLoader) {
-    var LoaderEventType;
-    (function (LoaderEventType) {
-        LoaderEventType[LoaderEventType["LoaderAvailable"] = 1] = "LoaderAvailable";
-        LoaderEventType[LoaderEventType["BeginLoadingScript"] = 10] = "BeginLoadingScript";
-        LoaderEventType[LoaderEventType["EndLoadingScriptOK"] = 11] = "EndLoadingScriptOK";
-        LoaderEventType[LoaderEventType["EndLoadingScriptError"] = 12] = "EndLoadingScriptError";
-        LoaderEventType[LoaderEventType["BeginInvokeFactory"] = 21] = "BeginInvokeFactory";
-        LoaderEventType[LoaderEventType["EndInvokeFactory"] = 22] = "EndInvokeFactory";
-        LoaderEventType[LoaderEventType["NodeBeginEvaluatingScript"] = 31] = "NodeBeginEvaluatingScript";
-        LoaderEventType[LoaderEventType["NodeEndEvaluatingScript"] = 32] = "NodeEndEvaluatingScript";
-        LoaderEventType[LoaderEventType["NodeBeginNativeRequire"] = 33] = "NodeBeginNativeRequire";
-        LoaderEventType[LoaderEventType["NodeEndNativeRequire"] = 34] = "NodeEndNativeRequire";
-    })(LoaderEventType = AMDLoader.LoaderEventType || (AMDLoader.LoaderEventType = {}));
     var LoaderEvent = (function () {
         function LoaderEvent(type, detail, timestamp) {
             this.type = type;
@@ -98,7 +121,7 @@ var AMDLoader;
     AMDLoader.LoaderEvent = LoaderEvent;
     var LoaderEventRecorder = (function () {
         function LoaderEventRecorder(loaderAvailableTimestamp) {
-            this._events = [new LoaderEvent(LoaderEventType.LoaderAvailable, '', loaderAvailableTimestamp)];
+            this._events = [new LoaderEvent(1 /* LoaderAvailable */, '', loaderAvailableTimestamp)];
         }
         LoaderEventRecorder.prototype.record = function (type, detail) {
             this._events.push(new LoaderEvent(type, detail, AMDLoader.Utilities.getHighPerformanceTimestamp()));
@@ -136,7 +159,7 @@ var AMDLoader;
          * This method does not take care of / vs \
          */
         Utilities.fileUriToFilePath = function (isWindows, uri) {
-            uri = decodeURI(uri);
+            uri = decodeURI(uri).replace(/%23/g, '#');
             if (isWindows) {
                 if (/^file:\/\/\//.test(uri)) {
                     // This is a URI without a hostname => return only the path segment
@@ -206,7 +229,7 @@ var AMDLoader;
             return '===anonymous' + (Utilities.NEXT_ANONYMOUS_ID++) + '===';
         };
         Utilities.isAnonymousModule = function (id) {
-            return /^===anonymous/.test(id);
+            return Utilities.startsWith(id, '===anonymous');
         };
         Utilities.getHighPerformanceTimestamp = function () {
             if (!this.PERFORMANCE_NOW_PROBED) {
@@ -234,7 +257,7 @@ var AMDLoader;
         /**
          * Ensure configuration options make sense
          */
-        ConfigurationOptionsUtil.validateConfigurationOptions = function (isWebWorker, options) {
+        ConfigurationOptionsUtil.validateConfigurationOptions = function (options) {
             function defaultOnError(err) {
                 if (err.errorCode === 'load') {
                     console.error('Loading "' + err.moduleId + '" failed');
@@ -269,8 +292,7 @@ var AMDLoader;
                 options.config = {};
             }
             if (typeof options.catchError === 'undefined') {
-                // Catch errors by default in web workers, do not catch errors by default in other contexts
-                options.catchError = isWebWorker;
+                options.catchError = false;
             }
             if (typeof options.urlArgs !== 'string') {
                 options.urlArgs = '';
@@ -285,6 +307,9 @@ var AMDLoader;
                 if (!AMDLoader.Utilities.endsWith(options.baseUrl, '/')) {
                     options.baseUrl += '/';
                 }
+            }
+            if (typeof options.cspNonce !== 'string') {
+                options.cspNonce = '';
             }
             if (!Array.isArray(options.nodeModules)) {
                 options.nodeModules = [];
@@ -311,7 +336,7 @@ var AMDLoader;
             }
             return options;
         };
-        ConfigurationOptionsUtil.mergeConfigurationOptions = function (isWebWorker, overwrite, base) {
+        ConfigurationOptionsUtil.mergeConfigurationOptions = function (overwrite, base) {
             if (overwrite === void 0) { overwrite = null; }
             if (base === void 0) { base = null; }
             var result = AMDLoader.Utilities.recursiveClone(base || {});
@@ -330,7 +355,7 @@ var AMDLoader;
                     result[key] = AMDLoader.Utilities.recursiveClone(value);
                 }
             });
-            return ConfigurationOptionsUtil.validateConfigurationOptions(isWebWorker, result);
+            return ConfigurationOptionsUtil.validateConfigurationOptions(result);
         };
         return ConfigurationOptionsUtil;
     }());
@@ -338,17 +363,17 @@ var AMDLoader;
     var Configuration = (function () {
         function Configuration(env, options) {
             this._env = env;
-            this.options = ConfigurationOptionsUtil.mergeConfigurationOptions(this._env.isWebWorker, options);
+            this.options = ConfigurationOptionsUtil.mergeConfigurationOptions(options);
             this._createIgnoreDuplicateModulesMap();
             this._createNodeModulesMap();
             this._createSortedPathsRules();
             if (this.options.baseUrl === '') {
-                if (this._env.isNode && this.options.nodeRequire && this.options.nodeRequire.main && this.options.nodeRequire.main.filename) {
+                if (this.options.nodeRequire && this.options.nodeRequire.main && this.options.nodeRequire.main.filename && this._env.isNode) {
                     var nodeMain = this.options.nodeRequire.main.filename;
                     var dirnameIndex = Math.max(nodeMain.lastIndexOf('/'), nodeMain.lastIndexOf('\\'));
                     this.options.baseUrl = nodeMain.substring(0, dirnameIndex + 1);
                 }
-                if (this._env.isNode && this.options.nodeMain) {
+                if (this.options.nodeMain && this._env.isNode) {
                     var nodeMain = this.options.nodeMain;
                     var dirnameIndex = Math.max(nodeMain.lastIndexOf('/'), nodeMain.lastIndexOf('\\'));
                     this.options.baseUrl = nodeMain.substring(0, dirnameIndex + 1);
@@ -399,7 +424,7 @@ var AMDLoader;
          * @result A new configuration
          */
         Configuration.prototype.cloneAndMerge = function (options) {
-            return new Configuration(this._env, ConfigurationOptionsUtil.mergeConfigurationOptions(this._env.isWebWorker, options, this.options));
+            return new Configuration(this._env, ConfigurationOptionsUtil.mergeConfigurationOptions(options, this.options));
         };
         /**
          * Get current options bag. Useful for passing it forward to plugins.
@@ -547,33 +572,41 @@ var AMDLoader;
      * Load `scriptSrc` only once (avoid multiple <script> tags)
      */
     var OnlyOnceScriptLoader = (function () {
-        function OnlyOnceScriptLoader(actualScriptLoader) {
-            this.actualScriptLoader = actualScriptLoader;
-            this.callbackMap = {};
+        function OnlyOnceScriptLoader(env) {
+            this._env = env;
+            this._scriptLoader = null;
+            this._callbackMap = {};
         }
         OnlyOnceScriptLoader.prototype.load = function (moduleManager, scriptSrc, callback, errorback) {
             var _this = this;
+            if (!this._scriptLoader) {
+                this._scriptLoader = (this._env.isWebWorker
+                    ? new WorkerScriptLoader()
+                    : this._env.isNode
+                        ? new NodeScriptLoader(this._env)
+                        : new BrowserScriptLoader());
+            }
             var scriptCallbacks = {
                 callback: callback,
                 errorback: errorback
             };
-            if (this.callbackMap.hasOwnProperty(scriptSrc)) {
-                this.callbackMap[scriptSrc].push(scriptCallbacks);
+            if (this._callbackMap.hasOwnProperty(scriptSrc)) {
+                this._callbackMap[scriptSrc].push(scriptCallbacks);
                 return;
             }
-            this.callbackMap[scriptSrc] = [scriptCallbacks];
-            this.actualScriptLoader.load(moduleManager, scriptSrc, function () { return _this.triggerCallback(scriptSrc); }, function (err) { return _this.triggerErrorback(scriptSrc, err); });
+            this._callbackMap[scriptSrc] = [scriptCallbacks];
+            this._scriptLoader.load(moduleManager, scriptSrc, function () { return _this.triggerCallback(scriptSrc); }, function (err) { return _this.triggerErrorback(scriptSrc, err); });
         };
         OnlyOnceScriptLoader.prototype.triggerCallback = function (scriptSrc) {
-            var scriptCallbacks = this.callbackMap[scriptSrc];
-            delete this.callbackMap[scriptSrc];
+            var scriptCallbacks = this._callbackMap[scriptSrc];
+            delete this._callbackMap[scriptSrc];
             for (var i = 0; i < scriptCallbacks.length; i++) {
                 scriptCallbacks[i].callback();
             }
         };
         OnlyOnceScriptLoader.prototype.triggerErrorback = function (scriptSrc, err) {
-            var scriptCallbacks = this.callbackMap[scriptSrc];
-            delete this.callbackMap[scriptSrc];
+            var scriptCallbacks = this._callbackMap[scriptSrc];
+            delete this._callbackMap[scriptSrc];
             for (var i = 0; i < scriptCallbacks.length; i++) {
                 scriptCallbacks[i].errorback(err);
             }
@@ -609,6 +642,11 @@ var AMDLoader;
             script.setAttribute('type', 'text/javascript');
             this.attachListeners(script, callback, errorback);
             script.setAttribute('src', scriptSrc);
+            // Propagate CSP nonce to dynamically created script tag.
+            var cspNonce = moduleManager.getConfig().getOptionsLiteral().cspNonce;
+            if (cspNonce) {
+                script.setAttribute('nonce', cspNonce);
+            }
             document.getElementsByTagName('head')[0].appendChild(script);
         };
         return BrowserScriptLoader;
@@ -698,7 +736,7 @@ var AMDLoader;
                 var compileWrapper = script.runInThisContext(options);
                 var dirname = that._path.dirname(filename);
                 var require = makeRequireFunction(this);
-                var args = [this.exports, require, this, filename, dirname, process, AMDLoader.global, Buffer];
+                var args = [this.exports, require, this, filename, dirname, process, _commonjsGlobal, Buffer];
                 var result = compileWrapper.apply(this.exports, args);
                 that._processCachedData(moduleManager, script, cachedDataPath);
                 return result;
@@ -755,8 +793,7 @@ var AMDLoader;
                     }
                     contents = nodeInstrumenter(contents, normalizedScriptSrc);
                     if (!opts.nodeCachedDataDir) {
-                        _this._loadAndEvalScript(moduleManager, scriptSrc, vmScriptSrc, contents, { filename: vmScriptSrc }, recorder);
-                        callback();
+                        _this._loadAndEvalScript(moduleManager, scriptSrc, vmScriptSrc, contents, { filename: vmScriptSrc }, recorder, callback, errorback);
                     }
                     else {
                         var cachedDataPath_1 = _this._getCachedDataPath(opts.nodeCachedDataDir, scriptSrc);
@@ -767,22 +804,34 @@ var AMDLoader;
                                 produceCachedData: typeof cachedData === 'undefined',
                                 cachedData: cachedData
                             };
-                            var script = _this._loadAndEvalScript(moduleManager, scriptSrc, vmScriptSrc, contents, options, recorder);
-                            callback();
+                            var script = _this._loadAndEvalScript(moduleManager, scriptSrc, vmScriptSrc, contents, options, recorder, callback, errorback);
                             _this._processCachedData(moduleManager, script, cachedDataPath_1);
                         });
                     }
                 });
             }
         };
-        NodeScriptLoader.prototype._loadAndEvalScript = function (moduleManager, scriptSrc, vmScriptSrc, contents, options, recorder) {
+        NodeScriptLoader.prototype._loadAndEvalScript = function (moduleManager, scriptSrc, vmScriptSrc, contents, options, recorder, callback, errorback) {
             // create script, run script
-            recorder.record(AMDLoader.LoaderEventType.NodeBeginEvaluatingScript, scriptSrc);
+            recorder.record(31 /* NodeBeginEvaluatingScript */, scriptSrc);
             var script = new this._vm.Script(contents, options);
             var r = script.runInThisContext(options);
-            r.call(AMDLoader.global, moduleManager.getGlobalAMDRequireFunc(), moduleManager.getGlobalAMDDefineFunc(), vmScriptSrc, this._path.dirname(scriptSrc));
+            var globalDefineFunc = moduleManager.getGlobalAMDDefineFunc();
+            var receivedDefineCall = false;
+            var localDefineFunc = function () {
+                receivedDefineCall = true;
+                return globalDefineFunc.apply(null, arguments);
+            };
+            localDefineFunc.amd = globalDefineFunc.amd;
+            r.call(AMDLoader.global, moduleManager.getGlobalAMDRequireFunc(), localDefineFunc, vmScriptSrc, this._path.dirname(scriptSrc));
             // signal done
-            recorder.record(AMDLoader.LoaderEventType.NodeEndEvaluatingScript, scriptSrc);
+            recorder.record(32 /* NodeEndEvaluatingScript */, scriptSrc);
+            if (receivedDefineCall) {
+                callback();
+            }
+            else {
+                errorback(new Error("Didn't receive define call in " + scriptSrc + "!"));
+            }
             return script;
         };
         NodeScriptLoader.prototype._getCachedDataPath = function (basedir, filename) {
@@ -798,15 +847,17 @@ var AMDLoader;
                     errorCode: 'cachedDataRejected',
                     path: cachedDataPath
                 });
-                NodeScriptLoader._runSoon(function () { return _this._fs.unlink(cachedDataPath, function (err) {
-                    if (err) {
-                        moduleManager.getConfig().getOptionsLiteral().onNodeCachedData({
-                            errorCode: 'unlink',
-                            path: cachedDataPath,
-                            detail: err
-                        });
-                    }
-                }); }, moduleManager.getConfig().getOptionsLiteral().nodeCachedDataWriteDelay);
+                NodeScriptLoader._runSoon(function () {
+                    return _this._fs.unlink(cachedDataPath, function (err) {
+                        if (err) {
+                            moduleManager.getConfig().getOptionsLiteral().onNodeCachedData({
+                                errorCode: 'unlink',
+                                path: cachedDataPath,
+                                detail: err
+                            });
+                        }
+                    });
+                }, moduleManager.getConfig().getOptionsLiteral().nodeCachedDataWriteDelay);
             }
             else if (script.cachedDataProduced) {
                 // data produced => tell outside world
@@ -815,15 +866,17 @@ var AMDLoader;
                     length: script.cachedData.length
                 });
                 // data produced => write cache file
-                NodeScriptLoader._runSoon(function () { return _this._fs.writeFile(cachedDataPath, script.cachedData, function (err) {
-                    if (err) {
-                        moduleManager.getConfig().getOptionsLiteral().onNodeCachedData({
-                            errorCode: 'writeFile',
-                            path: cachedDataPath,
-                            detail: err
-                        });
-                    }
-                }); }, moduleManager.getConfig().getOptionsLiteral().nodeCachedDataWriteDelay);
+                NodeScriptLoader._runSoon(function () {
+                    return _this._fs.writeFile(cachedDataPath, script.cachedData, function (err) {
+                        if (err) {
+                            moduleManager.getConfig().getOptionsLiteral().onNodeCachedData({
+                                errorCode: 'writeFile',
+                                path: cachedDataPath,
+                                detail: err
+                            });
+                        }
+                    });
+                }, moduleManager.getConfig().getOptionsLiteral().nodeCachedDataWriteDelay);
             }
         };
         NodeScriptLoader._runSoon = function (callback, minTimeout) {
@@ -834,11 +887,7 @@ var AMDLoader;
     }());
     NodeScriptLoader._BOM = 0xFEFF;
     function createScriptLoader(env) {
-        return new OnlyOnceScriptLoader(env.isWebWorker ?
-            new WorkerScriptLoader()
-            : env.isNode ?
-                new NodeScriptLoader(env)
-                : new BrowserScriptLoader());
+        return new OnlyOnceScriptLoader(env);
     }
     AMDLoader.createScriptLoader = createScriptLoader;
 })(AMDLoader || (AMDLoader = {}));
@@ -946,10 +995,10 @@ var AMDLoader;
             var producedError = null;
             if (this._callback) {
                 if (typeof this._callback === 'function') {
-                    recorder.record(AMDLoader.LoaderEventType.BeginInvokeFactory, this.strId);
+                    recorder.record(21 /* BeginInvokeFactory */, this.strId);
                     var r = Module._invokeFactory(config, this.strId, this._callback, dependenciesValues);
                     producedError = r.producedError;
-                    recorder.record(AMDLoader.LoaderEventType.EndInvokeFactory, this.strId);
+                    recorder.record(22 /* EndInvokeFactory */, this.strId);
                     if (!producedError && typeof r.returnedValue !== 'undefined' && (!this.exportsPassedIn || AMDLoader.Utilities.isEmpty(this.exports))) {
                         this.exports = r.returnedValue;
                     }
@@ -1394,7 +1443,8 @@ var AMDLoader;
             this._knownModules2[moduleId] = true;
             var strModuleId = this._moduleIdProvider.getStrModuleId(moduleId);
             var paths = this._config.moduleIdToPaths(strModuleId);
-            if (this._env.isNode && strModuleId.indexOf('/') === -1) {
+            var scopedPackageRegex = /^@[^\/]+\/[^\/]+$/; // matches @scope/package-name
+            if (this._env.isNode && (strModuleId.indexOf('/') === -1 || scopedPackageRegex.test(strModuleId))) {
                 paths.push('node|' + strModuleId);
             }
             var lastPathIndex = -1;
@@ -1413,15 +1463,15 @@ var AMDLoader;
                         _this._onLoad(moduleId);
                         return;
                     }
-                    recorder_1.record(AMDLoader.LoaderEventType.BeginLoadingScript, currentPath_1);
+                    recorder_1.record(10 /* BeginLoadingScript */, currentPath_1);
                     _this._scriptLoader.load(_this, currentPath_1, function () {
                         if (_this._config.isBuild()) {
                             _this._buildInfoPath[moduleId] = currentPath_1;
                         }
-                        recorder_1.record(AMDLoader.LoaderEventType.EndLoadingScriptOK, currentPath_1);
+                        recorder_1.record(11 /* EndLoadingScriptOK */, currentPath_1);
                         _this._onLoad(moduleId);
                     }, function (err) {
-                        recorder_1.record(AMDLoader.LoaderEventType.EndLoadingScriptError, currentPath_1);
+                        recorder_1.record(12 /* EndLoadingScriptError */, currentPath_1);
                         loadNextPath(err);
                     });
                 }
@@ -1580,138 +1630,366 @@ var AMDLoader;
 var define;
 var AMDLoader;
 (function (AMDLoader) {
+    var env = new AMDLoader.Environment();
     var moduleManager = null;
-    var DefineFunc = null;
-    var RequireFunc = null;
-    function createGlobalAMDFuncs() {
-        var _defineFunc = function (id, dependencies, callback) {
-            if (typeof id !== 'string') {
-                callback = dependencies;
-                dependencies = id;
-                id = null;
+    var DefineFunc = function (id, dependencies, callback) {
+        if (typeof id !== 'string') {
+            callback = dependencies;
+            dependencies = id;
+            id = null;
+        }
+        if (typeof dependencies !== 'object' || !Array.isArray(dependencies)) {
+            callback = dependencies;
+            dependencies = null;
+        }
+        if (!dependencies) {
+            dependencies = ['require', 'exports', 'module'];
+        }
+        if (id) {
+            moduleManager.defineModule(id, dependencies, callback, null, null);
+        }
+        else {
+            moduleManager.enqueueDefineAnonymousModule(dependencies, callback);
+        }
+    };
+    DefineFunc.amd = {
+        jQuery: true
+    };
+    var _requireFunc_config = function (params, shouldOverwrite) {
+        if (shouldOverwrite === void 0) { shouldOverwrite = false; }
+        moduleManager.configure(params, shouldOverwrite);
+    };
+    var RequireFunc = function () {
+        if (arguments.length === 1) {
+            if ((arguments[0] instanceof Object) && !Array.isArray(arguments[0])) {
+                _requireFunc_config(arguments[0]);
+                return;
             }
-            if (typeof dependencies !== 'object' || !Array.isArray(dependencies)) {
-                callback = dependencies;
-                dependencies = null;
+            if (typeof arguments[0] === 'string') {
+                return moduleManager.synchronousRequire(arguments[0]);
             }
-            if (!dependencies) {
-                dependencies = ['require', 'exports', 'module'];
+        }
+        if (arguments.length === 2 || arguments.length === 3) {
+            if (Array.isArray(arguments[0])) {
+                moduleManager.defineModule(AMDLoader.Utilities.generateAnonymousModule(), arguments[0], arguments[1], arguments[2], null);
+                return;
             }
-            if (id) {
-                moduleManager.defineModule(id, dependencies, callback, null, null);
-            }
-            else {
-                moduleManager.enqueueDefineAnonymousModule(dependencies, callback);
-            }
-        };
-        DefineFunc = _defineFunc;
-        DefineFunc.amd = {
-            jQuery: true
-        };
-        var _requireFunc_config = function (params, shouldOverwrite) {
-            if (shouldOverwrite === void 0) { shouldOverwrite = false; }
-            moduleManager.configure(params, shouldOverwrite);
-        };
-        var _requireFunc = function () {
-            if (arguments.length === 1) {
-                if ((arguments[0] instanceof Object) && !Array.isArray(arguments[0])) {
-                    _requireFunc_config(arguments[0]);
-                    return;
-                }
-                if (typeof arguments[0] === 'string') {
-                    return moduleManager.synchronousRequire(arguments[0]);
-                }
-            }
-            if (arguments.length === 2 || arguments.length === 3) {
-                if (Array.isArray(arguments[0])) {
-                    moduleManager.defineModule(AMDLoader.Utilities.generateAnonymousModule(), arguments[0], arguments[1], arguments[2], null);
-                    return;
-                }
-            }
-            throw new Error('Unrecognized require call');
-        };
-        RequireFunc = _requireFunc;
-        RequireFunc.config = _requireFunc_config;
-        RequireFunc.getConfig = function () {
-            return moduleManager.getConfig().getOptionsLiteral();
-        };
-        RequireFunc.reset = function () {
-            moduleManager = moduleManager.reset();
-        };
-        RequireFunc.getBuildInfo = function () {
-            return moduleManager.getBuildInfo();
-        };
-        RequireFunc.getStats = function () {
-            return moduleManager.getLoaderEvents();
-        };
-    }
+        }
+        throw new Error('Unrecognized require call');
+    };
+    RequireFunc.config = _requireFunc_config;
+    RequireFunc.getConfig = function () {
+        return moduleManager.getConfig().getOptionsLiteral();
+    };
+    RequireFunc.reset = function () {
+        moduleManager = moduleManager.reset();
+    };
+    RequireFunc.getBuildInfo = function () {
+        return moduleManager.getBuildInfo();
+    };
+    RequireFunc.getStats = function () {
+        return moduleManager.getLoaderEvents();
+    };
+    RequireFunc.define = function () {
+        return DefineFunc.apply(null, arguments);
+    };
     function init() {
-        createGlobalAMDFuncs();
-        var env = AMDLoader.Environment.detect();
-        var scriptLoader = AMDLoader.createScriptLoader(env);
-        moduleManager = new AMDLoader.ModuleManager(env, scriptLoader, DefineFunc, RequireFunc, AMDLoader.Utilities.getHighPerformanceTimestamp());
-        if (env.isNode) {
-            var _nodeRequire = (AMDLoader.global.require || require);
-            var nodeRequire = function (what) {
-                moduleManager.getRecorder().record(AMDLoader.LoaderEventType.NodeBeginNativeRequire, what);
-                try {
-                    return _nodeRequire(what);
-                }
-                finally {
-                    moduleManager.getRecorder().record(AMDLoader.LoaderEventType.NodeEndNativeRequire, what);
-                }
-            };
-            AMDLoader.global.nodeRequire = nodeRequire;
-            RequireFunc.nodeRequire = nodeRequire;
+        if (typeof AMDLoader.global.require !== 'undefined' || typeof require !== 'undefined') {
+            var _nodeRequire_1 = (AMDLoader.global.require || require);
+            if (typeof _nodeRequire_1 === 'function' && typeof _nodeRequire_1.resolve === 'function') {
+                // re-expose node's require function
+                var nodeRequire = function (what) {
+                    moduleManager.getRecorder().record(33 /* NodeBeginNativeRequire */, what);
+                    try {
+                        return _nodeRequire_1(what);
+                    }
+                    finally {
+                        moduleManager.getRecorder().record(34 /* NodeEndNativeRequire */, what);
+                    }
+                };
+                AMDLoader.global.nodeRequire = nodeRequire;
+                RequireFunc.nodeRequire = nodeRequire;
+                RequireFunc.__$__nodeRequire = nodeRequire;
+            }
         }
         if (env.isNode && !env.isElectronRenderer) {
             module.exports = RequireFunc;
-            // These two defs are fore the local closure defined in node in the case that the loader is concatenated
-            define = function () {
-                DefineFunc.apply(null, arguments);
-            };
             require = RequireFunc;
         }
         else {
-            // The global variable require can configure the loader
-            if (typeof AMDLoader.global.require !== 'undefined' && typeof AMDLoader.global.require !== 'function') {
-                RequireFunc.config(AMDLoader.global.require);
-            }
             if (!env.isElectronRenderer) {
-                AMDLoader.global.define = define = DefineFunc;
-            }
-            else {
-                define = function () {
-                    DefineFunc.apply(null, arguments);
-                };
+                AMDLoader.global.define = DefineFunc;
             }
             AMDLoader.global.require = RequireFunc;
-            AMDLoader.global.require.__$__nodeRequire = nodeRequire;
         }
     }
     AMDLoader.init = init;
-    if (typeof doNotInitLoader === 'undefined' &&
-        (typeof AMDLoader.global.define !== 'function' || !AMDLoader.global.define.amd)) {
-        init();
+    if (typeof AMDLoader.global.define !== 'function' || !AMDLoader.global.define.amd) {
+        moduleManager = new AMDLoader.ModuleManager(env, AMDLoader.createScriptLoader(env), DefineFunc, RequireFunc, AMDLoader.Utilities.getHighPerformanceTimestamp());
+        // The global variable require can configure the loader
+        if (typeof AMDLoader.global.require !== 'undefined' && typeof AMDLoader.global.require !== 'function') {
+            RequireFunc.config(AMDLoader.global.require);
+        }
+        // This define is for the local closure defined in node in the case that the loader is concatenated
+        define = function () {
+            return DefineFunc.apply(null, arguments);
+        };
+        define.amd = DefineFunc.amd;
+        if (typeof doNotInitLoader === 'undefined') {
+            init();
+        }
     }
 })(AMDLoader || (AMDLoader = {}));
 
-define(__m[16/*vs/base/common/diff/diffChange*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+define(__m[24/*vs/base/common/arrays*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.DifferenceType = {
-        Add: 0,
-        Remove: 1,
-        Change: 2
-    };
+    /**
+     * Returns the last element of an array.
+     * @param array The array.
+     * @param n Which element from the end (default is zero).
+     */
+    function tail(array, n) {
+        if (n === void 0) { n = 0; }
+        return array[array.length - (1 + n)];
+    }
+    exports.tail = tail;
+    function tail2(arr) {
+        if (arr.length === 0) {
+            throw new Error('Invalid tail call');
+        }
+        return [arr.slice(0, arr.length - 1), arr[arr.length - 1]];
+    }
+    exports.tail2 = tail2;
+    function equals(one, other, itemEquals) {
+        if (itemEquals === void 0) { itemEquals = function (a, b) { return a === b; }; }
+        if (one === other) {
+            return true;
+        }
+        if (!one || !other) {
+            return false;
+        }
+        if (one.length !== other.length) {
+            return false;
+        }
+        for (var i = 0, len = one.length; i < len; i++) {
+            if (!itemEquals(one[i], other[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+    exports.equals = equals;
+    function binarySearch(array, key, comparator) {
+        var low = 0, high = array.length - 1;
+        while (low <= high) {
+            var mid = ((low + high) / 2) | 0;
+            var comp = comparator(array[mid], key);
+            if (comp < 0) {
+                low = mid + 1;
+            }
+            else if (comp > 0) {
+                high = mid - 1;
+            }
+            else {
+                return mid;
+            }
+        }
+        return -(low + 1);
+    }
+    exports.binarySearch = binarySearch;
+    /**
+     * Takes a sorted array and a function p. The array is sorted in such a way that all elements where p(x) is false
+     * are located before all elements where p(x) is true.
+     * @returns the least x for which p(x) is true or array.length if no element fullfills the given function.
+     */
+    function findFirstInSorted(array, p) {
+        var low = 0, high = array.length;
+        if (high === 0) {
+            return 0; // no children
+        }
+        while (low < high) {
+            var mid = Math.floor((low + high) / 2);
+            if (p(array[mid])) {
+                high = mid;
+            }
+            else {
+                low = mid + 1;
+            }
+        }
+        return low;
+    }
+    exports.findFirstInSorted = findFirstInSorted;
+    /**
+     * Like `Array#sort` but always stable. Usually runs a little slower `than Array#sort`
+     * so only use this when actually needing stable sort.
+     */
+    function mergeSort(data, compare) {
+        _sort(data, compare, 0, data.length - 1, []);
+        return data;
+    }
+    exports.mergeSort = mergeSort;
+    function _merge(a, compare, lo, mid, hi, aux) {
+        var leftIdx = lo, rightIdx = mid + 1;
+        for (var i = lo; i <= hi; i++) {
+            aux[i] = a[i];
+        }
+        for (var i = lo; i <= hi; i++) {
+            if (leftIdx > mid) {
+                // left side consumed
+                a[i] = aux[rightIdx++];
+            }
+            else if (rightIdx > hi) {
+                // right side consumed
+                a[i] = aux[leftIdx++];
+            }
+            else if (compare(aux[rightIdx], aux[leftIdx]) < 0) {
+                // right element is less -> comes first
+                a[i] = aux[rightIdx++];
+            }
+            else {
+                // left element comes first (less or equal)
+                a[i] = aux[leftIdx++];
+            }
+        }
+    }
+    function _sort(a, compare, lo, hi, aux) {
+        if (hi <= lo) {
+            return;
+        }
+        var mid = lo + ((hi - lo) / 2) | 0;
+        _sort(a, compare, lo, mid, aux);
+        _sort(a, compare, mid + 1, hi, aux);
+        if (compare(a[mid], a[mid + 1]) <= 0) {
+            // left and right are sorted and if the last-left element is less
+            // or equals than the first-right element there is nothing else
+            // to do
+            return;
+        }
+        _merge(a, compare, lo, mid, hi, aux);
+    }
+    function groupBy(data, compare) {
+        var result = [];
+        var currentGroup = undefined;
+        for (var _i = 0, _a = mergeSort(data.slice(0), compare); _i < _a.length; _i++) {
+            var element = _a[_i];
+            if (!currentGroup || compare(currentGroup[0], element) !== 0) {
+                currentGroup = [element];
+                result.push(currentGroup);
+            }
+            else {
+                currentGroup.push(element);
+            }
+        }
+        return result;
+    }
+    exports.groupBy = groupBy;
+    /**
+     * @returns a new array with all falsy values removed. The original array IS NOT modified.
+     */
+    function coalesce(array) {
+        if (!array) {
+            return array;
+        }
+        return array.filter(function (e) { return !!e; });
+    }
+    exports.coalesce = coalesce;
+    /**
+     * @returns {{false}} if the provided object is an array
+     * 	and not empty.
+     */
+    function isFalsyOrEmpty(obj) {
+        return !Array.isArray(obj) || obj.length === 0;
+    }
+    exports.isFalsyOrEmpty = isFalsyOrEmpty;
+    /**
+     * Removes duplicates from the given array. The optional keyFn allows to specify
+     * how elements are checked for equalness by returning a unique string for each.
+     */
+    function distinct(array, keyFn) {
+        if (!keyFn) {
+            return array.filter(function (element, position) {
+                return array.indexOf(element) === position;
+            });
+        }
+        var seen = Object.create(null);
+        return array.filter(function (elem) {
+            var key = keyFn(elem);
+            if (seen[key]) {
+                return false;
+            }
+            seen[key] = true;
+            return true;
+        });
+    }
+    exports.distinct = distinct;
+    function firstIndex(array, fn) {
+        for (var i = 0; i < array.length; i++) {
+            var element = array[i];
+            if (fn(element)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    exports.firstIndex = firstIndex;
+    function first(array, fn, notFoundValue) {
+        if (notFoundValue === void 0) { notFoundValue = null; }
+        var index = firstIndex(array, fn);
+        return index < 0 ? notFoundValue : array[index];
+    }
+    exports.first = first;
+    function flatten(arr) {
+        var _a;
+        return (_a = []).concat.apply(_a, arr);
+    }
+    exports.flatten = flatten;
+    function range(arg, to) {
+        var from = typeof to === 'number' ? arg : 0;
+        if (typeof to === 'number') {
+            from = arg;
+        }
+        else {
+            from = 0;
+            to = arg;
+        }
+        var result = [];
+        if (from <= to) {
+            for (var i = from; i < to; i++) {
+                result.push(i);
+            }
+        }
+        else {
+            for (var i = from; i > to; i--) {
+                result.push(i);
+            }
+        }
+        return result;
+    }
+    exports.range = range;
+    /**
+     * Insert `insertArr` inside `target` at `insertIndex`.
+     * Please don't touch unless you understand https://jsperf.com/inserting-an-array-within-an-array
+     */
+    function arrayInsert(target, insertIndex, insertArr) {
+        var before = target.slice(0, insertIndex);
+        var after = target.slice(insertIndex);
+        return before.concat(insertArr, after);
+    }
+    exports.arrayInsert = arrayInsert;
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[20/*vs/base/common/diff/diffChange*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * Represents information about a specific difference between two sequences.
      */
-    var DiffChange = (function () {
+    var DiffChange = /** @class */ (function () {
         /**
          * Constructs a new DiffChange with the given sequence information
          * and content.
@@ -1723,20 +2001,6 @@ define(__m[16/*vs/base/common/diff/diffChange*/], __M([1/*require*/,0/*exports*/
             this.modifiedStart = modifiedStart;
             this.modifiedLength = modifiedLength;
         }
-        /**
-         * The type of difference.
-         */
-        DiffChange.prototype.getChangeType = function () {
-            if (this.originalLength === 0) {
-                return exports.DifferenceType.Add;
-            }
-            else if (this.modifiedLength === 0) {
-                return exports.DifferenceType.Remove;
-            }
-            else {
-                return exports.DifferenceType.Change;
-            }
-        };
         /**
          * The end point (exclusive) of the change in the original sequence.
          */
@@ -1754,17 +2018,17 @@ define(__m[16/*vs/base/common/diff/diffChange*/], __M([1/*require*/,0/*exports*/
     exports.DiffChange = DiffChange;
 });
 
-define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*vs/base/common/diff/diffChange*/]), function (require, exports, diffChange_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[13/*vs/base/common/diff/diff*/], __M([0/*require*/,1/*exports*/,20/*vs/base/common/diff/diffChange*/]), function (require, exports, diffChange_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function createStringSequence(a) {
         return {
             getLength: function () { return a.length; },
-            getElementHash: function (pos) { return a[pos]; }
+            getElementAtIndex: function (pos) { return a.charCodeAt(pos); }
         };
     }
     function stringDiff(original, modified, pretty) {
@@ -1774,7 +2038,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
     //
     // The code below has been ported from a C# implementation in VS
     //
-    var Debug = (function () {
+    var Debug = /** @class */ (function () {
         function Debug() {
         }
         Debug.Assert = function (condition, message) {
@@ -1785,7 +2049,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
         return Debug;
     }());
     exports.Debug = Debug;
-    var MyArray = (function () {
+    var MyArray = /** @class */ (function () {
         function MyArray() {
         }
         /**
@@ -1815,7 +2079,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
     // LcsDiff.cs
     //
     // An implementation of the difference algorithm described in
-    // "An O(ND) Difference Algorithm and its letiations" by Eugene W. Myers
+    // "An O(ND) Difference Algorithm and its variations" by Eugene W. Myers
     //
     // Copyright (C) 2008 Microsoft Corporation @minifier_do_not_preserve
     //*****************************************************************************
@@ -1832,7 +2096,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
      * distinct changes. At the end, the Changes property can be called to retrieve
      * the constructed changes.
      */
-    var DiffChangeHelper = (function () {
+    var DiffChangeHelper = /** @class */ (function () {
         /**
          * Constructs a new DiffChangeHelper for the given DiffSequences.
          */
@@ -1907,12 +2171,11 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
         };
         return DiffChangeHelper;
     }());
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
     /**
      * An implementation of the difference algorithm described in
-     * "An O(ND) Difference Algorithm and its letiations" by Eugene W. Myers
+     * "An O(ND) Difference Algorithm and its variations" by Eugene W. Myers
      */
-    var LcsDiff = (function () {
+    var LcsDiff = /** @class */ (function () {
         /**
          * Constructs the DiffFinder
          */
@@ -1921,56 +2184,17 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
             this.OriginalSequence = originalSequence;
             this.ModifiedSequence = newSequence;
             this.ContinueProcessingPredicate = continueProcessingPredicate;
-            this.m_originalIds = [];
-            this.m_modifiedIds = [];
             this.m_forwardHistory = [];
             this.m_reverseHistory = [];
-            this.ComputeUniqueIdentifiers();
         }
-        LcsDiff.prototype.ComputeUniqueIdentifiers = function () {
-            var originalSequenceLength = this.OriginalSequence.getLength();
-            var modifiedSequenceLength = this.ModifiedSequence.getLength();
-            this.m_originalIds = new Array(originalSequenceLength);
-            this.m_modifiedIds = new Array(modifiedSequenceLength);
-            // Create a new hash table for unique elements from the original
-            // sequence.
-            var hashTable = {};
-            var currentUniqueId = 1;
-            var i;
-            // Fill up the hash table for unique elements
-            for (i = 0; i < originalSequenceLength; i++) {
-                var originalElementHash = this.OriginalSequence.getElementHash(i);
-                if (!hasOwnProperty.call(hashTable, originalElementHash)) {
-                    // No entry in the hashtable so this is a new unique element.
-                    // Assign the element a new unique identifier and add it to the
-                    // hash table
-                    this.m_originalIds[i] = currentUniqueId++;
-                    hashTable[originalElementHash] = this.m_originalIds[i];
-                }
-                else {
-                    this.m_originalIds[i] = hashTable[originalElementHash];
-                }
-            }
-            // Now match up modified elements
-            for (i = 0; i < modifiedSequenceLength; i++) {
-                var modifiedElementHash = this.ModifiedSequence.getElementHash(i);
-                if (!hasOwnProperty.call(hashTable, modifiedElementHash)) {
-                    this.m_modifiedIds[i] = currentUniqueId++;
-                    hashTable[modifiedElementHash] = this.m_modifiedIds[i];
-                }
-                else {
-                    this.m_modifiedIds[i] = hashTable[modifiedElementHash];
-                }
-            }
-        };
         LcsDiff.prototype.ElementsAreEqual = function (originalIndex, newIndex) {
-            return this.m_originalIds[originalIndex] === this.m_modifiedIds[newIndex];
+            return (this.OriginalSequence.getElementAtIndex(originalIndex) === this.ModifiedSequence.getElementAtIndex(newIndex));
         };
         LcsDiff.prototype.OriginalElementsAreEqual = function (index1, index2) {
-            return this.m_originalIds[index1] === this.m_originalIds[index2];
+            return (this.OriginalSequence.getElementAtIndex(index1) === this.OriginalSequence.getElementAtIndex(index2));
         };
         LcsDiff.prototype.ModifiedElementsAreEqual = function (index1, index2) {
-            return this.m_modifiedIds[index1] === this.m_modifiedIds[index2];
+            return (this.ModifiedSequence.getElementAtIndex(index1) === this.ModifiedSequence.getElementAtIndex(index2));
         };
         LcsDiff.prototype.ComputeDiff = function (pretty) {
             return this._ComputeDiff(0, this.OriginalSequence.getLength() - 1, 0, this.ModifiedSequence.getLength() - 1, pretty);
@@ -1987,7 +2211,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
                 // We have to clean up the computed diff to be more intuitive
                 // but it turns out this cannot be done correctly until the entire set
                 // of diffs have been computed
-                return this.ShiftChanges(changes);
+                return this.PrettifyChanges(changes);
             }
             return changes;
         };
@@ -2191,7 +2415,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
          * @returns The diff changes, if available, otherwise null
          */
         LcsDiff.prototype.ComputeRecursionPoint = function (originalStart, originalEnd, modifiedStart, modifiedEnd, midOriginalArr, midModifiedArr, quitEarlyArr) {
-            var originalIndex, modifiedIndex;
+            var originalIndex = 0, modifiedIndex = 0;
             var diagonalForwardStart = 0, diagonalForwardEnd = 0;
             var diagonalReverseStart = 0, diagonalReverseEnd = 0;
             var numDifferences;
@@ -2384,41 +2608,29 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
          * @param changes The list of changes to shift
          * @returns The shifted changes
          */
-        LcsDiff.prototype.ShiftChanges = function (changes) {
-            var mergedDiffs;
-            do {
-                mergedDiffs = false;
-                // Shift all the changes down first
-                for (var i = 0; i < changes.length; i++) {
-                    var change = changes[i];
-                    var originalStop = (i < changes.length - 1) ? changes[i + 1].originalStart : this.OriginalSequence.getLength();
-                    var modifiedStop = (i < changes.length - 1) ? changes[i + 1].modifiedStart : this.ModifiedSequence.getLength();
-                    var checkOriginal = change.originalLength > 0;
-                    var checkModified = change.modifiedLength > 0;
-                    while (change.originalStart + change.originalLength < originalStop &&
-                        change.modifiedStart + change.modifiedLength < modifiedStop &&
-                        (!checkOriginal || this.OriginalElementsAreEqual(change.originalStart, change.originalStart + change.originalLength)) &&
-                        (!checkModified || this.ModifiedElementsAreEqual(change.modifiedStart, change.modifiedStart + change.modifiedLength))) {
-                        change.originalStart++;
-                        change.modifiedStart++;
-                    }
+        LcsDiff.prototype.PrettifyChanges = function (changes) {
+            // Shift all the changes down first
+            for (var i = 0; i < changes.length; i++) {
+                var change = changes[i];
+                var originalStop = (i < changes.length - 1) ? changes[i + 1].originalStart : this.OriginalSequence.getLength();
+                var modifiedStop = (i < changes.length - 1) ? changes[i + 1].modifiedStart : this.ModifiedSequence.getLength();
+                var checkOriginal = change.originalLength > 0;
+                var checkModified = change.modifiedLength > 0;
+                while (change.originalStart + change.originalLength < originalStop &&
+                    change.modifiedStart + change.modifiedLength < modifiedStop &&
+                    (!checkOriginal || this.OriginalElementsAreEqual(change.originalStart, change.originalStart + change.originalLength)) &&
+                    (!checkModified || this.ModifiedElementsAreEqual(change.modifiedStart, change.modifiedStart + change.modifiedLength))) {
+                    change.originalStart++;
+                    change.modifiedStart++;
                 }
-                // Build up the new list (we have to build a new list because we
-                // might have changes we can merge together now)
-                var result = new Array();
                 var mergedChangeArr = [null];
-                for (var i = 0; i < changes.length; i++) {
-                    if (i < changes.length - 1 && this.ChangesOverlap(changes[i], changes[i + 1], mergedChangeArr)) {
-                        mergedDiffs = true;
-                        result.push(mergedChangeArr[0]);
-                        i++;
-                    }
-                    else {
-                        result.push(changes[i]);
-                    }
+                if (i < changes.length - 1 && this.ChangesOverlap(changes[i], changes[i + 1], mergedChangeArr)) {
+                    changes[i] = mergedChangeArr[0];
+                    changes.splice(i + 1, 1);
+                    i--;
+                    continue;
                 }
-                changes = result;
-            } while (mergedDiffs);
+            }
             // Shift changes back up until we hit empty or whitespace-only lines
             for (var i = changes.length - 1; i >= 0; i--) {
                 var change = changes[i];
@@ -2440,7 +2652,7 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
                 for (var delta = 1;; delta++) {
                     var originalStart = change.originalStart - delta;
                     var modifiedStart = change.modifiedStart - delta;
-                    if (originalStart < originalStop || modifiedStart < modifiedStart) {
+                    if (originalStart < originalStop || modifiedStart < modifiedStop) {
                         break;
                     }
                     if (checkOriginal && !this.OriginalElementsAreEqual(originalStart, originalStart + change.originalLength)) {
@@ -2464,7 +2676,8 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
             if (index <= 0 || index >= this.OriginalSequence.getLength() - 1) {
                 return true;
             }
-            return /^\s*$/.test(this.OriginalSequence.getElementHash(index));
+            var element = this.OriginalSequence.getElementAtIndex(index);
+            return (typeof element === 'string' && /^\s*$/.test(element));
         };
         LcsDiff.prototype._OriginalRegionIsBoundary = function (originalStart, originalLength) {
             if (this._OriginalIsBoundary(originalStart) || this._OriginalIsBoundary(originalStart - 1)) {
@@ -2482,7 +2695,8 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
             if (index <= 0 || index >= this.ModifiedSequence.getLength() - 1) {
                 return true;
             }
-            return /^\s*$/.test(this.ModifiedSequence.getElementHash(index));
+            var element = this.ModifiedSequence.getElementAtIndex(index);
+            return (typeof element === 'string' && /^\s*$/.test(element));
         };
         LcsDiff.prototype._ModifiedRegionIsBoundary = function (modifiedStart, modifiedLength) {
             if (this._ModifiedIsBoundary(modifiedStart) || this._ModifiedIsBoundary(modifiedStart - 1)) {
@@ -2510,7 +2724,6 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
          */
         LcsDiff.prototype.ConcatenateChanges = function (left, right) {
             var mergedChangeArr = [];
-            var result = null;
             if (left.length === 0 || right.length === 0) {
                 return (right.length > 0) ? right : left;
             }
@@ -2519,14 +2732,14 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
                 // might recurse in the middle of a change thereby splitting it into
                 // two changes. Here in the combining stage, we detect and fuse those
                 // changes back together
-                result = new Array(left.length + right.length - 1);
+                var result = new Array(left.length + right.length - 1);
                 MyArray.Copy(left, 0, result, 0, left.length - 1);
                 result[left.length - 1] = mergedChangeArr[0];
                 MyArray.Copy(right, 1, result, left.length, right.length - 1);
                 return result;
             }
             else {
-                result = new Array(left.length + right.length);
+                var result = new Array(left.length + right.length);
                 MyArray.Copy(left, 0, result, 0, left.length);
                 MyArray.Copy(right, 0, result, left.length, right.length);
                 return result;
@@ -2602,19 +2815,9 @@ define(__m[12/*vs/base/common/diff/diff*/], __M([1/*require*/,0/*exports*/,16/*v
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[11/*vs/base/common/functional*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    'use strict';
+define(__m[16/*vs/base/common/functional*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    function not(fn) {
-        return function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            return !fn.apply(void 0, args);
-        };
-    }
-    exports.not = not;
     function once(fn) {
         var _this = this;
         var didCall = false;
@@ -2635,191 +2838,174 @@ define(__m[11/*vs/base/common/functional*/], __M([1/*require*/,0/*exports*/]), f
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    'use strict';
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    }
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+define(__m[12/*vs/base/common/iterator*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    /**
-     * Virtual Key Codes, the value does not hold any inherent meaning.
-     * Inspired somewhat from https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
-     * But these are "more general", as they should work across browsers & OS`s.
-     */
-    var KeyCode;
-    (function (KeyCode) {
-        /**
-         * Placed first to cover the 0 value of the enum.
-         */
-        KeyCode[KeyCode["Unknown"] = 0] = "Unknown";
-        KeyCode[KeyCode["Backspace"] = 1] = "Backspace";
-        KeyCode[KeyCode["Tab"] = 2] = "Tab";
-        KeyCode[KeyCode["Enter"] = 3] = "Enter";
-        KeyCode[KeyCode["Shift"] = 4] = "Shift";
-        KeyCode[KeyCode["Ctrl"] = 5] = "Ctrl";
-        KeyCode[KeyCode["Alt"] = 6] = "Alt";
-        KeyCode[KeyCode["PauseBreak"] = 7] = "PauseBreak";
-        KeyCode[KeyCode["CapsLock"] = 8] = "CapsLock";
-        KeyCode[KeyCode["Escape"] = 9] = "Escape";
-        KeyCode[KeyCode["Space"] = 10] = "Space";
-        KeyCode[KeyCode["PageUp"] = 11] = "PageUp";
-        KeyCode[KeyCode["PageDown"] = 12] = "PageDown";
-        KeyCode[KeyCode["End"] = 13] = "End";
-        KeyCode[KeyCode["Home"] = 14] = "Home";
-        KeyCode[KeyCode["LeftArrow"] = 15] = "LeftArrow";
-        KeyCode[KeyCode["UpArrow"] = 16] = "UpArrow";
-        KeyCode[KeyCode["RightArrow"] = 17] = "RightArrow";
-        KeyCode[KeyCode["DownArrow"] = 18] = "DownArrow";
-        KeyCode[KeyCode["Insert"] = 19] = "Insert";
-        KeyCode[KeyCode["Delete"] = 20] = "Delete";
-        KeyCode[KeyCode["KEY_0"] = 21] = "KEY_0";
-        KeyCode[KeyCode["KEY_1"] = 22] = "KEY_1";
-        KeyCode[KeyCode["KEY_2"] = 23] = "KEY_2";
-        KeyCode[KeyCode["KEY_3"] = 24] = "KEY_3";
-        KeyCode[KeyCode["KEY_4"] = 25] = "KEY_4";
-        KeyCode[KeyCode["KEY_5"] = 26] = "KEY_5";
-        KeyCode[KeyCode["KEY_6"] = 27] = "KEY_6";
-        KeyCode[KeyCode["KEY_7"] = 28] = "KEY_7";
-        KeyCode[KeyCode["KEY_8"] = 29] = "KEY_8";
-        KeyCode[KeyCode["KEY_9"] = 30] = "KEY_9";
-        KeyCode[KeyCode["KEY_A"] = 31] = "KEY_A";
-        KeyCode[KeyCode["KEY_B"] = 32] = "KEY_B";
-        KeyCode[KeyCode["KEY_C"] = 33] = "KEY_C";
-        KeyCode[KeyCode["KEY_D"] = 34] = "KEY_D";
-        KeyCode[KeyCode["KEY_E"] = 35] = "KEY_E";
-        KeyCode[KeyCode["KEY_F"] = 36] = "KEY_F";
-        KeyCode[KeyCode["KEY_G"] = 37] = "KEY_G";
-        KeyCode[KeyCode["KEY_H"] = 38] = "KEY_H";
-        KeyCode[KeyCode["KEY_I"] = 39] = "KEY_I";
-        KeyCode[KeyCode["KEY_J"] = 40] = "KEY_J";
-        KeyCode[KeyCode["KEY_K"] = 41] = "KEY_K";
-        KeyCode[KeyCode["KEY_L"] = 42] = "KEY_L";
-        KeyCode[KeyCode["KEY_M"] = 43] = "KEY_M";
-        KeyCode[KeyCode["KEY_N"] = 44] = "KEY_N";
-        KeyCode[KeyCode["KEY_O"] = 45] = "KEY_O";
-        KeyCode[KeyCode["KEY_P"] = 46] = "KEY_P";
-        KeyCode[KeyCode["KEY_Q"] = 47] = "KEY_Q";
-        KeyCode[KeyCode["KEY_R"] = 48] = "KEY_R";
-        KeyCode[KeyCode["KEY_S"] = 49] = "KEY_S";
-        KeyCode[KeyCode["KEY_T"] = 50] = "KEY_T";
-        KeyCode[KeyCode["KEY_U"] = 51] = "KEY_U";
-        KeyCode[KeyCode["KEY_V"] = 52] = "KEY_V";
-        KeyCode[KeyCode["KEY_W"] = 53] = "KEY_W";
-        KeyCode[KeyCode["KEY_X"] = 54] = "KEY_X";
-        KeyCode[KeyCode["KEY_Y"] = 55] = "KEY_Y";
-        KeyCode[KeyCode["KEY_Z"] = 56] = "KEY_Z";
-        KeyCode[KeyCode["Meta"] = 57] = "Meta";
-        KeyCode[KeyCode["ContextMenu"] = 58] = "ContextMenu";
-        KeyCode[KeyCode["F1"] = 59] = "F1";
-        KeyCode[KeyCode["F2"] = 60] = "F2";
-        KeyCode[KeyCode["F3"] = 61] = "F3";
-        KeyCode[KeyCode["F4"] = 62] = "F4";
-        KeyCode[KeyCode["F5"] = 63] = "F5";
-        KeyCode[KeyCode["F6"] = 64] = "F6";
-        KeyCode[KeyCode["F7"] = 65] = "F7";
-        KeyCode[KeyCode["F8"] = 66] = "F8";
-        KeyCode[KeyCode["F9"] = 67] = "F9";
-        KeyCode[KeyCode["F10"] = 68] = "F10";
-        KeyCode[KeyCode["F11"] = 69] = "F11";
-        KeyCode[KeyCode["F12"] = 70] = "F12";
-        KeyCode[KeyCode["F13"] = 71] = "F13";
-        KeyCode[KeyCode["F14"] = 72] = "F14";
-        KeyCode[KeyCode["F15"] = 73] = "F15";
-        KeyCode[KeyCode["F16"] = 74] = "F16";
-        KeyCode[KeyCode["F17"] = 75] = "F17";
-        KeyCode[KeyCode["F18"] = 76] = "F18";
-        KeyCode[KeyCode["F19"] = 77] = "F19";
-        KeyCode[KeyCode["NumLock"] = 78] = "NumLock";
-        KeyCode[KeyCode["ScrollLock"] = 79] = "ScrollLock";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the ';:' key
-         */
-        KeyCode[KeyCode["US_SEMICOLON"] = 80] = "US_SEMICOLON";
-        /**
-         * For any country/region, the '+' key
-         * For the US standard keyboard, the '=+' key
-         */
-        KeyCode[KeyCode["US_EQUAL"] = 81] = "US_EQUAL";
-        /**
-         * For any country/region, the ',' key
-         * For the US standard keyboard, the ',<' key
-         */
-        KeyCode[KeyCode["US_COMMA"] = 82] = "US_COMMA";
-        /**
-         * For any country/region, the '-' key
-         * For the US standard keyboard, the '-_' key
-         */
-        KeyCode[KeyCode["US_MINUS"] = 83] = "US_MINUS";
-        /**
-         * For any country/region, the '.' key
-         * For the US standard keyboard, the '.>' key
-         */
-        KeyCode[KeyCode["US_DOT"] = 84] = "US_DOT";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the '/?' key
-         */
-        KeyCode[KeyCode["US_SLASH"] = 85] = "US_SLASH";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the '`~' key
-         */
-        KeyCode[KeyCode["US_BACKTICK"] = 86] = "US_BACKTICK";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the '[{' key
-         */
-        KeyCode[KeyCode["US_OPEN_SQUARE_BRACKET"] = 87] = "US_OPEN_SQUARE_BRACKET";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the '\|' key
-         */
-        KeyCode[KeyCode["US_BACKSLASH"] = 88] = "US_BACKSLASH";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the ']}' key
-         */
-        KeyCode[KeyCode["US_CLOSE_SQUARE_BRACKET"] = 89] = "US_CLOSE_SQUARE_BRACKET";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         * For the US standard keyboard, the ''"' key
-         */
-        KeyCode[KeyCode["US_QUOTE"] = 90] = "US_QUOTE";
-        /**
-         * Used for miscellaneous characters; it can vary by keyboard.
-         */
-        KeyCode[KeyCode["OEM_8"] = 91] = "OEM_8";
-        /**
-         * Either the angle bracket key or the backslash key on the RT 102-key keyboard.
-         */
-        KeyCode[KeyCode["OEM_102"] = 92] = "OEM_102";
-        KeyCode[KeyCode["NUMPAD_0"] = 93] = "NUMPAD_0";
-        KeyCode[KeyCode["NUMPAD_1"] = 94] = "NUMPAD_1";
-        KeyCode[KeyCode["NUMPAD_2"] = 95] = "NUMPAD_2";
-        KeyCode[KeyCode["NUMPAD_3"] = 96] = "NUMPAD_3";
-        KeyCode[KeyCode["NUMPAD_4"] = 97] = "NUMPAD_4";
-        KeyCode[KeyCode["NUMPAD_5"] = 98] = "NUMPAD_5";
-        KeyCode[KeyCode["NUMPAD_6"] = 99] = "NUMPAD_6";
-        KeyCode[KeyCode["NUMPAD_7"] = 100] = "NUMPAD_7";
-        KeyCode[KeyCode["NUMPAD_8"] = 101] = "NUMPAD_8";
-        KeyCode[KeyCode["NUMPAD_9"] = 102] = "NUMPAD_9";
-        KeyCode[KeyCode["NUMPAD_MULTIPLY"] = 103] = "NUMPAD_MULTIPLY";
-        KeyCode[KeyCode["NUMPAD_ADD"] = 104] = "NUMPAD_ADD";
-        KeyCode[KeyCode["NUMPAD_SEPARATOR"] = 105] = "NUMPAD_SEPARATOR";
-        KeyCode[KeyCode["NUMPAD_SUBTRACT"] = 106] = "NUMPAD_SUBTRACT";
-        KeyCode[KeyCode["NUMPAD_DECIMAL"] = 107] = "NUMPAD_DECIMAL";
-        KeyCode[KeyCode["NUMPAD_DIVIDE"] = 108] = "NUMPAD_DIVIDE";
-        /**
-         * Cover all key codes when IME is processing input.
-         */
-        KeyCode[KeyCode["KEY_IN_COMPOSITION"] = 109] = "KEY_IN_COMPOSITION";
-        KeyCode[KeyCode["ABNT_C1"] = 110] = "ABNT_C1";
-        KeyCode[KeyCode["ABNT_C2"] = 111] = "ABNT_C2";
-        /**
-         * Placed last to cover the length of the enum.
-         * Please do not depend on this value!
-         */
-        KeyCode[KeyCode["MAX_VALUE"] = 112] = "MAX_VALUE";
-    })(KeyCode = exports.KeyCode || (exports.KeyCode = {}));
-    var KeyCodeStrMap = (function () {
+    exports.FIN = { done: true, value: undefined };
+    var Iterator;
+    (function (Iterator) {
+        var _empty = {
+            next: function () {
+                return exports.FIN;
+            }
+        };
+        function empty() {
+            return _empty;
+        }
+        Iterator.empty = empty;
+        function fromArray(array, index, length) {
+            if (index === void 0) { index = 0; }
+            if (length === void 0) { length = array.length; }
+            return {
+                next: function () {
+                    if (index >= length) {
+                        return exports.FIN;
+                    }
+                    return { done: false, value: array[index++] };
+                }
+            };
+        }
+        Iterator.fromArray = fromArray;
+        function from(elements) {
+            if (!elements) {
+                return Iterator.empty();
+            }
+            else if (Array.isArray(elements)) {
+                return Iterator.fromArray(elements);
+            }
+            else {
+                return elements;
+            }
+        }
+        Iterator.from = from;
+        function map(iterator, fn) {
+            return {
+                next: function () {
+                    var element = iterator.next();
+                    if (element.done) {
+                        return exports.FIN;
+                    }
+                    else {
+                        return { done: false, value: fn(element.value) };
+                    }
+                }
+            };
+        }
+        Iterator.map = map;
+        function filter(iterator, fn) {
+            return {
+                next: function () {
+                    while (true) {
+                        var element = iterator.next();
+                        if (element.done) {
+                            return exports.FIN;
+                        }
+                        if (fn(element.value)) {
+                            return { done: false, value: element.value };
+                        }
+                    }
+                }
+            };
+        }
+        Iterator.filter = filter;
+        function forEach(iterator, fn) {
+            for (var next = iterator.next(); !next.done; next = iterator.next()) {
+                fn(next.value);
+            }
+        }
+        Iterator.forEach = forEach;
+        function collect(iterator) {
+            var result = [];
+            forEach(iterator, function (value) { return result.push(value); });
+            return result;
+        }
+        Iterator.collect = collect;
+    })(Iterator = exports.Iterator || (exports.Iterator = {}));
+    var ArrayIterator = /** @class */ (function () {
+        function ArrayIterator(items, start, end, index) {
+            if (start === void 0) { start = 0; }
+            if (end === void 0) { end = items.length; }
+            if (index === void 0) { index = start - 1; }
+            this.items = items;
+            this.start = start;
+            this.end = end;
+            this.index = index;
+        }
+        ArrayIterator.prototype.next = function () {
+            this.index = Math.min(this.index + 1, this.end);
+            return this.current();
+        };
+        ArrayIterator.prototype.current = function () {
+            if (this.index === this.start - 1 || this.index === this.end) {
+                return null;
+            }
+            return this.items[this.index];
+        };
+        return ArrayIterator;
+    }());
+    exports.ArrayIterator = ArrayIterator;
+    var ArrayNavigator = /** @class */ (function (_super) {
+        __extends(ArrayNavigator, _super);
+        function ArrayNavigator(items, start, end, index) {
+            if (start === void 0) { start = 0; }
+            if (end === void 0) { end = items.length; }
+            if (index === void 0) { index = start - 1; }
+            return _super.call(this, items, start, end, index) || this;
+        }
+        ArrayNavigator.prototype.current = function () {
+            return _super.prototype.current.call(this);
+        };
+        ArrayNavigator.prototype.previous = function () {
+            this.index = Math.max(this.index - 1, this.start - 1);
+            return this.current();
+        };
+        ArrayNavigator.prototype.first = function () {
+            this.index = this.start;
+            return this.current();
+        };
+        ArrayNavigator.prototype.last = function () {
+            this.index = this.end - 1;
+            return this.current();
+        };
+        ArrayNavigator.prototype.parent = function () {
+            return null;
+        };
+        return ArrayNavigator;
+    }(ArrayIterator));
+    exports.ArrayNavigator = ArrayNavigator;
+    var MappedIterator = /** @class */ (function () {
+        function MappedIterator(iterator, fn) {
+            this.iterator = iterator;
+            this.fn = fn;
+            // noop
+        }
+        MappedIterator.prototype.next = function () { return this.fn(this.iterator.next()); };
+        return MappedIterator;
+    }());
+    exports.MappedIterator = MappedIterator;
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[21/*vs/base/common/keyCodes*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var KeyCodeStrMap = /** @class */ (function () {
         function KeyCodeStrMap() {
             this._keyCodeToStr = [];
             this._strToKeyCode = Object.create(null);
@@ -2982,34 +3168,6 @@ define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), fun
         }
         KeyCodeUtils.fromUserSettings = fromUserSettings;
     })(KeyCodeUtils = exports.KeyCodeUtils || (exports.KeyCodeUtils = {}));
-    /**
-     * Binary encoding strategy:
-     * ```
-     *    1111 11
-     *    5432 1098 7654 3210
-     *    ---- CSAW KKKK KKKK
-     *  C = bit 11 = ctrlCmd flag
-     *  S = bit 10 = shift flag
-     *  A = bit 9 = alt flag
-     *  W = bit 8 = winCtrl flag
-     *  K = bits 0-7 = key code
-     * ```
-     */
-    var BinaryKeybindingsMask;
-    (function (BinaryKeybindingsMask) {
-        BinaryKeybindingsMask[BinaryKeybindingsMask["CtrlCmd"] = 2048] = "CtrlCmd";
-        BinaryKeybindingsMask[BinaryKeybindingsMask["Shift"] = 1024] = "Shift";
-        BinaryKeybindingsMask[BinaryKeybindingsMask["Alt"] = 512] = "Alt";
-        BinaryKeybindingsMask[BinaryKeybindingsMask["WinCtrl"] = 256] = "WinCtrl";
-        BinaryKeybindingsMask[BinaryKeybindingsMask["KeyCode"] = 255] = "KeyCode";
-    })(BinaryKeybindingsMask || (BinaryKeybindingsMask = {}));
-    var KeyMod;
-    (function (KeyMod) {
-        KeyMod[KeyMod["CtrlCmd"] = 2048] = "CtrlCmd";
-        KeyMod[KeyMod["Shift"] = 1024] = "Shift";
-        KeyMod[KeyMod["Alt"] = 512] = "Alt";
-        KeyMod[KeyMod["WinCtrl"] = 256] = "WinCtrl";
-    })(KeyMod = exports.KeyMod || (exports.KeyMod = {}));
     function KeyChord(firstPart, secondPart) {
         var chordPart = ((secondPart & 0x0000ffff) << 16) >>> 0;
         return (firstPart | chordPart) >>> 0;
@@ -3038,12 +3196,7 @@ define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), fun
         return new SimpleKeybinding(ctrlKey, shiftKey, altKey, metaKey, keyCode);
     }
     exports.createSimpleKeybinding = createSimpleKeybinding;
-    var KeybindingType;
-    (function (KeybindingType) {
-        KeybindingType[KeybindingType["Simple"] = 1] = "Simple";
-        KeybindingType[KeybindingType["Chord"] = 2] = "Chord";
-    })(KeybindingType = exports.KeybindingType || (exports.KeybindingType = {}));
-    var SimpleKeybinding = (function () {
+    var SimpleKeybinding = /** @class */ (function () {
         function SimpleKeybinding(ctrlKey, shiftKey, altKey, metaKey, keyCode) {
             this.type = 1 /* Simple */;
             this.ctrlKey = ctrlKey;
@@ -3081,7 +3234,7 @@ define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), fun
         return SimpleKeybinding;
     }());
     exports.SimpleKeybinding = SimpleKeybinding;
-    var ChordKeybinding = (function () {
+    var ChordKeybinding = /** @class */ (function () {
         function ChordKeybinding(firstPart, chordPart) {
             this.type = 2 /* Chord */;
             this.firstPart = firstPart;
@@ -3090,7 +3243,7 @@ define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), fun
         return ChordKeybinding;
     }());
     exports.ChordKeybinding = ChordKeybinding;
-    var ResolvedKeybindingPart = (function () {
+    var ResolvedKeybindingPart = /** @class */ (function () {
         function ResolvedKeybindingPart(ctrlKey, shiftKey, altKey, metaKey, kbLabel, kbAriaLabel) {
             this.ctrlKey = ctrlKey;
             this.shiftKey = shiftKey;
@@ -3105,7 +3258,7 @@ define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), fun
     /**
      * A resolved keybinding. Can be a simple keybinding or a chord keybinding.
      */
-    var ResolvedKeybinding = (function () {
+    var ResolvedKeybinding = /** @class */ (function () {
         function ResolvedKeybinding() {
         }
         return ResolvedKeybinding;
@@ -3113,16 +3266,14 @@ define(__m[21/*vs/base/common/keyCodes*/], __M([1/*require*/,0/*exports*/]), fun
     exports.ResolvedKeybinding = ResolvedKeybinding;
 });
 
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-define(__m[10/*vs/base/common/lifecycle*/], __M([1/*require*/,0/*exports*/,11/*vs/base/common/functional*/]), function (require, exports, functional_1) {
-    'use strict';
+define(__m[7/*vs/base/common/lifecycle*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.empty = Object.freeze({
-        dispose: function () { }
-    });
+    function isDisposable(thing) {
+        return typeof thing.dispose === 'function'
+            && thing.dispose.length === 0;
+    }
+    exports.isDisposable = isDisposable;
     function dispose(first) {
         var rest = [];
         for (var _i = 1; _i < arguments.length; _i++) {
@@ -3150,22 +3301,11 @@ define(__m[10/*vs/base/common/lifecycle*/], __M([1/*require*/,0/*exports*/,11/*v
         return { dispose: function () { return dispose(disposables); } };
     }
     exports.combinedDisposable = combinedDisposable;
-    function toDisposable() {
-        var fns = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            fns[_i] = arguments[_i];
-        }
-        return {
-            dispose: function () {
-                for (var _i = 0, fns_1 = fns; _i < fns_1.length; _i++) {
-                    var fn = fns_1[_i];
-                    fn();
-                }
-            }
-        };
+    function toDisposable(fn) {
+        return { dispose: function () { fn(); } };
     }
     exports.toDisposable = toDisposable;
-    var Disposable = (function () {
+    var Disposable = /** @class */ (function () {
         function Disposable() {
             this._toDispose = [];
         }
@@ -3176,52 +3316,11 @@ define(__m[10/*vs/base/common/lifecycle*/], __M([1/*require*/,0/*exports*/,11/*v
             this._toDispose.push(t);
             return t;
         };
+        Disposable.None = Object.freeze({ dispose: function () { } });
         return Disposable;
     }());
     exports.Disposable = Disposable;
-    var OneDisposable = (function () {
-        function OneDisposable() {
-        }
-        Object.defineProperty(OneDisposable.prototype, "value", {
-            set: function (value) {
-                if (this._value) {
-                    this._value.dispose();
-                }
-                this._value = value;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        OneDisposable.prototype.dispose = function () {
-            this.value = null;
-        };
-        return OneDisposable;
-    }());
-    exports.OneDisposable = OneDisposable;
-    var ReferenceCollection = (function () {
-        function ReferenceCollection() {
-            this.references = Object.create(null);
-        }
-        ReferenceCollection.prototype.acquire = function (key) {
-            var _this = this;
-            var reference = this.references[key];
-            if (!reference) {
-                reference = this.references[key] = { counter: 0, object: this.createReferencedObject(key) };
-            }
-            var object = reference.object;
-            var dispose = functional_1.once(function () {
-                if (--reference.counter === 0) {
-                    _this.destroyReferencedObject(reference.object);
-                    delete _this.references[key];
-                }
-            });
-            reference.counter++;
-            return { object: object, dispose: dispose };
-        };
-        return ReferenceCollection;
-    }());
-    exports.ReferenceCollection = ReferenceCollection;
-    var ImmortalReference = (function () {
+    var ImmortalReference = /** @class */ (function () {
         function ImmortalReference(object) {
             this.object = object;
         }
@@ -3231,44 +3330,128 @@ define(__m[10/*vs/base/common/lifecycle*/], __M([1/*require*/,0/*exports*/,11/*v
     exports.ImmortalReference = ImmortalReference;
 });
 
-define(__m[4/*vs/base/common/platform*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[15/*vs/base/common/linkedList*/], __M([0/*require*/,1/*exports*/,12/*vs/base/common/iterator*/]), function (require, exports, iterator_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // --- THIS FILE IS TEMPORARY UNTIL ENV.TS IS CLEANED UP. IT CAN SAFELY BE USED IN ALL TARGET EXECUTION ENVIRONMENTS (node & dom) ---
+    var Node = /** @class */ (function () {
+        function Node(element) {
+            this.element = element;
+        }
+        return Node;
+    }());
+    var LinkedList = /** @class */ (function () {
+        function LinkedList() {
+        }
+        LinkedList.prototype.isEmpty = function () {
+            return !this._first;
+        };
+        LinkedList.prototype.unshift = function (element) {
+            return this.insert(element, false);
+        };
+        LinkedList.prototype.push = function (element) {
+            return this.insert(element, true);
+        };
+        LinkedList.prototype.insert = function (element, atTheEnd) {
+            var _this = this;
+            var newNode = new Node(element);
+            if (!this._first) {
+                this._first = newNode;
+                this._last = newNode;
+            }
+            else if (atTheEnd) {
+                // push
+                var oldLast = this._last;
+                this._last = newNode;
+                newNode.prev = oldLast;
+                oldLast.next = newNode;
+            }
+            else {
+                // unshift
+                var oldFirst = this._first;
+                this._first = newNode;
+                newNode.next = oldFirst;
+                oldFirst.prev = newNode;
+            }
+            return function () {
+                var candidate = _this._first;
+                while (candidate instanceof Node) {
+                    if (candidate !== newNode) {
+                        candidate = candidate.next;
+                        continue;
+                    }
+                    if (candidate.prev && candidate.next) {
+                        // middle
+                        var anchor = candidate.prev;
+                        anchor.next = candidate.next;
+                        candidate.next.prev = anchor;
+                    }
+                    else if (!candidate.prev && !candidate.next) {
+                        // only node
+                        _this._first = undefined;
+                        _this._last = undefined;
+                    }
+                    else if (!candidate.next) {
+                        // last
+                        _this._last = _this._last.prev;
+                        _this._last.next = undefined;
+                    }
+                    else if (!candidate.prev) {
+                        // first
+                        _this._first = _this._first.next;
+                        _this._first.prev = undefined;
+                    }
+                    // done
+                    break;
+                }
+            };
+        };
+        LinkedList.prototype.iterator = function () {
+            var element;
+            var node = this._first;
+            return {
+                next: function () {
+                    if (!node) {
+                        return iterator_1.FIN;
+                    }
+                    if (!element) {
+                        element = { done: false, value: node.element };
+                    }
+                    else {
+                        element.value = node.element;
+                    }
+                    node = node.next;
+                    return element;
+                }
+            };
+        };
+        return LinkedList;
+    }());
+    exports.LinkedList = LinkedList;
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[3/*vs/base/common/platform*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
     var _isWindows = false;
     var _isMacintosh = false;
     var _isLinux = false;
-    var _isRootUser = false;
     var _isNative = false;
     var _isWeb = false;
     var _locale = undefined;
     var _language = undefined;
+    var _translationsConfigFile = undefined;
     exports.LANGUAGE_DEFAULT = 'en';
+    var isElectronRenderer = (typeof process !== 'undefined' && typeof process.versions !== 'undefined' && typeof process.versions.electron !== 'undefined' && process.type === 'renderer');
     // OS detection
-    if (typeof process === 'object') {
-        _isWindows = (process.platform === 'win32');
-        _isMacintosh = (process.platform === 'darwin');
-        _isLinux = (process.platform === 'linux');
-        _isRootUser = !_isWindows && (process.getuid() === 0);
-        var rawNlsConfig = process.env['VSCODE_NLS_CONFIG'];
-        if (rawNlsConfig) {
-            try {
-                var nlsConfig = JSON.parse(rawNlsConfig);
-                var resolved = nlsConfig.availableLanguages['*'];
-                _locale = nlsConfig.locale;
-                // VSCode's default language is 'en'
-                _language = resolved ? resolved : exports.LANGUAGE_DEFAULT;
-            }
-            catch (e) {
-            }
-        }
-        _isNative = true;
-    }
-    else if (typeof navigator === 'object') {
+    if (typeof navigator === 'object' && !isElectronRenderer) {
         var userAgent = navigator.userAgent;
         _isWindows = userAgent.indexOf('Windows') >= 0;
         _isMacintosh = userAgent.indexOf('Macintosh') >= 0;
@@ -3277,1174 +3460,71 @@ define(__m[4/*vs/base/common/platform*/], __M([1/*require*/,0/*exports*/]), func
         _locale = navigator.language;
         _language = _locale;
     }
-    var Platform;
-    (function (Platform) {
-        Platform[Platform["Web"] = 0] = "Web";
-        Platform[Platform["Mac"] = 1] = "Mac";
-        Platform[Platform["Linux"] = 2] = "Linux";
-        Platform[Platform["Windows"] = 3] = "Windows";
-    })(Platform = exports.Platform || (exports.Platform = {}));
-    var _platform = Platform.Web;
+    else if (typeof process === 'object') {
+        _isWindows = (process.platform === 'win32');
+        _isMacintosh = (process.platform === 'darwin');
+        _isLinux = (process.platform === 'linux');
+        _locale = exports.LANGUAGE_DEFAULT;
+        _language = exports.LANGUAGE_DEFAULT;
+        var rawNlsConfig = process.env['VSCODE_NLS_CONFIG'];
+        if (rawNlsConfig) {
+            try {
+                var nlsConfig = JSON.parse(rawNlsConfig);
+                var resolved = nlsConfig.availableLanguages['*'];
+                _locale = nlsConfig.locale;
+                // VSCode's default language is 'en'
+                _language = resolved ? resolved : exports.LANGUAGE_DEFAULT;
+                _translationsConfigFile = nlsConfig._translationsConfigFile;
+            }
+            catch (e) {
+            }
+        }
+        _isNative = true;
+    }
+    var _platform = 0 /* Web */;
     if (_isNative) {
         if (_isMacintosh) {
-            _platform = Platform.Mac;
+            _platform = 1 /* Mac */;
         }
         else if (_isWindows) {
-            _platform = Platform.Windows;
+            _platform = 3 /* Windows */;
         }
         else if (_isLinux) {
-            _platform = Platform.Linux;
+            _platform = 2 /* Linux */;
         }
     }
     exports.isWindows = _isWindows;
     exports.isMacintosh = _isMacintosh;
     exports.isLinux = _isLinux;
-    exports.isRootUser = _isRootUser;
     exports.isNative = _isNative;
     exports.isWeb = _isWeb;
-    exports.platform = _platform;
-    /**
-     * The language used for the user interface. The format of
-     * the string is all lower case (e.g. zh-tw for Traditional
-     * Chinese)
-     */
-    exports.language = _language;
-    /**
-     * The OS locale or the locale specified by --locale. The format of
-     * the string is all lower case (e.g. zh-tw for Traditional
-     * Chinese). The UI is not necessarily shown in the provided locale.
-     */
-    exports.locale = _locale;
-    var _globals = (typeof self === 'object' ? self : global);
+    var _globals = (typeof self === 'object' ? self : typeof global === 'object' ? global : {});
     exports.globals = _globals;
-    function hasWebWorkerSupport() {
-        return typeof _globals.Worker !== 'undefined';
-    }
-    exports.hasWebWorkerSupport = hasWebWorkerSupport;
-    exports.setTimeout = _globals.setTimeout.bind(_globals);
-    exports.clearTimeout = _globals.clearTimeout.bind(_globals);
-    exports.setInterval = _globals.setInterval.bind(_globals);
-    exports.clearInterval = _globals.clearInterval.bind(_globals);
-    var OperatingSystem;
-    (function (OperatingSystem) {
-        OperatingSystem[OperatingSystem["Windows"] = 1] = "Windows";
-        OperatingSystem[OperatingSystem["Macintosh"] = 2] = "Macintosh";
-        OperatingSystem[OperatingSystem["Linux"] = 3] = "Linux";
-    })(OperatingSystem = exports.OperatingSystem || (exports.OperatingSystem = {}));
-    exports.OS = (_isMacintosh ? 2 /* Macintosh */ : (_isWindows ? 1 /* Windows */ : 3 /* Linux */));
-    var AccessibilitySupport;
-    (function (AccessibilitySupport) {
-        /**
-         * This should be the browser case where it is not known if a screen reader is attached or no.
-         */
-        AccessibilitySupport[AccessibilitySupport["Unknown"] = 0] = "Unknown";
-        AccessibilitySupport[AccessibilitySupport["Disabled"] = 1] = "Disabled";
-        AccessibilitySupport[AccessibilitySupport["Enabled"] = 2] = "Enabled";
-    })(AccessibilitySupport = exports.AccessibilitySupport || (exports.AccessibilitySupport = {}));
-});
-
-define(__m[14/*vs/base/common/types*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var _typeof = {
-        number: 'number',
-        string: 'string',
-        undefined: 'undefined',
-        object: 'object',
-        function: 'function'
-    };
-    /**
-     * @returns whether the provided parameter is a JavaScript Array or not.
-     */
-    function isArray(array) {
-        if (Array.isArray) {
-            return Array.isArray(array);
-        }
-        if (array && typeof (array.length) === _typeof.number && array.constructor === Array) {
-            return true;
-        }
-        return false;
-    }
-    exports.isArray = isArray;
-    /**
-     * @returns whether the provided parameter is a JavaScript String or not.
-     */
-    function isString(str) {
-        if (typeof (str) === _typeof.string || str instanceof String) {
-            return true;
-        }
-        return false;
-    }
-    exports.isString = isString;
-    /**
-     * @returns whether the provided parameter is a JavaScript Array and each element in the array is a string.
-     */
-    function isStringArray(value) {
-        return isArray(value) && value.every(function (elem) { return isString(elem); });
-    }
-    exports.isStringArray = isStringArray;
-    /**
-     *
-     * @returns whether the provided parameter is of type `object` but **not**
-     *	`null`, an `array`, a `regexp`, nor a `date`.
-     */
-    function isObject(obj) {
-        // The method can't do a type cast since there are type (like strings) which
-        // are subclasses of any put not positvely matched by the function. Hence type
-        // narrowing results in wrong results.
-        return typeof obj === _typeof.object
-            && obj !== null
-            && !Array.isArray(obj)
-            && !(obj instanceof RegExp)
-            && !(obj instanceof Date);
-    }
-    exports.isObject = isObject;
-    /**
-     * In **contrast** to just checking `typeof` this will return `false` for `NaN`.
-     * @returns whether the provided parameter is a JavaScript Number or not.
-     */
-    function isNumber(obj) {
-        if ((typeof (obj) === _typeof.number || obj instanceof Number) && !isNaN(obj)) {
-            return true;
-        }
-        return false;
-    }
-    exports.isNumber = isNumber;
-    /**
-     * @returns whether the provided parameter is a JavaScript Boolean or not.
-     */
-    function isBoolean(obj) {
-        return obj === true || obj === false;
-    }
-    exports.isBoolean = isBoolean;
-    /**
-     * @returns whether the provided parameter is undefined.
-     */
-    function isUndefined(obj) {
-        return typeof (obj) === _typeof.undefined;
-    }
-    exports.isUndefined = isUndefined;
-    /**
-     * @returns whether the provided parameter is undefined or null.
-     */
-    function isUndefinedOrNull(obj) {
-        return isUndefined(obj) || obj === null;
-    }
-    exports.isUndefinedOrNull = isUndefinedOrNull;
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
-    /**
-     * @returns whether the provided parameter is an empty JavaScript Object or not.
-     */
-    function isEmptyObject(obj) {
-        if (!isObject(obj)) {
-            return false;
-        }
-        for (var key in obj) {
-            if (hasOwnProperty.call(obj, key)) {
-                return false;
+    var _setImmediate = null;
+    function setImmediate(callback) {
+        if (_setImmediate === null) {
+            if (exports.globals.setImmediate) {
+                _setImmediate = exports.globals.setImmediate.bind(exports.globals);
             }
-        }
-        return true;
-    }
-    exports.isEmptyObject = isEmptyObject;
-    /**
-     * @returns whether the provided parameter is a JavaScript Function or not.
-     */
-    function isFunction(obj) {
-        return typeof obj === _typeof.function;
-    }
-    exports.isFunction = isFunction;
-    /**
-     * @returns whether the provided parameters is are JavaScript Function or not.
-     */
-    function areFunctions() {
-        var objects = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            objects[_i] = arguments[_i];
-        }
-        return objects && objects.length > 0 && objects.every(isFunction);
-    }
-    exports.areFunctions = areFunctions;
-    function validateConstraints(args, constraints) {
-        var len = Math.min(args.length, constraints.length);
-        for (var i = 0; i < len; i++) {
-            validateConstraint(args[i], constraints[i]);
-        }
-    }
-    exports.validateConstraints = validateConstraints;
-    function validateConstraint(arg, constraint) {
-        if (isString(constraint)) {
-            if (typeof arg !== constraint) {
-                throw new Error("argument does not match constraint: typeof " + constraint);
-            }
-        }
-        else if (isFunction(constraint)) {
-            if (arg instanceof constraint) {
-                return;
-            }
-            if (arg && arg.constructor === constraint) {
-                return;
-            }
-            if (constraint.length === 1 && constraint.call(undefined, arg) === true) {
-                return;
-            }
-            throw new Error("argument does not match one of these constraints: arg instanceof constraint, arg.constructor === constraint, nor constraint(arg) === true");
-        }
-    }
-    exports.validateConstraint = validateConstraint;
-    /**
-     * Creates a new object of the provided class and will call the constructor with
-     * any additional argument supplied.
-     */
-    function create(ctor) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
-        }
-        var obj = Object.create(ctor.prototype);
-        ctor.apply(obj, args);
-        return obj;
-    }
-    exports.create = create;
-});
-
-define(__m[6/*vs/base/common/uri*/], __M([1/*require*/,0/*exports*/,4/*vs/base/common/platform*/]), function (require, exports, platform) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function _encode(ch) {
-        return '%' + ch.charCodeAt(0).toString(16).toUpperCase();
-    }
-    // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
-    function encodeURIComponent2(str) {
-        return encodeURIComponent(str).replace(/[!'()*]/g, _encode);
-    }
-    function encodeNoop(str) {
-        return str.replace(/[#?]/, _encode);
-    }
-    /**
-     * Uniform Resource Identifier (URI) http://tools.ietf.org/html/rfc3986.
-     * This class is a simple parser which creates the basic component paths
-     * (http://tools.ietf.org/html/rfc3986#section-3) with minimal validation
-     * and encoding.
-     *
-     *       foo://example.com:8042/over/there?name=ferret#nose
-     *       \_/   \______________/\_________/ \_________/ \__/
-     *        |           |            |            |        |
-     *     scheme     authority       path        query   fragment
-     *        |   _____________________|__
-     *       / \ /                        \
-     *       urn:example:animal:ferret:nose
-     *
-     *
-     */
-    var URI = (function () {
-        /**
-         * @internal
-         */
-        function URI(scheme, authority, path, query, fragment) {
-            this._formatted = null;
-            this._fsPath = null;
-            this.scheme = scheme || URI._empty;
-            this.authority = authority || URI._empty;
-            this.path = path || URI._empty;
-            this.query = query || URI._empty;
-            this.fragment = fragment || URI._empty;
-            this._validate(this);
-        }
-        URI.isUri = function (thing) {
-            if (thing instanceof URI) {
-                return true;
-            }
-            if (!thing) {
-                return false;
-            }
-            return typeof thing.authority === 'string'
-                && typeof thing.fragment === 'string'
-                && typeof thing.path === 'string'
-                && typeof thing.query === 'string'
-                && typeof thing.scheme === 'string';
-        };
-        Object.defineProperty(URI.prototype, "fsPath", {
-            // ---- filesystem path -----------------------
-            /**
-             * Returns a string representing the corresponding file system path of this URI.
-             * Will handle UNC paths and normalize windows drive letters to lower-case. Also
-             * uses the platform specific path separator. Will *not* validate the path for
-             * invalid characters and semantics. Will *not* look at the scheme of this URI.
-             */
-            get: function () {
-                if (!this._fsPath) {
-                    var value = void 0;
-                    if (this.authority && this.path && this.scheme === 'file') {
-                        // unc path: file://shares/c$/far/boo
-                        value = "//" + this.authority + this.path;
-                    }
-                    else if (URI._driveLetterPath.test(this.path)) {
-                        // windows drive letter: file:///c:/far/boo
-                        value = this.path[1].toLowerCase() + this.path.substr(2);
-                    }
-                    else {
-                        // other path
-                        value = this.path;
-                    }
-                    if (platform.isWindows) {
-                        value = value.replace(/\//g, '\\');
-                    }
-                    this._fsPath = value;
-                }
-                return this._fsPath;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        // ---- modify to new -------------------------
-        URI.prototype.with = function (change) {
-            if (!change) {
-                return this;
-            }
-            var scheme = change.scheme, authority = change.authority, path = change.path, query = change.query, fragment = change.fragment;
-            if (scheme === void 0) {
-                scheme = this.scheme;
-            }
-            else if (scheme === null) {
-                scheme = '';
-            }
-            if (authority === void 0) {
-                authority = this.authority;
-            }
-            else if (authority === null) {
-                authority = '';
-            }
-            if (path === void 0) {
-                path = this.path;
-            }
-            else if (path === null) {
-                path = '';
-            }
-            if (query === void 0) {
-                query = this.query;
-            }
-            else if (query === null) {
-                query = '';
-            }
-            if (fragment === void 0) {
-                fragment = this.fragment;
-            }
-            else if (fragment === null) {
-                fragment = '';
-            }
-            if (scheme === this.scheme
-                && authority === this.authority
-                && path === this.path
-                && query === this.query
-                && fragment === this.fragment) {
-                return this;
-            }
-            return new URI(scheme, authority, path, query, fragment);
-        };
-        // ---- parse & validate ------------------------
-        URI.parse = function (value) {
-            var match = URI._regexp.exec(value);
-            if (!match) {
-                return new URI(URI._empty, URI._empty, URI._empty, URI._empty, URI._empty);
-            }
-            return new URI(match[2] || URI._empty, decodeURIComponent(match[4] || URI._empty), decodeURIComponent(match[5] || URI._empty), decodeURIComponent(match[7] || URI._empty), decodeURIComponent(match[9] || URI._empty));
-        };
-        URI.file = function (path) {
-            var authority = URI._empty;
-            // normalize to fwd-slashes on windows,
-            // on other systems bwd-slashes are valid
-            // filename character, eg /f\oo/ba\r.txt
-            if (platform.isWindows) {
-                path = path.replace(/\\/g, URI._slash);
-            }
-            // check for authority as used in UNC shares
-            // or use the path as given
-            if (path[0] === URI._slash && path[0] === path[1]) {
-                var idx = path.indexOf(URI._slash, 2);
-                if (idx === -1) {
-                    authority = path.substring(2);
-                    path = URI._empty;
-                }
-                else {
-                    authority = path.substring(2, idx);
-                    path = path.substring(idx);
-                }
-            }
-            // Ensure that path starts with a slash
-            // or that it is at least a slash
-            if (path[0] !== URI._slash) {
-                path = URI._slash + path;
-            }
-            return new URI('file', authority, path, URI._empty, URI._empty);
-        };
-        URI.from = function (components) {
-            return new URI(components.scheme, components.authority, components.path, components.query, components.fragment);
-        };
-        URI.prototype._validate = function (ret) {
-            // scheme, https://tools.ietf.org/html/rfc3986#section-3.1
-            // ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-            if (ret.scheme && !URI._schemePattern.test(ret.scheme)) {
-                throw new Error('[UriError]: Scheme contains illegal characters.');
-            }
-            // path, http://tools.ietf.org/html/rfc3986#section-3.3
-            // If a URI contains an authority component, then the path component
-            // must either be empty or begin with a slash ("/") character.  If a URI
-            // does not contain an authority component, then the path cannot begin
-            // with two slash characters ("//").
-            if (ret.path) {
-                if (ret.authority) {
-                    if (!URI._singleSlashStart.test(ret.path)) {
-                        throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
-                    }
-                }
-                else {
-                    if (URI._doubleSlashStart.test(ret.path)) {
-                        throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
-                    }
-                }
-            }
-        };
-        // ---- printing/externalize ---------------------------
-        /**
-         *
-         * @param skipEncoding Do not encode the result, default is `false`
-         */
-        URI.prototype.toString = function (skipEncoding) {
-            if (skipEncoding === void 0) { skipEncoding = false; }
-            if (!skipEncoding) {
-                if (!this._formatted) {
-                    this._formatted = URI._asFormatted(this, false);
-                }
-                return this._formatted;
+            else if (typeof process !== 'undefined' && typeof process.nextTick === 'function') {
+                _setImmediate = process.nextTick.bind(process);
             }
             else {
-                // we don't cache that
-                return URI._asFormatted(this, true);
+                _setImmediate = exports.globals.setTimeout.bind(exports.globals);
             }
-        };
-        URI._asFormatted = function (uri, skipEncoding) {
-            var encoder = !skipEncoding
-                ? encodeURIComponent2
-                : encodeNoop;
-            var parts = [];
-            var scheme = uri.scheme, authority = uri.authority, path = uri.path, query = uri.query, fragment = uri.fragment;
-            if (scheme) {
-                parts.push(scheme, ':');
-            }
-            if (authority || scheme === 'file') {
-                parts.push('//');
-            }
-            if (authority) {
-                authority = authority.toLowerCase();
-                var idx = authority.indexOf(':');
-                if (idx === -1) {
-                    parts.push(encoder(authority));
-                }
-                else {
-                    parts.push(encoder(authority.substr(0, idx)), authority.substr(idx));
-                }
-            }
-            if (path) {
-                // lower-case windows drive letters in /C:/fff or C:/fff
-                var m = URI._upperCaseDrive.exec(path);
-                if (m) {
-                    if (m[1]) {
-                        path = '/' + m[2].toLowerCase() + path.substr(3); // "/c:".length === 3
-                    }
-                    else {
-                        path = m[2].toLowerCase() + path.substr(2); // // "c:".length === 2
-                    }
-                }
-                // encode every segement but not slashes
-                // make sure that # and ? are always encoded
-                // when occurring in paths - otherwise the result
-                // cannot be parsed back again
-                var lastIdx = 0;
-                while (true) {
-                    var idx = path.indexOf(URI._slash, lastIdx);
-                    if (idx === -1) {
-                        parts.push(encoder(path.substring(lastIdx)));
-                        break;
-                    }
-                    parts.push(encoder(path.substring(lastIdx, idx)), URI._slash);
-                    lastIdx = idx + 1;
-                }
-                ;
-            }
-            if (query) {
-                parts.push('?', encoder(query));
-            }
-            if (fragment) {
-                parts.push('#', encoder(fragment));
-            }
-            return parts.join(URI._empty);
-        };
-        URI.prototype.toJSON = function () {
-            var res = {
-                fsPath: this.fsPath,
-                external: this.toString(),
-                $mid: 1
-            };
-            if (this.path) {
-                res.path = this.path;
-            }
-            if (this.scheme) {
-                res.scheme = this.scheme;
-            }
-            if (this.authority) {
-                res.authority = this.authority;
-            }
-            if (this.query) {
-                res.query = this.query;
-            }
-            if (this.fragment) {
-                res.fragment = this.fragment;
-            }
-            return res;
-        };
-        URI.revive = function (data) {
-            var result = new URI(data.scheme, data.authority, data.path, data.query, data.fragment);
-            result._fsPath = data.fsPath;
-            result._formatted = data.external;
-            return result;
-        };
-        URI._empty = '';
-        URI._slash = '/';
-        URI._regexp = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
-        URI._driveLetterPath = /^\/[a-zA-z]:/;
-        URI._upperCaseDrive = /^(\/)?([A-Z]:)/;
-        URI._schemePattern = /^\w[\w\d+.-]*$/;
-        URI._singleSlashStart = /^\//;
-        URI._doubleSlashStart = /^\/\//;
-        return URI;
-    }());
-    exports.default = URI;
+        }
+        return _setImmediate(callback);
+    }
+    exports.setImmediate = setImmediate;
+    exports.OS = (_isMacintosh ? 2 /* Macintosh */ : (_isWindows ? 1 /* Windows */ : 3 /* Linux */));
 });
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-define(__m[17/*vs/base/common/map*/], __M([1/*require*/,0/*exports*/,6/*vs/base/common/uri*/]), function (require, exports, uri_1) {
-    'use strict';
-    Object.defineProperty(exports, "__esModule", { value: true });
-    function values(map) {
-        var result = [];
-        map.forEach(function (value) { return result.push(value); });
-        return result;
-    }
-    exports.values = values;
-    function keys(map) {
-        var result = [];
-        map.forEach(function (value, key) { return result.push(key); });
-        return result;
-    }
-    exports.keys = keys;
-    function getOrSet(map, key, value) {
-        var result = map.get(key);
-        if (result === void 0) {
-            result = value;
-            map.set(key, result);
-        }
-        return result;
-    }
-    exports.getOrSet = getOrSet;
-    /**
-     * A simple Map<T> that optionally allows to set a limit of entries to store. Once the limit is hit,
-     * the cache will remove the entry that was last recently added. Or, if a ratio is provided below 1,
-     * all elements will be removed until the ratio is full filled (e.g. 0.75 to remove 25% of old elements).
-     */
-    var BoundedMap = (function () {
-        function BoundedMap(limit, ratio, value) {
-            if (limit === void 0) { limit = Number.MAX_VALUE; }
-            if (ratio === void 0) { ratio = 1; }
-            var _this = this;
-            this.limit = limit;
-            this.map = new Map();
-            this.ratio = limit * ratio;
-            if (value) {
-                value.entries.forEach(function (entry) {
-                    _this.set(entry.key, entry.value);
-                });
-            }
-        }
-        BoundedMap.prototype.setLimit = function (limit) {
-            if (limit < 0) {
-                return; // invalid limit
-            }
-            this.limit = limit;
-            while (this.map.size > this.limit) {
-                this.trim();
-            }
-        };
-        BoundedMap.prototype.serialize = function () {
-            var serialized = { entries: [] };
-            this.map.forEach(function (entry) {
-                serialized.entries.push({ key: entry.key, value: entry.value });
-            });
-            return serialized;
-        };
-        Object.defineProperty(BoundedMap.prototype, "size", {
-            get: function () {
-                return this.map.size;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        BoundedMap.prototype.set = function (key, value) {
-            if (this.map.has(key)) {
-                return false; // already present!
-            }
-            var entry = { key: key, value: value };
-            this.push(entry);
-            if (this.size > this.limit) {
-                this.trim();
-            }
-            return true;
-        };
-        BoundedMap.prototype.get = function (key) {
-            var entry = this.map.get(key);
-            return entry ? entry.value : null;
-        };
-        BoundedMap.prototype.getOrSet = function (k, t) {
-            var res = this.get(k);
-            if (res) {
-                return res;
-            }
-            this.set(k, t);
-            return t;
-        };
-        BoundedMap.prototype.delete = function (key) {
-            var entry = this.map.get(key);
-            if (entry) {
-                this.map.delete(key);
-                if (entry.next) {
-                    entry.next.prev = entry.prev; // [A]<-[x]<-[C] = [A]<-[C]
-                }
-                else {
-                    this.head = entry.prev; // [A]-[x] = [A]
-                }
-                if (entry.prev) {
-                    entry.prev.next = entry.next; // [A]->[x]->[C] = [A]->[C]
-                }
-                else {
-                    this.tail = entry.next; // [x]-[A] = [A]
-                }
-                return entry.value;
-            }
-            return null;
-        };
-        BoundedMap.prototype.has = function (key) {
-            return this.map.has(key);
-        };
-        BoundedMap.prototype.clear = function () {
-            this.map.clear();
-            this.head = null;
-            this.tail = null;
-        };
-        BoundedMap.prototype.push = function (entry) {
-            if (this.head) {
-                // [A]-[B] = [A]-[B]->[X]
-                entry.prev = this.head;
-                this.head.next = entry;
-            }
-            if (!this.tail) {
-                this.tail = entry;
-            }
-            this.head = entry;
-            this.map.set(entry.key, entry);
-        };
-        BoundedMap.prototype.trim = function () {
-            if (this.tail) {
-                // Remove all elements until ratio is reached
-                if (this.ratio < this.limit) {
-                    var index = 0;
-                    var current = this.tail;
-                    while (current.next) {
-                        // Remove the entry
-                        this.map.delete(current.key);
-                        // if we reached the element that overflows our ratio condition
-                        // make its next element the new tail of the Map and adjust the size
-                        if (index === this.ratio) {
-                            this.tail = current.next;
-                            this.tail.prev = null;
-                            break;
-                        }
-                        // Move on
-                        current = current.next;
-                        index++;
-                    }
-                }
-                else {
-                    this.map.delete(this.tail.key);
-                    // [x]-[B] = [B]
-                    this.tail = this.tail.next;
-                    if (this.tail) {
-                        this.tail.prev = null;
-                    }
-                }
-            }
-        };
-        return BoundedMap;
-    }());
-    exports.BoundedMap = BoundedMap;
-    // --- trie'ish datastructure
-    var Node = (function () {
-        function Node() {
-            this.children = new Map();
-        }
-        return Node;
-    }());
-    /**
-     * A trie map that allows for fast look up when keys are substrings
-     * to the actual search keys (dir/subdir-problem).
-     */
-    var TrieMap = (function () {
-        function TrieMap(splitter) {
-            this._root = new Node();
-            this._splitter = function (s) { return splitter(s).filter(function (s) { return Boolean(s); }); };
-        }
-        TrieMap.prototype.insert = function (path, element) {
-            var parts = this._splitter(path);
-            var i = 0;
-            // find insertion node
-            var node = this._root;
-            for (; i < parts.length; i++) {
-                var child = node.children.get(parts[i]);
-                if (child) {
-                    node = child;
-                    continue;
-                }
-                break;
-            }
-            // create new nodes
-            var newNode;
-            for (; i < parts.length; i++) {
-                newNode = new Node();
-                node.children.set(parts[i], newNode);
-                node = newNode;
-            }
-            node.element = element;
-        };
-        TrieMap.prototype.lookUp = function (path) {
-            var parts = this._splitter(path);
-            var children = this._root.children;
-            var node;
-            for (var _i = 0, parts_1 = parts; _i < parts_1.length; _i++) {
-                var part = parts_1[_i];
-                node = children.get(part);
-                if (!node) {
-                    return undefined;
-                }
-                children = node.children;
-            }
-            return node.element;
-        };
-        TrieMap.prototype.findSubstr = function (path) {
-            var parts = this._splitter(path);
-            var lastNode;
-            var children = this._root.children;
-            for (var _i = 0, parts_2 = parts; _i < parts_2.length; _i++) {
-                var part = parts_2[_i];
-                var node = children.get(part);
-                if (!node) {
-                    break;
-                }
-                if (node.element) {
-                    lastNode = node;
-                }
-                children = node.children;
-            }
-            // return the last matching node
-            // that had an element
-            if (lastNode) {
-                return lastNode.element;
-            }
-            return undefined;
-        };
-        TrieMap.prototype.findSuperstr = function (path) {
-            var parts = this._splitter(path);
-            var children = this._root.children;
-            var node;
-            for (var _i = 0, parts_3 = parts; _i < parts_3.length; _i++) {
-                var part = parts_3[_i];
-                node = children.get(part);
-                if (!node) {
-                    return undefined;
-                }
-                children = node.children;
-            }
-            var result = new TrieMap(this._splitter);
-            result._root = node;
-            return result;
-        };
-        TrieMap.PathSplitter = function (s) { return s.split(/[\\/]/).filter(function (s) { return !!s; }); };
-        return TrieMap;
-    }());
-    exports.TrieMap = TrieMap;
-    var ResourceMap = (function () {
-        function ResourceMap(ignoreCase) {
-            this.ignoreCase = ignoreCase;
-            this.map = new Map();
-        }
-        ResourceMap.prototype.set = function (resource, value) {
-            this.map.set(this.toKey(resource), value);
-        };
-        ResourceMap.prototype.get = function (resource) {
-            return this.map.get(this.toKey(resource));
-        };
-        ResourceMap.prototype.has = function (resource) {
-            return this.map.has(this.toKey(resource));
-        };
-        Object.defineProperty(ResourceMap.prototype, "size", {
-            get: function () {
-                return this.map.size;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        ResourceMap.prototype.clear = function () {
-            this.map.clear();
-        };
-        ResourceMap.prototype.delete = function (resource) {
-            return this.map.delete(this.toKey(resource));
-        };
-        ResourceMap.prototype.forEach = function (clb) {
-            this.map.forEach(clb);
-        };
-        ResourceMap.prototype.values = function () {
-            return values(this.map);
-        };
-        ResourceMap.prototype.toKey = function (resource) {
-            var key = resource.toString();
-            if (this.ignoreCase) {
-                key = key.toLowerCase();
-            }
-            return key;
-        };
-        return ResourceMap;
-    }());
-    exports.ResourceMap = ResourceMap;
-    var StrictResourceMap = (function (_super) {
-        __extends(StrictResourceMap, _super);
-        function StrictResourceMap() {
-            return _super.call(this) || this;
-        }
-        StrictResourceMap.prototype.keys = function () {
-            return keys(this.map).map(function (key) { return uri_1.default.parse(key); });
-        };
-        return StrictResourceMap;
-    }(ResourceMap));
-    exports.StrictResourceMap = StrictResourceMap;
-    var Touch;
-    (function (Touch) {
-        Touch.None = 0;
-        Touch.First = 1;
-        Touch.Last = 2;
-    })(Touch = exports.Touch || (exports.Touch = {}));
-    var LinkedMap = (function () {
-        function LinkedMap() {
-            this._map = new Map();
-            this._head = undefined;
-            this._tail = undefined;
-            this._size = 0;
-        }
-        LinkedMap.prototype.clear = function () {
-            this._map.clear();
-            this._head = undefined;
-            this._tail = undefined;
-            this._size = 0;
-        };
-        LinkedMap.prototype.isEmpty = function () {
-            return !this._head && !this._tail;
-        };
-        Object.defineProperty(LinkedMap.prototype, "size", {
-            get: function () {
-                return this._size;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        LinkedMap.prototype.has = function (key) {
-            return this._map.has(key);
-        };
-        LinkedMap.prototype.get = function (key) {
-            var item = this._map.get(key);
-            if (!item) {
-                return undefined;
-            }
-            return item.value;
-        };
-        LinkedMap.prototype.set = function (key, value, touch) {
-            if (touch === void 0) { touch = Touch.None; }
-            var item = this._map.get(key);
-            if (item) {
-                item.value = value;
-                if (touch !== Touch.None) {
-                    this.touch(item, touch);
-                }
-            }
-            else {
-                item = { key: key, value: value, next: undefined, previous: undefined };
-                switch (touch) {
-                    case Touch.None:
-                        this.addItemLast(item);
-                        break;
-                    case Touch.First:
-                        this.addItemFirst(item);
-                        break;
-                    case Touch.Last:
-                        this.addItemLast(item);
-                        break;
-                    default:
-                        this.addItemLast(item);
-                        break;
-                }
-                this._map.set(key, item);
-                this._size++;
-            }
-        };
-        LinkedMap.prototype.delete = function (key) {
-            return !!this.remove(key);
-        };
-        LinkedMap.prototype.remove = function (key) {
-            var item = this._map.get(key);
-            if (!item) {
-                return undefined;
-            }
-            this._map.delete(key);
-            this.removeItem(item);
-            this._size--;
-            return item.value;
-        };
-        LinkedMap.prototype.shift = function () {
-            if (!this._head && !this._tail) {
-                return undefined;
-            }
-            if (!this._head || !this._tail) {
-                throw new Error('Invalid list');
-            }
-            var item = this._head;
-            this._map.delete(item.key);
-            this.removeItem(item);
-            this._size--;
-            return item.value;
-        };
-        LinkedMap.prototype.forEach = function (callbackfn, thisArg) {
-            var current = this._head;
-            while (current) {
-                if (thisArg) {
-                    callbackfn.bind(thisArg)(current.value, current.key, this);
-                }
-                else {
-                    callbackfn(current.value, current.key, this);
-                }
-                current = current.next;
-            }
-        };
-        LinkedMap.prototype.forEachReverse = function (callbackfn, thisArg) {
-            var current = this._tail;
-            while (current) {
-                if (thisArg) {
-                    callbackfn.bind(thisArg)(current.value, current.key, this);
-                }
-                else {
-                    callbackfn(current.value, current.key, this);
-                }
-                current = current.previous;
-            }
-        };
-        LinkedMap.prototype.values = function () {
-            var result = [];
-            var current = this._head;
-            while (current) {
-                result.push(current.value);
-                current = current.next;
-            }
-            return result;
-        };
-        LinkedMap.prototype.keys = function () {
-            var result = [];
-            var current = this._head;
-            while (current) {
-                result.push(current.key);
-                current = current.next;
-            }
-            return result;
-        };
-        /* VS Code / Monaco editor runs on es5 which has no Symbol.iterator
-        public keys(): IterableIterator<K> {
-            let current = this._head;
-            let iterator: IterableIterator<K> = {
-                [Symbol.iterator]() {
-                    return iterator;
-                },
-                next():IteratorResult<K> {
-                    if (current) {
-                        let result = { value: current.key, done: false };
-                        current = current.next;
-                        return result;
-                    } else {
-                        return { value: undefined, done: true };
-                    }
-                }
-            };
-            return iterator;
-        }
-    
-        public values(): IterableIterator<V> {
-            let current = this._head;
-            let iterator: IterableIterator<V> = {
-                [Symbol.iterator]() {
-                    return iterator;
-                },
-                next():IteratorResult<V> {
-                    if (current) {
-                        let result = { value: current.value, done: false };
-                        current = current.next;
-                        return result;
-                    } else {
-                        return { value: undefined, done: true };
-                    }
-                }
-            };
-            return iterator;
-        }
-        */
-        LinkedMap.prototype.addItemFirst = function (item) {
-            // First time Insert
-            if (!this._head && !this._tail) {
-                this._tail = item;
-            }
-            else if (!this._head) {
-                throw new Error('Invalid list');
-            }
-            else {
-                item.next = this._head;
-                this._head.previous = item;
-            }
-            this._head = item;
-        };
-        LinkedMap.prototype.addItemLast = function (item) {
-            // First time Insert
-            if (!this._head && !this._tail) {
-                this._head = item;
-            }
-            else if (!this._tail) {
-                throw new Error('Invalid list');
-            }
-            else {
-                item.previous = this._tail;
-                this._tail.next = item;
-            }
-            this._tail = item;
-        };
-        LinkedMap.prototype.removeItem = function (item) {
-            if (item === this._head && item === this._tail) {
-                this._head = undefined;
-                this._tail = undefined;
-            }
-            else if (item === this._head) {
-                this._head = item.next;
-            }
-            else if (item === this._tail) {
-                this._tail = item.previous;
-            }
-            else {
-                var next = item.next;
-                var previous = item.previous;
-                if (!next || !previous) {
-                    throw new Error('Invalid list');
-                }
-                next.previous = previous;
-                previous.next = next;
-            }
-        };
-        LinkedMap.prototype.touch = function (item, touch) {
-            if (!this._head || !this._tail) {
-                throw new Error('Invalid list');
-            }
-            if ((touch !== Touch.First && touch !== Touch.Last)) {
-                return;
-            }
-            if (touch === Touch.First) {
-                if (item === this._head) {
-                    return;
-                }
-                var next = item.next;
-                var previous = item.previous;
-                // Unlink the item
-                if (item === this._tail) {
-                    // previous must be defined since item was not head but is tail
-                    // So there are more than on item in the map
-                    previous.next = undefined;
-                    this._tail = previous;
-                }
-                else {
-                    // Both next and previous are not undefined since item was neither head nor tail.
-                    next.previous = previous;
-                    previous.next = next;
-                }
-                // Insert the node at head
-                item.previous = undefined;
-                item.next = this._head;
-                this._head.previous = item;
-                this._head = item;
-            }
-            else if (touch === Touch.Last) {
-                if (item === this._tail) {
-                    return;
-                }
-                var next = item.next;
-                var previous = item.previous;
-                // Unlink the item.
-                if (item === this._head) {
-                    // next must be defined since item was not tail but is head
-                    // So there are more than on item in the map
-                    next.previous = undefined;
-                    this._head = next;
-                }
-                else {
-                    // Both next and previous are not undefined since item was neither head nor tail.
-                    next.previous = previous;
-                    previous.next = next;
-                }
-                item.next = undefined;
-                item.previous = this._tail;
-                this._tail.next = item;
-                this._tail = item;
-            }
-        };
-        return LinkedMap;
-    }());
-    exports.LinkedMap = LinkedMap;
-});
-
-define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/base/common/map*/]), function (require, exports, map_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+define(__m[17/*vs/base/common/strings*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * The empty string.
@@ -4539,8 +3619,8 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
         if (needleLen === 0 || haystack.length === 0) {
             return haystack;
         }
-        var offset = 0, idx = -1;
-        while ((idx = haystack.indexOf(needle, offset)) === offset) {
+        var offset = 0;
+        while (haystack.indexOf(needle, offset) === offset) {
             offset = offset + needleLen;
         }
         return haystack.substring(offset);
@@ -4577,16 +3657,15 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
         return pattern.replace(/[\-\\\{\}\+\?\|\^\$\.\,\[\]\(\)\#\s]/g, '\\$&').replace(/[\*]/g, '.*');
     }
     exports.convertSimple2RegExpPattern = convertSimple2RegExpPattern;
-    function stripWildcards(pattern) {
-        return pattern.replace(/\*/g, '');
-    }
-    exports.stripWildcards = stripWildcards;
     /**
      * Determines if haystack starts with needle.
      */
     function startsWith(haystack, needle) {
         if (haystack.length < needle.length) {
             return false;
+        }
+        if (haystack === needle) {
+            return true;
         }
         for (var i = 0; i < needle.length; i++) {
             if (haystack[i] !== needle[i]) {
@@ -4612,19 +3691,6 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
         }
     }
     exports.endsWith = endsWith;
-    function indexOfIgnoreCase(haystack, needle, position) {
-        if (position === void 0) { position = 0; }
-        var index = haystack.indexOf(needle, position);
-        if (index < 0) {
-            if (position > 0) {
-                haystack = haystack.substr(position);
-            }
-            needle = escapeRegExpCharacters(needle);
-            index = haystack.search(new RegExp(needle, 'i'));
-        }
-        return index;
-    }
-    exports.indexOfIgnoreCase = indexOfIgnoreCase;
     function createRegExp(searchString, isRegex, options) {
         if (options === void 0) { options = {}; }
         if (!searchString) {
@@ -4657,44 +3723,15 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
     function regExpLeadsToEndlessLoop(regexp) {
         // Exit early if it's one of these special cases which are meant to match
         // against an empty string
-        if (regexp.source === '^' || regexp.source === '^$' || regexp.source === '$') {
+        if (regexp.source === '^' || regexp.source === '^$' || regexp.source === '$' || regexp.source === '^\\s*$') {
             return false;
         }
         // We check against an empty string. If the regular expression doesn't advance
         // (e.g. ends in an endless loop) it will match an empty string.
         var match = regexp.exec('');
-        return (match && regexp.lastIndex === 0);
+        return !!(match && regexp.lastIndex === 0);
     }
     exports.regExpLeadsToEndlessLoop = regExpLeadsToEndlessLoop;
-    /**
-     * The normalize() method returns the Unicode Normalization Form of a given string. The form will be
-     * the Normalization Form Canonical Composition.
-     *
-     * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize}
-     */
-    exports.canNormalize = typeof (''.normalize) === 'function';
-    var nonAsciiCharactersPattern = /[^\u0000-\u0080]/;
-    var normalizedCache = new map_1.BoundedMap(10000); // bounded to 10000 elements
-    function normalizeNFC(str) {
-        if (!exports.canNormalize || !str) {
-            return str;
-        }
-        var cached = normalizedCache.get(str);
-        if (cached) {
-            return cached;
-        }
-        var res;
-        if (nonAsciiCharactersPattern.test(str)) {
-            res = str.normalize('NFC');
-        }
-        else {
-            res = str;
-        }
-        // Use the cache for fast lookup
-        normalizedCache.set(str, res);
-        return res;
-    }
-    exports.normalizeNFC = normalizeNFC;
     /**
      * Returns first index of the string that is not whitespace.
      * If string is empty or contains only whitespaces, returns -1
@@ -4752,51 +3789,14 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
         }
     }
     exports.compare = compare;
-    function compareIgnoreCase(a, b) {
-        var len = Math.min(a.length, b.length);
-        for (var i = 0; i < len; i++) {
-            var codeA = a.charCodeAt(i);
-            var codeB = b.charCodeAt(i);
-            if (codeA === codeB) {
-                // equal
-                continue;
-            }
-            if (isUpperAsciiLetter(codeA)) {
-                codeA += 32;
-            }
-            if (isUpperAsciiLetter(codeB)) {
-                codeB += 32;
-            }
-            var diff = codeA - codeB;
-            if (diff === 0) {
-                // equal -> ignoreCase
-                continue;
-            }
-            else if (isLowerAsciiLetter(codeA) && isLowerAsciiLetter(codeB)) {
-                //
-                return diff;
-            }
-            else {
-                return compare(a.toLowerCase(), b.toLowerCase());
-            }
-        }
-        if (a.length < b.length) {
-            return -1;
-        }
-        else if (a.length > b.length) {
-            return 1;
-        }
-        else {
-            return 0;
-        }
-    }
-    exports.compareIgnoreCase = compareIgnoreCase;
     function isLowerAsciiLetter(code) {
         return code >= 97 /* a */ && code <= 122 /* z */;
     }
+    exports.isLowerAsciiLetter = isLowerAsciiLetter;
     function isUpperAsciiLetter(code) {
         return code >= 65 /* A */ && code <= 90 /* Z */;
     }
+    exports.isUpperAsciiLetter = isUpperAsciiLetter;
     function isAsciiLetter(code) {
         return isLowerAsciiLetter(code) || isUpperAsciiLetter(code);
     }
@@ -4827,6 +3827,7 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
                     return false;
                 }
             }
+            // Any other charcode
             else {
                 if (String.fromCharCode(codeA).toLowerCase() !== String.fromCharCode(codeB).toLowerCase()) {
                     return false;
@@ -4835,14 +3836,14 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
         }
         return true;
     }
-    function beginsWithIgnoreCase(str, candidate) {
+    function startsWithIgnoreCase(str, candidate) {
         var candidateLength = candidate.length;
         if (candidate.length > str.length) {
             return false;
         }
         return doEqualsIgnoreCase(str, candidate, candidateLength);
     }
-    exports.beginsWithIgnoreCase = beginsWithIgnoreCase;
+    exports.startsWithIgnoreCase = startsWithIgnoreCase;
     /**
      * @returns the length of the common prefix of the two strings.
      */
@@ -4871,41 +3872,6 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
         return len;
     }
     exports.commonSuffixLength = commonSuffixLength;
-    function substrEquals(a, aStart, aEnd, b, bStart, bEnd) {
-        while (aStart < aEnd && bStart < bEnd) {
-            if (a[aStart] !== b[bStart]) {
-                return false;
-            }
-            aStart += 1;
-            bStart += 1;
-        }
-        return true;
-    }
-    /**
-     * Return the overlap between the suffix of `a` and the prefix of `b`.
-     * For instance `overlap("foobar", "arr, I'm a pirate") === 2`.
-     */
-    function overlap(a, b) {
-        var aEnd = a.length;
-        var bEnd = b.length;
-        var aStart = aEnd - bEnd;
-        if (aStart === 0) {
-            return a === b ? aEnd : 0;
-        }
-        else if (aStart < 0) {
-            bEnd += aStart;
-            aStart = 0;
-        }
-        while (aStart < aEnd && bEnd > 0) {
-            if (substrEquals(a, aStart, aEnd, b, 0, bEnd)) {
-                return bEnd;
-            }
-            bEnd -= 1;
-            aStart += 1;
-        }
-        return 0;
-    }
-    exports.overlap = overlap;
     // --- unicode
     // http://en.wikipedia.org/wiki/Surrogate_pair
     // Returns the code point starting at a specified index in a string
@@ -5010,115 +3976,12 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
             || (charCode >= 0xFF01 && charCode <= 0xFF5E));
     }
     exports.isFullWidthCharacter = isFullWidthCharacter;
-    /**
-     * Computes the difference score for two strings. More similar strings have a higher score.
-     * We use largest common subsequence dynamic programming approach but penalize in the end for length differences.
-     * Strings that have a large length difference will get a bad default score 0.
-     * Complexity - both time and space O(first.length * second.length)
-     * Dynamic programming LCS computation http://en.wikipedia.org/wiki/Longest_common_subsequence_problem
-     *
-     * @param first a string
-     * @param second a string
-     */
-    function difference(first, second, maxLenDelta) {
-        if (maxLenDelta === void 0) { maxLenDelta = 4; }
-        var lengthDifference = Math.abs(first.length - second.length);
-        // We only compute score if length of the currentWord and length of entry.name are similar.
-        if (lengthDifference > maxLenDelta) {
-            return 0;
-        }
-        // Initialize LCS (largest common subsequence) matrix.
-        var LCS = [];
-        var zeroArray = [];
-        var i, j;
-        for (i = 0; i < second.length + 1; ++i) {
-            zeroArray.push(0);
-        }
-        for (i = 0; i < first.length + 1; ++i) {
-            LCS.push(zeroArray);
-        }
-        for (i = 1; i < first.length + 1; ++i) {
-            for (j = 1; j < second.length + 1; ++j) {
-                if (first[i - 1] === second[j - 1]) {
-                    LCS[i][j] = LCS[i - 1][j - 1] + 1;
-                }
-                else {
-                    LCS[i][j] = Math.max(LCS[i - 1][j], LCS[i][j - 1]);
-                }
-            }
-        }
-        return LCS[first.length][second.length] - Math.sqrt(lengthDifference);
-    }
-    exports.difference = difference;
-    /**
-     * Returns an array in which every entry is the offset of a
-     * line. There is always one entry which is zero.
-     */
-    function computeLineStarts(text) {
-        var regexp = /\r\n|\r|\n/g, ret = [0], match;
-        while ((match = regexp.exec(text))) {
-            ret.push(regexp.lastIndex);
-        }
-        return ret;
-    }
-    exports.computeLineStarts = computeLineStarts;
-    /**
-     * Given a string and a max length returns a shorted version. Shorting
-     * happens at favorable positions - such as whitespace or punctuation characters.
-     */
-    function lcut(text, n) {
-        if (text.length < n) {
-            return text;
-        }
-        var segments = text.split(/\b/), count = 0;
-        for (var i = segments.length - 1; i >= 0; i--) {
-            count += segments[i].length;
-            if (count > n) {
-                segments.splice(0, i);
-                break;
-            }
-        }
-        return segments.join(exports.empty).replace(/^\s/, exports.empty);
-    }
-    exports.lcut = lcut;
-    // Escape codes
-    // http://en.wikipedia.org/wiki/ANSI_escape_code
-    var EL = /\x1B\x5B[12]?K/g; // Erase in line
-    var COLOR_START = /\x1b\[\d+m/g; // Color
-    var COLOR_END = /\x1b\[0?m/g; // Color
-    function removeAnsiEscapeCodes(str) {
-        if (str) {
-            str = str.replace(EL, '');
-            str = str.replace(COLOR_START, '');
-            str = str.replace(COLOR_END, '');
-        }
-        return str;
-    }
-    exports.removeAnsiEscapeCodes = removeAnsiEscapeCodes;
     // -- UTF-8 BOM
     exports.UTF8_BOM_CHARACTER = String.fromCharCode(65279 /* UTF8_BOM */);
     function startsWithUTF8BOM(str) {
-        return (str && str.length > 0 && str.charCodeAt(0) === 65279 /* UTF8_BOM */);
+        return !!(str && str.length > 0 && str.charCodeAt(0) === 65279 /* UTF8_BOM */);
     }
     exports.startsWithUTF8BOM = startsWithUTF8BOM;
-    /**
-     * Appends two strings. If the appended result is longer than maxLength,
-     * trims the start of the result and replaces it with '...'.
-     */
-    function appendWithLimit(first, second, maxLength) {
-        var newLength = first.length + second.length;
-        if (newLength > maxLength) {
-            first = '...' + first.substr(newLength - maxLength);
-        }
-        if (second.length > maxLength) {
-            first += second.substr(second.length - maxLength);
-        }
-        else {
-            first += second;
-        }
-        return first;
-    }
-    exports.appendWithLimit = appendWithLimit;
     function safeBtoa(str) {
         return btoa(encodeURIComponent(str)); // we use encodeURIComponent because btoa fails for non Latin 1 values
     }
@@ -5133,6 +3996,569 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
     exports.repeat = repeat;
 });
 
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+define(__m[11/*vs/base/common/uri*/], __M([0/*require*/,1/*exports*/,3/*vs/base/common/platform*/]), function (require, exports, platform_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var _a;
+    var _schemePattern = /^\w[\w\d+.-]*$/;
+    var _singleSlashStart = /^\//;
+    var _doubleSlashStart = /^\/\//;
+    var _throwOnMissingSchema = true;
+    function _validateUri(ret) {
+        // scheme, must be set
+        if (!ret.scheme) {
+            if (_throwOnMissingSchema) {
+                throw new Error("[UriError]: Scheme is missing: {scheme: \"\", authority: \"" + ret.authority + "\", path: \"" + ret.path + "\", query: \"" + ret.query + "\", fragment: \"" + ret.fragment + "\"}");
+            }
+            else {
+                console.warn("[UriError]: Scheme is missing: {scheme: \"\", authority: \"" + ret.authority + "\", path: \"" + ret.path + "\", query: \"" + ret.query + "\", fragment: \"" + ret.fragment + "\"}");
+            }
+        }
+        // scheme, https://tools.ietf.org/html/rfc3986#section-3.1
+        // ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+        if (ret.scheme && !_schemePattern.test(ret.scheme)) {
+            throw new Error('[UriError]: Scheme contains illegal characters.');
+        }
+        // path, http://tools.ietf.org/html/rfc3986#section-3.3
+        // If a URI contains an authority component, then the path component
+        // must either be empty or begin with a slash ("/") character.  If a URI
+        // does not contain an authority component, then the path cannot begin
+        // with two slash characters ("//").
+        if (ret.path) {
+            if (ret.authority) {
+                if (!_singleSlashStart.test(ret.path)) {
+                    throw new Error('[UriError]: If a URI contains an authority component, then the path component must either be empty or begin with a slash ("/") character');
+                }
+            }
+            else {
+                if (_doubleSlashStart.test(ret.path)) {
+                    throw new Error('[UriError]: If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//")');
+                }
+            }
+        }
+    }
+    // implements a bit of https://tools.ietf.org/html/rfc3986#section-5
+    function _referenceResolution(scheme, path) {
+        // the slash-character is our 'default base' as we don't
+        // support constructing URIs relative to other URIs. This
+        // also means that we alter and potentially break paths.
+        // see https://tools.ietf.org/html/rfc3986#section-5.1.4
+        switch (scheme) {
+            case 'https':
+            case 'http':
+            case 'file':
+                if (!path) {
+                    path = _slash;
+                }
+                else if (path[0] !== _slash) {
+                    path = _slash + path;
+                }
+                break;
+        }
+        return path;
+    }
+    var _empty = '';
+    var _slash = '/';
+    var _regexp = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+    /**
+     * Uniform Resource Identifier (URI) http://tools.ietf.org/html/rfc3986.
+     * This class is a simple parser which creates the basic component parts
+     * (http://tools.ietf.org/html/rfc3986#section-3) with minimal validation
+     * and encoding.
+     *
+     *       foo://example.com:8042/over/there?name=ferret#nose
+     *       \_/   \______________/\_________/ \_________/ \__/
+     *        |           |            |            |        |
+     *     scheme     authority       path        query   fragment
+     *        |   _____________________|__
+     *       / \ /                        \
+     *       urn:example:animal:ferret:nose
+     */
+    var URI = /** @class */ (function () {
+        /**
+         * @internal
+         */
+        function URI(schemeOrData, authority, path, query, fragment) {
+            if (typeof schemeOrData === 'object') {
+                this.scheme = schemeOrData.scheme || _empty;
+                this.authority = schemeOrData.authority || _empty;
+                this.path = schemeOrData.path || _empty;
+                this.query = schemeOrData.query || _empty;
+                this.fragment = schemeOrData.fragment || _empty;
+                // no validation because it's this URI
+                // that creates uri components.
+                // _validateUri(this);
+            }
+            else {
+                this.scheme = schemeOrData || _empty;
+                this.authority = authority || _empty;
+                this.path = _referenceResolution(this.scheme, path || _empty);
+                this.query = query || _empty;
+                this.fragment = fragment || _empty;
+                _validateUri(this);
+            }
+        }
+        URI.isUri = function (thing) {
+            if (thing instanceof URI) {
+                return true;
+            }
+            if (!thing) {
+                return false;
+            }
+            return typeof thing.authority === 'string'
+                && typeof thing.fragment === 'string'
+                && typeof thing.path === 'string'
+                && typeof thing.query === 'string'
+                && typeof thing.scheme === 'string';
+        };
+        Object.defineProperty(URI.prototype, "fsPath", {
+            // ---- filesystem path -----------------------
+            /**
+             * Returns a string representing the corresponding file system path of this URI.
+             * Will handle UNC paths, normalizes windows drive letters to lower-case, and uses the
+             * platform specific path separator.
+             *
+             * * Will *not* validate the path for invalid characters and semantics.
+             * * Will *not* look at the scheme of this URI.
+             * * The result shall *not* be used for display purposes but for accessing a file on disk.
+             *
+             *
+             * The *difference* to `URI#path` is the use of the platform specific separator and the handling
+             * of UNC paths. See the below sample of a file-uri with an authority (UNC path).
+             *
+             * ```ts
+                const u = URI.parse('file://server/c$/folder/file.txt')
+                u.authority === 'server'
+                u.path === '/shares/c$/file.txt'
+                u.fsPath === '\\server\c$\folder\file.txt'
+            ```
+             *
+             * Using `URI#path` to read a file (using fs-apis) would not be enough because parts of the path,
+             * namely the server name, would be missing. Therefore `URI#fsPath` exists - it's sugar to ease working
+             * with URIs that represent files on disk (`file` scheme).
+             */
+            get: function () {
+                // if (this.scheme !== 'file') {
+                // 	console.warn(`[UriError] calling fsPath with scheme ${this.scheme}`);
+                // }
+                return _makeFsPath(this);
+            },
+            enumerable: true,
+            configurable: true
+        });
+        // ---- modify to new -------------------------
+        URI.prototype.with = function (change) {
+            if (!change) {
+                return this;
+            }
+            var scheme = change.scheme, authority = change.authority, path = change.path, query = change.query, fragment = change.fragment;
+            if (scheme === void 0) {
+                scheme = this.scheme;
+            }
+            else if (scheme === null) {
+                scheme = _empty;
+            }
+            if (authority === void 0) {
+                authority = this.authority;
+            }
+            else if (authority === null) {
+                authority = _empty;
+            }
+            if (path === void 0) {
+                path = this.path;
+            }
+            else if (path === null) {
+                path = _empty;
+            }
+            if (query === void 0) {
+                query = this.query;
+            }
+            else if (query === null) {
+                query = _empty;
+            }
+            if (fragment === void 0) {
+                fragment = this.fragment;
+            }
+            else if (fragment === null) {
+                fragment = _empty;
+            }
+            if (scheme === this.scheme
+                && authority === this.authority
+                && path === this.path
+                && query === this.query
+                && fragment === this.fragment) {
+                return this;
+            }
+            return new _URI(scheme, authority, path, query, fragment);
+        };
+        // ---- parse & validate ------------------------
+        /**
+         * Creates a new URI from a string, e.g. `http://www.msft.com/some/path`,
+         * `file:///usr/home`, or `scheme:with/path`.
+         *
+         * @param value A string which represents an URI (see `URI#toString`).
+         */
+        URI.parse = function (value) {
+            var match = _regexp.exec(value);
+            if (!match) {
+                return new _URI(_empty, _empty, _empty, _empty, _empty);
+            }
+            return new _URI(match[2] || _empty, decodeURIComponent(match[4] || _empty), decodeURIComponent(match[5] || _empty), decodeURIComponent(match[7] || _empty), decodeURIComponent(match[9] || _empty));
+        };
+        /**
+         * Creates a new URI from a file system path, e.g. `c:\my\files`,
+         * `/usr/home`, or `\\server\share\some\path`.
+         *
+         * The *difference* between `URI#parse` and `URI#file` is that the latter treats the argument
+         * as path, not as stringified-uri. E.g. `URI.file(path)` is **not the same as**
+         * `URI.parse('file://' + path)` because the path might contain characters that are
+         * interpreted (# and ?). See the following sample:
+         * ```ts
+        const good = URI.file('/coding/c#/project1');
+        good.scheme === 'file';
+        good.path === '/coding/c#/project1';
+        good.fragment === '';
+        const bad = URI.parse('file://' + '/coding/c#/project1');
+        bad.scheme === 'file';
+        bad.path === '/coding/c'; // path is now broken
+        bad.fragment === '/project1';
+        ```
+         *
+         * @param path A file system path (see `URI#fsPath`)
+         */
+        URI.file = function (path) {
+            var authority = _empty;
+            // normalize to fwd-slashes on windows,
+            // on other systems bwd-slashes are valid
+            // filename character, eg /f\oo/ba\r.txt
+            if (platform_1.isWindows) {
+                path = path.replace(/\\/g, _slash);
+            }
+            // check for authority as used in UNC shares
+            // or use the path as given
+            if (path[0] === _slash && path[1] === _slash) {
+                var idx = path.indexOf(_slash, 2);
+                if (idx === -1) {
+                    authority = path.substring(2);
+                    path = _slash;
+                }
+                else {
+                    authority = path.substring(2, idx);
+                    path = path.substring(idx) || _slash;
+                }
+            }
+            return new _URI('file', authority, path, _empty, _empty);
+        };
+        URI.from = function (components) {
+            return new _URI(components.scheme, components.authority, components.path, components.query, components.fragment);
+        };
+        // ---- printing/externalize ---------------------------
+        /**
+         * Creates a string presentation for this URI. It's guaranteed that calling
+         * `URI.parse` with the result of this function creates an URI which is equal
+         * to this URI.
+         *
+         * * The result shall *not* be used for display purposes but for externalization or transport.
+         * * The result will be encoded using the percentage encoding and encoding happens mostly
+         * ignore the scheme-specific encoding rules.
+         *
+         * @param skipEncoding Do not encode the result, default is `false`
+         */
+        URI.prototype.toString = function (skipEncoding) {
+            if (skipEncoding === void 0) { skipEncoding = false; }
+            return _asFormatted(this, skipEncoding);
+        };
+        URI.prototype.toJSON = function () {
+            return this;
+        };
+        URI.revive = function (data) {
+            if (!data) {
+                return data;
+            }
+            else if (data instanceof URI) {
+                return data;
+            }
+            else {
+                var result = new _URI(data);
+                result._fsPath = data.fsPath;
+                result._formatted = data.external;
+                return result;
+            }
+        };
+        return URI;
+    }());
+    exports.URI = URI;
+    // tslint:disable-next-line:class-name
+    var _URI = /** @class */ (function (_super) {
+        __extends(_URI, _super);
+        function _URI() {
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this._formatted = null;
+            _this._fsPath = null;
+            return _this;
+        }
+        Object.defineProperty(_URI.prototype, "fsPath", {
+            get: function () {
+                if (!this._fsPath) {
+                    this._fsPath = _makeFsPath(this);
+                }
+                return this._fsPath;
+            },
+            enumerable: true,
+            configurable: true
+        });
+        _URI.prototype.toString = function (skipEncoding) {
+            if (skipEncoding === void 0) { skipEncoding = false; }
+            if (!skipEncoding) {
+                if (!this._formatted) {
+                    this._formatted = _asFormatted(this, false);
+                }
+                return this._formatted;
+            }
+            else {
+                // we don't cache that
+                return _asFormatted(this, true);
+            }
+        };
+        _URI.prototype.toJSON = function () {
+            var res = {
+                $mid: 1
+            };
+            // cached state
+            if (this._fsPath) {
+                res.fsPath = this._fsPath;
+            }
+            if (this._formatted) {
+                res.external = this._formatted;
+            }
+            // uri components
+            if (this.path) {
+                res.path = this.path;
+            }
+            if (this.scheme) {
+                res.scheme = this.scheme;
+            }
+            if (this.authority) {
+                res.authority = this.authority;
+            }
+            if (this.query) {
+                res.query = this.query;
+            }
+            if (this.fragment) {
+                res.fragment = this.fragment;
+            }
+            return res;
+        };
+        return _URI;
+    }(URI));
+    // reserved characters: https://tools.ietf.org/html/rfc3986#section-2.2
+    var encodeTable = (_a = {},
+        _a[58 /* Colon */] = '%3A',
+        _a[47 /* Slash */] = '%2F',
+        _a[63 /* QuestionMark */] = '%3F',
+        _a[35 /* Hash */] = '%23',
+        _a[91 /* OpenSquareBracket */] = '%5B',
+        _a[93 /* CloseSquareBracket */] = '%5D',
+        _a[64 /* AtSign */] = '%40',
+        _a[33 /* ExclamationMark */] = '%21',
+        _a[36 /* DollarSign */] = '%24',
+        _a[38 /* Ampersand */] = '%26',
+        _a[39 /* SingleQuote */] = '%27',
+        _a[40 /* OpenParen */] = '%28',
+        _a[41 /* CloseParen */] = '%29',
+        _a[42 /* Asterisk */] = '%2A',
+        _a[43 /* Plus */] = '%2B',
+        _a[44 /* Comma */] = '%2C',
+        _a[59 /* Semicolon */] = '%3B',
+        _a[61 /* Equals */] = '%3D',
+        _a[32 /* Space */] = '%20',
+        _a);
+    function encodeURIComponentFast(uriComponent, allowSlash) {
+        var res = undefined;
+        var nativeEncodePos = -1;
+        for (var pos = 0; pos < uriComponent.length; pos++) {
+            var code = uriComponent.charCodeAt(pos);
+            // unreserved characters: https://tools.ietf.org/html/rfc3986#section-2.3
+            if ((code >= 97 /* a */ && code <= 122 /* z */)
+                || (code >= 65 /* A */ && code <= 90 /* Z */)
+                || (code >= 48 /* Digit0 */ && code <= 57 /* Digit9 */)
+                || code === 45 /* Dash */
+                || code === 46 /* Period */
+                || code === 95 /* Underline */
+                || code === 126 /* Tilde */
+                || (allowSlash && code === 47 /* Slash */)) {
+                // check if we are delaying native encode
+                if (nativeEncodePos !== -1) {
+                    res += encodeURIComponent(uriComponent.substring(nativeEncodePos, pos));
+                    nativeEncodePos = -1;
+                }
+                // check if we write into a new string (by default we try to return the param)
+                if (res !== undefined) {
+                    res += uriComponent.charAt(pos);
+                }
+            }
+            else {
+                // encoding needed, we need to allocate a new string
+                if (res === undefined) {
+                    res = uriComponent.substr(0, pos);
+                }
+                // check with default table first
+                var escaped = encodeTable[code];
+                if (escaped !== undefined) {
+                    // check if we are delaying native encode
+                    if (nativeEncodePos !== -1) {
+                        res += encodeURIComponent(uriComponent.substring(nativeEncodePos, pos));
+                        nativeEncodePos = -1;
+                    }
+                    // append escaped variant to result
+                    res += escaped;
+                }
+                else if (nativeEncodePos === -1) {
+                    // use native encode only when needed
+                    nativeEncodePos = pos;
+                }
+            }
+        }
+        if (nativeEncodePos !== -1) {
+            res += encodeURIComponent(uriComponent.substring(nativeEncodePos));
+        }
+        return res !== undefined ? res : uriComponent;
+    }
+    function encodeURIComponentMinimal(path) {
+        var res = undefined;
+        for (var pos = 0; pos < path.length; pos++) {
+            var code = path.charCodeAt(pos);
+            if (code === 35 /* Hash */ || code === 63 /* QuestionMark */) {
+                if (res === undefined) {
+                    res = path.substr(0, pos);
+                }
+                res += encodeTable[code];
+            }
+            else {
+                if (res !== undefined) {
+                    res += path[pos];
+                }
+            }
+        }
+        return res !== undefined ? res : path;
+    }
+    /**
+     * Compute `fsPath` for the given uri
+     * @param uri
+     */
+    function _makeFsPath(uri) {
+        var value;
+        if (uri.authority && uri.path.length > 1 && uri.scheme === 'file') {
+            // unc path: file://shares/c$/far/boo
+            value = "//" + uri.authority + uri.path;
+        }
+        else if (uri.path.charCodeAt(0) === 47 /* Slash */
+            && (uri.path.charCodeAt(1) >= 65 /* A */ && uri.path.charCodeAt(1) <= 90 /* Z */ || uri.path.charCodeAt(1) >= 97 /* a */ && uri.path.charCodeAt(1) <= 122 /* z */)
+            && uri.path.charCodeAt(2) === 58 /* Colon */) {
+            // windows drive letter: file:///c:/far/boo
+            value = uri.path[1].toLowerCase() + uri.path.substr(2);
+        }
+        else {
+            // other path
+            value = uri.path;
+        }
+        if (platform_1.isWindows) {
+            value = value.replace(/\//g, '\\');
+        }
+        return value;
+    }
+    /**
+     * Create the external version of a uri
+     */
+    function _asFormatted(uri, skipEncoding) {
+        var encoder = !skipEncoding
+            ? encodeURIComponentFast
+            : encodeURIComponentMinimal;
+        var res = '';
+        var scheme = uri.scheme, authority = uri.authority, path = uri.path, query = uri.query, fragment = uri.fragment;
+        if (scheme) {
+            res += scheme;
+            res += ':';
+        }
+        if (authority || scheme === 'file') {
+            res += _slash;
+            res += _slash;
+        }
+        if (authority) {
+            var idx = authority.indexOf('@');
+            if (idx !== -1) {
+                // <user>@<auth>
+                var userinfo = authority.substr(0, idx);
+                authority = authority.substr(idx + 1);
+                idx = userinfo.indexOf(':');
+                if (idx === -1) {
+                    res += encoder(userinfo, false);
+                }
+                else {
+                    // <user>:<pass>@<auth>
+                    res += encoder(userinfo.substr(0, idx), false);
+                    res += ':';
+                    res += encoder(userinfo.substr(idx + 1), false);
+                }
+                res += '@';
+            }
+            authority = authority.toLowerCase();
+            idx = authority.indexOf(':');
+            if (idx === -1) {
+                res += encoder(authority, false);
+            }
+            else {
+                // <auth>:<port>
+                res += encoder(authority.substr(0, idx), false);
+                res += authority.substr(idx);
+            }
+        }
+        if (path) {
+            // lower-case windows drive letters in /C:/fff or C:/fff
+            if (path.length >= 3 && path.charCodeAt(0) === 47 /* Slash */ && path.charCodeAt(2) === 58 /* Colon */) {
+                var code = path.charCodeAt(1);
+                if (code >= 65 /* A */ && code <= 90 /* Z */) {
+                    path = "/" + String.fromCharCode(code + 32) + ":" + path.substr(3); // "/c:".length === 3
+                }
+            }
+            else if (path.length >= 2 && path.charCodeAt(1) === 58 /* Colon */) {
+                var code = path.charCodeAt(0);
+                if (code >= 65 /* A */ && code <= 90 /* Z */) {
+                    path = String.fromCharCode(code + 32) + ":" + path.substr(2); // "/c:".length === 3
+                }
+            }
+            // encode the rest of the path
+            res += encoder(path, true);
+        }
+        if (query) {
+            res += '?';
+            res += encoder(query, false);
+        }
+        if (fragment) {
+            res += '#';
+            res += !skipEncoding ? encodeURIComponentFast(fragment, false) : fragment;
+        }
+        return res;
+    }
+});
+
 /**
  * Extracted from https://github.com/winjs/winjs
  * Version: 4.4.0(ec3258a9f3a36805a187848984e3bb938044178d)
@@ -5140,9 +4566,11 @@ define(__m[20/*vs/base/common/strings*/], __M([1/*require*/,0/*exports*/,17/*vs/
  * All Rights Reserved.
  * Licensed under the MIT License.
  */
+var __winjs_exports;
+
 (function() {
 
-var _modules = {};
+var _modules = Object.create(null);//{};
 _modules["WinJS/Core/_WinJS"] = {};
 
 var _winjs = function(moduleId, deps, factory) {
@@ -5199,11 +4627,24 @@ _winjs("WinJS/Core/_BaseCoreUtils", ["WinJS/Core/_Global"], function baseCoreUti
         return func;
     }
 
+    var actualSetImmediate = null;
+
     return {
         hasWinRT: hasWinRT,
         markSupportedForProcessing: markSupportedForProcessing,
-        _setImmediate: _Global.setImmediate ? _Global.setImmediate.bind(_Global) : function (handler) {
-            _Global.setTimeout(handler, 0);
+        _setImmediate: function (callback) {
+            // BEGIN monaco change
+            if (actualSetImmediate === null) {
+                if (_Global.setImmediate) {
+                    actualSetImmediate = _Global.setImmediate.bind(_Global);
+                } else if (typeof process !== 'undefined' && typeof process.nextTick === 'function') {
+                    actualSetImmediate = process.nextTick.bind(process);
+                } else {
+                    actualSetImmediate = _Global.setTimeout.bind(_Global);
+                }
+            }
+            actualSetImmediate(callback);
+            // END monaco change
         }
     };
 });
@@ -6158,6 +5599,12 @@ _winjs("WinJS/Promise/_StateMachine", ["WinJS/Core/_Global","WinJS/Core/_BaseCor
             /// error function.
             /// </returns>
             /// </signature>
+            // BEGIN monaco change
+            if (this.then !== Promise_then) {
+                this.then(onComplete, onError, onProgress);
+                return;
+            }
+            // END monaco change
             return this._state.then(this, onComplete, onError, onProgress);
         },
 
@@ -7189,41 +6636,32 @@ _winjs("WinJS/Promise", ["WinJS/Core/_Base","WinJS/Promise/_StateMachine"], func
     return _StateMachine.Promise;
 });
 
-var exported = _modules["WinJS/Core/_WinJS"];
+__winjs_exports = _modules["WinJS/Core/_WinJS"];
+__winjs_exports.TPromise = __winjs_exports.Promise;
+__winjs_exports.PPromise = __winjs_exports.Promise;
 
+// ESM-comment-begin
 if (typeof exports === 'undefined' && typeof define === 'function' && define.amd) {
-    define("vs/base/common/winjs.base.raw", exported);
+    define("vs/base/common/winjs.base", [], __winjs_exports);
 } else {
-    module.exports = exported;
+    module.exports = __winjs_exports;
 }
-
-if (typeof process !== 'undefined' && typeof process.nextTick === 'function') {
-    _modules["WinJS/Core/_BaseCoreUtils"]._setImmediate = function(handler) {
-        return process.nextTick(handler);
-    };
-}
+// ESM-comment-end
 
 })();
+
+// ESM-uncomment-begin
+// export var Promise = __winjs_exports.Promise;
+// export var TPromise = __winjs_exports.TPromise;
+// export var PPromise = __winjs_exports.PPromise;
+// ESM-uncomment-end
+
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-
-define(__m[2/*vs/base/common/winjs.base*/], __M([32/*vs/base/common/winjs.base.raw*/]), function (winjs) {
-	'use strict';
-	return {
-		Promise: winjs.Promise,
-		TPromise: winjs.Promise,
-		PPromise: winjs.Promise
-	};
-});
-
-define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/base/common/platform*/,14/*vs/base/common/types*/,2/*vs/base/common/winjs.base*/]), function (require, exports, platform, types, winjs_base_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+define(__m[4/*vs/base/common/errors*/], __M([0/*require*/,1/*exports*/,8/*vs/base/common/winjs.base*/]), function (require, exports, winjs_base_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     // ------ BEGIN Hook up error listeners to winjs promises
     var outstandingPromiseErrors = {};
@@ -7270,11 +6708,11 @@ define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/bas
     }
     winjs_base_1.TPromise.addEventListener('error', promiseErrorHandler);
     // Avoid circular dependency on EventEmitter by implementing a subset of the interface.
-    var ErrorHandler = (function () {
+    var ErrorHandler = /** @class */ (function () {
         function ErrorHandler() {
             this.listeners = [];
             this.unexpectedErrorHandler = function (e) {
-                platform.setTimeout(function () {
+                setTimeout(function () {
                     if (e.stack) {
                         throw new Error(e.message + '\n\n' + e.stack);
                     }
@@ -7282,26 +6720,10 @@ define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/bas
                 }, 0);
             };
         }
-        ErrorHandler.prototype.addListener = function (listener) {
-            var _this = this;
-            this.listeners.push(listener);
-            return function () {
-                _this._removeListener(listener);
-            };
-        };
         ErrorHandler.prototype.emit = function (e) {
             this.listeners.forEach(function (listener) {
                 listener(e);
             });
-        };
-        ErrorHandler.prototype._removeListener = function (listener) {
-            this.listeners.splice(this.listeners.indexOf(listener), 1);
-        };
-        ErrorHandler.prototype.setUnexpectedErrorHandler = function (newUnexpectedErrorHandler) {
-            this.unexpectedErrorHandler = newUnexpectedErrorHandler;
-        };
-        ErrorHandler.prototype.getUnexpectedErrorHandler = function () {
-            return this.unexpectedErrorHandler;
         };
         ErrorHandler.prototype.onUnexpectedError = function (e) {
             this.unexpectedErrorHandler(e);
@@ -7315,15 +6737,12 @@ define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/bas
     }());
     exports.ErrorHandler = ErrorHandler;
     exports.errorHandler = new ErrorHandler();
-    function setUnexpectedErrorHandler(newUnexpectedErrorHandler) {
-        exports.errorHandler.setUnexpectedErrorHandler(newUnexpectedErrorHandler);
-    }
-    exports.setUnexpectedErrorHandler = setUnexpectedErrorHandler;
     function onUnexpectedError(e) {
         // ignore errors from cancelled promises
         if (!isPromiseCanceledError(e)) {
             exports.errorHandler.onUnexpectedError(e);
         }
+        return undefined;
     }
     exports.onUnexpectedError = onUnexpectedError;
     function onUnexpectedExternalError(e) {
@@ -7331,12 +6750,9 @@ define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/bas
         if (!isPromiseCanceledError(e)) {
             exports.errorHandler.onUnexpectedExternalError(e);
         }
+        return undefined;
     }
     exports.onUnexpectedExternalError = onUnexpectedExternalError;
-    function onUnexpectedPromiseError(promise) {
-        return promise.then(null, onUnexpectedError);
-    }
-    exports.onUnexpectedPromiseError = onUnexpectedPromiseError;
     function transformErrorForSerialization(error) {
         if (error instanceof Error) {
             var name_1 = error.name, message = error.message;
@@ -7369,13 +6785,6 @@ define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/bas
         return error;
     }
     exports.canceled = canceled;
-    /**
-     * Returns an error that signals something is not implemented.
-     */
-    function notImplemented() {
-        return new Error('Not Implemented');
-    }
-    exports.notImplemented = notImplemented;
     function illegalArgument(name) {
         if (name) {
             return new Error("Illegal argument: " + name);
@@ -7394,136 +6803,20 @@ define(__m[8/*vs/base/common/errors*/], __M([1/*require*/,0/*exports*/,4/*vs/bas
         }
     }
     exports.illegalState = illegalState;
-    function readonly(name) {
-        return name
-            ? new Error("readonly property '" + name + " cannot be changed'")
-            : new Error('readonly property cannot be changed');
-    }
-    exports.readonly = readonly;
-    function create(message, options) {
-        if (options === void 0) { options = {}; }
-        var result = new Error(message);
-        if (types.isNumber(options.severity)) {
-            result.severity = options.severity;
-        }
-        if (options.actions) {
-            result.actions = options.actions;
-        }
-        return result;
-    }
-    exports.create = create;
-    function getErrorMessage(err) {
-        if (!err) {
-            return 'Error';
-        }
-        if (err.message) {
-            return err.message;
-        }
-        if (err.stack) {
-            return err.stack.split('\n')[0];
-        }
-        return String(err);
-    }
-    exports.getErrorMessage = getErrorMessage;
 });
 
-define(__m[15/*vs/base/common/callbackList*/], __M([1/*require*/,0/*exports*/,8/*vs/base/common/errors*/]), function (require, exports, errors_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
-    Object.defineProperty(exports, "__esModule", { value: true });
-    var CallbackList = (function () {
-        function CallbackList() {
-        }
-        CallbackList.prototype.add = function (callback, context, bucket) {
-            var _this = this;
-            if (context === void 0) { context = null; }
-            if (!this._callbacks) {
-                this._callbacks = [];
-                this._contexts = [];
-            }
-            this._callbacks.push(callback);
-            this._contexts.push(context);
-            if (Array.isArray(bucket)) {
-                bucket.push({ dispose: function () { return _this.remove(callback, context); } });
-            }
-        };
-        CallbackList.prototype.remove = function (callback, context) {
-            if (context === void 0) { context = null; }
-            if (!this._callbacks) {
-                return;
-            }
-            var foundCallbackWithDifferentContext = false;
-            for (var i = 0, len = this._callbacks.length; i < len; i++) {
-                if (this._callbacks[i] === callback) {
-                    if (this._contexts[i] === context) {
-                        // callback & context match => remove it
-                        this._callbacks.splice(i, 1);
-                        this._contexts.splice(i, 1);
-                        return;
-                    }
-                    else {
-                        foundCallbackWithDifferentContext = true;
-                    }
-                }
-            }
-            if (foundCallbackWithDifferentContext) {
-                throw new Error('When adding a listener with a context, you should remove it with the same context');
-            }
-        };
-        CallbackList.prototype.invoke = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            if (!this._callbacks) {
-                return undefined;
-            }
-            var ret = [], callbacks = this._callbacks.slice(0), contexts = this._contexts.slice(0);
-            for (var i = 0, len = callbacks.length; i < len; i++) {
-                try {
-                    ret.push(callbacks[i].apply(contexts[i], args));
-                }
-                catch (e) {
-                    errors_1.onUnexpectedError(e);
-                }
-            }
-            return ret;
-        };
-        CallbackList.prototype.isEmpty = function () {
-            return !this._callbacks || this._callbacks.length === 0;
-        };
-        CallbackList.prototype.entries = function () {
-            var _this = this;
-            if (!this._callbacks) {
-                return [];
-            }
-            return this._callbacks.map(function (fn, index) { return [fn, _this._contexts[index]]; });
-        };
-        CallbackList.prototype.dispose = function () {
-            this._callbacks = undefined;
-            this._contexts = undefined;
-        };
-        return CallbackList;
-    }());
-    exports.default = CallbackList;
-});
-
-define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/base/common/lifecycle*/,15/*vs/base/common/callbackList*/,2/*vs/base/common/winjs.base*/,11/*vs/base/common/functional*/]), function (require, exports, lifecycle_1, callbackList_1, winjs_base_1, functional_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[9/*vs/base/common/event*/], __M([0/*require*/,1/*exports*/,4/*vs/base/common/errors*/,16/*vs/base/common/functional*/,7/*vs/base/common/lifecycle*/,15/*vs/base/common/linkedList*/]), function (require, exports, errors_1, functional_1, lifecycle_1, linkedList_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Event;
     (function (Event) {
         var _disposable = { dispose: function () { } };
         Event.None = function () { return _disposable; };
-    })(Event || (Event = {}));
-    exports.default = Event;
+    })(Event = exports.Event || (exports.Event = {}));
     /**
      * The Emitter can be used to expose an Event to the public
      * to fire it from the insides.
@@ -7545,9 +6838,14 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
             }
         }
      */
-    var Emitter = (function () {
+    var Emitter = /** @class */ (function () {
         function Emitter(_options) {
+            if (_options === void 0) { _options = null; }
             this._options = _options;
+            this._event = null;
+            this._disposed = false;
+            this._deliveryQueue = null;
+            this._listeners = null;
         }
         Object.defineProperty(Emitter.prototype, "event", {
             /**
@@ -7558,14 +6856,14 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
                 var _this = this;
                 if (!this._event) {
                     this._event = function (listener, thisArgs, disposables) {
-                        if (!_this._callbacks) {
-                            _this._callbacks = new callbackList_1.default();
+                        if (!_this._listeners) {
+                            _this._listeners = new linkedList_1.LinkedList();
                         }
-                        var firstListener = _this._callbacks.isEmpty();
+                        var firstListener = _this._listeners.isEmpty();
                         if (firstListener && _this._options && _this._options.onFirstListenerAdd) {
                             _this._options.onFirstListenerAdd(_this);
                         }
-                        _this._callbacks.add(listener, thisArgs);
+                        var remove = _this._listeners.push(!thisArgs ? listener : [listener, thisArgs]);
                         if (firstListener && _this._options && _this._options.onFirstListenerDidAdd) {
                             _this._options.onFirstListenerDidAdd(_this);
                         }
@@ -7577,9 +6875,12 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
                             dispose: function () {
                                 result.dispose = Emitter._noop;
                                 if (!_this._disposed) {
-                                    _this._callbacks.remove(listener, thisArgs);
-                                    if (_this._options && _this._options.onLastListenerRemove && _this._callbacks.isEmpty()) {
-                                        _this._options.onLastListenerRemove(_this);
+                                    remove();
+                                    if (_this._options && _this._options.onLastListenerRemove) {
+                                        var hasListeners = (_this._listeners && !_this._listeners.isEmpty());
+                                        if (!hasListeners) {
+                                            _this._options.onLastListenerRemove(_this);
+                                        }
                                     }
                                 }
                             }
@@ -7600,22 +6901,46 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
          * subscribers
          */
         Emitter.prototype.fire = function (event) {
-            if (this._callbacks) {
-                this._callbacks.invoke.call(this._callbacks, event);
+            if (this._listeners) {
+                // put all [listener,event]-pairs into delivery queue
+                // then emit all event. an inner/nested event might be
+                // the driver of this
+                if (!this._deliveryQueue) {
+                    this._deliveryQueue = [];
+                }
+                for (var iter = this._listeners.iterator(), e = iter.next(); !e.done; e = iter.next()) {
+                    this._deliveryQueue.push([e.value, event]);
+                }
+                while (this._deliveryQueue.length > 0) {
+                    var _a = this._deliveryQueue.shift(), listener = _a[0], event_1 = _a[1];
+                    try {
+                        if (typeof listener === 'function') {
+                            listener.call(undefined, event_1);
+                        }
+                        else {
+                            listener[0].call(listener[1], event_1);
+                        }
+                    }
+                    catch (e) {
+                        errors_1.onUnexpectedError(e);
+                    }
+                }
             }
         };
         Emitter.prototype.dispose = function () {
-            if (this._callbacks) {
-                this._callbacks.dispose();
-                this._callbacks = undefined;
-                this._disposed = true;
+            if (this._listeners) {
+                this._listeners = null;
             }
+            if (this._deliveryQueue) {
+                this._deliveryQueue.length = 0;
+            }
+            this._disposed = true;
         };
         Emitter._noop = function () { };
         return Emitter;
     }());
     exports.Emitter = Emitter;
-    var EventMultiplexer = (function () {
+    var EventMultiplexer = /** @class */ (function () {
         function EventMultiplexer() {
             var _this = this;
             this.hasListeners = false;
@@ -7663,7 +6988,9 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
             e.listener = e.event(function (r) { return _this.emitter.fire(r); });
         };
         EventMultiplexer.prototype.unhook = function (e) {
-            e.listener.dispose();
+            if (e.listener) {
+                e.listener.dispose();
+            }
             e.listener = null;
         };
         EventMultiplexer.prototype.dispose = function () {
@@ -7672,108 +6999,31 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
         return EventMultiplexer;
     }());
     exports.EventMultiplexer = EventMultiplexer;
-    /**
-     * Creates an Event which is backed-up by the event emitter. This allows
-     * to use the existing eventing pattern and is likely using less memory.
-     * Sample:
-     *
-     * 	class Document {
-     *
-     *		private _eventbus = new EventEmitter();
-     *
-     *		public onDidChange = fromEventEmitter(this._eventbus, 'changed');
-     *
-     *		// getter-style
-     *		// get onDidChange(): Event<(value:string)=>any> {
-     *		// 	cache fromEventEmitter result and return
-     *		// }
-     *
-     *		private _doIt() {
-     *			// ...
-     *			this._eventbus.emit('changed', value)
-     *		}
-     *	}
-     */
-    function fromEventEmitter(emitter, eventType) {
-        return function (listener, thisArgs, disposables) {
-            var result = emitter.addListener(eventType, function () {
-                listener.apply(thisArgs, arguments);
-            });
-            if (Array.isArray(disposables)) {
-                disposables.push(result);
-            }
-            return result;
-        };
-    }
-    exports.fromEventEmitter = fromEventEmitter;
-    function fromCallback(fn) {
-        var listener;
-        var emitter = new Emitter({
-            onFirstListenerAdd: function () { return listener = fn(function (e) { return emitter.fire(e); }); },
-            onLastListenerRemove: function () { return listener.dispose(); }
-        });
-        return emitter.event;
-    }
-    exports.fromCallback = fromCallback;
-    function fromPromise(promise) {
-        var emitter = new Emitter();
-        var shouldEmit = false;
-        promise
-            .then(null, function () { return null; })
-            .then(function () {
-            if (!shouldEmit) {
-                setTimeout(function () { return emitter.fire(); }, 0);
-            }
-            else {
-                emitter.fire();
-            }
-        });
-        shouldEmit = true;
-        return emitter.event;
-    }
-    exports.fromPromise = fromPromise;
-    function toPromise(event) {
-        return new winjs_base_1.TPromise(function (complete) {
-            var sub = event(function (e) {
-                sub.dispose();
-                complete(e);
-            });
-        });
-    }
-    exports.toPromise = toPromise;
-    function delayed(promise) {
-        var toCancel = null;
-        var listener = null;
-        var emitter = new Emitter({
-            onFirstListenerAdd: function () {
-                toCancel = promise.then(function (event) { return listener = event(function (e) { return emitter.fire(e); }); }, function () { return null; });
-            },
-            onLastListenerRemove: function () {
-                if (toCancel) {
-                    toCancel.cancel();
-                    toCancel = null;
-                }
-                if (listener) {
-                    listener.dispose();
-                    listener = null;
-                }
-            }
-        });
-        return emitter.event;
-    }
-    exports.delayed = delayed;
     function once(event) {
         return function (listener, thisArgs, disposables) {
             if (thisArgs === void 0) { thisArgs = null; }
+            // we need this, in case the event fires during the listener call
+            var didFire = false;
             var result = event(function (e) {
-                result.dispose();
+                if (didFire) {
+                    return;
+                }
+                else if (result) {
+                    result.dispose();
+                }
+                else {
+                    didFire = true;
+                }
                 return listener.call(thisArgs, e);
             }, null, disposables);
+            if (didFire) {
+                result.dispose();
+            }
             return result;
         };
     }
     exports.once = once;
-    function any() {
+    function anyEvent() {
         var events = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             events[_i] = arguments[_i];
@@ -7783,30 +7033,30 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
             return lifecycle_1.combinedDisposable(events.map(function (event) { return event(function (e) { return listener.call(thisArgs, e); }, null, disposables); }));
         };
     }
-    exports.any = any;
+    exports.anyEvent = anyEvent;
     function debounceEvent(event, merger, delay, leading) {
         if (delay === void 0) { delay = 100; }
         if (leading === void 0) { leading = false; }
         var subscription;
-        var output;
-        var handle;
+        var output = undefined;
+        var handle = undefined;
         var numDebouncedCalls = 0;
         var emitter = new Emitter({
             onFirstListenerAdd: function () {
                 subscription = event(function (cur) {
                     numDebouncedCalls++;
                     output = merger(output, cur);
-                    if (!handle && leading) {
+                    if (leading && !handle) {
                         emitter.fire(output);
                     }
                     clearTimeout(handle);
                     handle = setTimeout(function () {
                         var _output = output;
                         output = undefined;
+                        handle = undefined;
                         if (!leading || numDebouncedCalls > 1) {
                             emitter.fire(_output);
                         }
-                        handle = null;
                         numDebouncedCalls = 0;
                     }, delay);
                 });
@@ -7838,7 +7088,7 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
      * // event will only be fired at this point
      * ```
      */
-    var EventBufferer = (function () {
+    var EventBufferer = /** @class */ (function () {
         function EventBufferer() {
             this.buffers = [];
         }
@@ -7859,9 +7109,10 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
         EventBufferer.prototype.bufferEvents = function (fn) {
             var buffer = [];
             this.buffers.push(buffer);
-            fn();
+            var r = fn();
             this.buffers.pop();
             buffer.forEach(function (flush) { return flush(); });
+            return r;
         };
         return EventBufferer;
     }());
@@ -7880,7 +7131,7 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
         };
     }
     exports.filterEvent = filterEvent;
-    var ChainableEvent = (function () {
+    var ChainableEvent = /** @class */ (function () {
         function ChainableEvent(_event) {
             this._event = _event;
         }
@@ -7904,107 +7155,50 @@ define(__m[9/*vs/base/common/event*/], __M([1/*require*/,0/*exports*/,10/*vs/bas
         return new ChainableEvent(event);
     }
     exports.chain = chain;
-    function stopwatch(event) {
-        var start = new Date().getTime();
-        return mapEvent(once(event), function (_) { return new Date().getTime() - start; });
-    }
-    exports.stopwatch = stopwatch;
-    /**
-     * Buffers the provided event until a first listener comes
-     * along, at which point fire all the events at once and
-     * pipe the event from then on.
-     *
-     * ```typescript
-     * const emitter = new Emitter<number>();
-     * const event = emitter.event;
-     * const bufferedEvent = buffer(event);
-     *
-     * emitter.fire(1);
-     * emitter.fire(2);
-     * emitter.fire(3);
-     * // nothing...
-     *
-     * const listener = bufferedEvent(num => console.log(num));
-     * // 1, 2, 3
-     *
-     * emitter.fire(4);
-     * // 4
-     * ```
-     */
-    function buffer(event, nextTick, buffer) {
-        if (nextTick === void 0) { nextTick = false; }
-        if (buffer === void 0) { buffer = []; }
-        buffer = buffer.slice();
-        var listener = event(function (e) {
-            if (buffer) {
-                buffer.push(e);
-            }
-            else {
-                emitter.fire(e);
-            }
+    var Relay = /** @class */ (function () {
+        function Relay() {
+            var _this = this;
+            this.listening = false;
+            this.inputEvent = Event.None;
+            this.inputEventListener = lifecycle_1.Disposable.None;
+            this.emitter = new Emitter({
+                onFirstListenerDidAdd: function () {
+                    _this.listening = true;
+                    _this.inputEventListener = _this.inputEvent(_this.emitter.fire, _this.emitter);
+                },
+                onLastListenerRemove: function () {
+                    _this.listening = false;
+                    _this.inputEventListener.dispose();
+                }
+            });
+            this.event = this.emitter.event;
+        }
+        Object.defineProperty(Relay.prototype, "input", {
+            set: function (event) {
+                this.inputEvent = event;
+                if (this.listening) {
+                    this.inputEventListener.dispose();
+                    this.inputEventListener = event(this.emitter.fire, this.emitter);
+                }
+            },
+            enumerable: true,
+            configurable: true
         });
-        var flush = function () {
-            buffer.forEach(function (e) { return emitter.fire(e); });
-            buffer = null;
+        Relay.prototype.dispose = function () {
+            this.inputEventListener.dispose();
+            this.emitter.dispose();
         };
-        var emitter = new Emitter({
-            onFirstListenerAdd: function () {
-                if (!listener) {
-                    listener = event(function (e) { return emitter.fire(e); });
-                }
-            },
-            onFirstListenerDidAdd: function () {
-                if (buffer) {
-                    if (nextTick) {
-                        setTimeout(flush);
-                    }
-                    else {
-                        flush();
-                    }
-                }
-            },
-            onLastListenerRemove: function () {
-                listener.dispose();
-                listener = null;
-            }
-        });
-        return emitter.event;
-    }
-    exports.buffer = buffer;
-    /**
-     * Similar to `buffer` but it buffers indefinitely and repeats
-     * the buffered events to every new listener.
-     */
-    function echo(event, nextTick, buffer) {
-        if (nextTick === void 0) { nextTick = false; }
-        if (buffer === void 0) { buffer = []; }
-        buffer = buffer.slice();
-        event(function (e) {
-            buffer.push(e);
-            emitter.fire(e);
-        });
-        var flush = function (listener, thisArgs) { return buffer.forEach(function (e) { return listener.call(thisArgs, e); }); };
-        var emitter = new Emitter({
-            onListenerDidAdd: function (emitter, listener, thisArgs) {
-                if (nextTick) {
-                    setTimeout(function () { return flush(listener, thisArgs); });
-                }
-                else {
-                    flush(listener, thisArgs);
-                }
-            }
-        });
-        return emitter.event;
-    }
-    exports.echo = echo;
+        return Relay;
+    }());
+    exports.Relay = Relay;
 });
 
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[13/*vs/base/common/cancellation*/], __M([1/*require*/,0/*exports*/,9/*vs/base/common/event*/]), function (require, exports, event_1) {
-    'use strict';
+define(__m[10/*vs/base/common/cancellation*/], __M([0/*require*/,1/*exports*/,9/*vs/base/common/event*/]), function (require, exports, event_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var shortcutEvent = Object.freeze(function (callback, context) {
         var handle = setTimeout(callback.bind(context), 0);
@@ -8012,25 +7206,40 @@ define(__m[13/*vs/base/common/cancellation*/], __M([1/*require*/,0/*exports*/,9/
     });
     var CancellationToken;
     (function (CancellationToken) {
+        function isCancellationToken(thing) {
+            if (thing === CancellationToken.None || thing === CancellationToken.Cancelled) {
+                return true;
+            }
+            if (thing instanceof MutableToken) {
+                return true;
+            }
+            if (!thing || typeof thing !== 'object') {
+                return false;
+            }
+            return typeof thing.isCancellationRequested === 'boolean'
+                && typeof thing.onCancellationRequested === 'function';
+        }
+        CancellationToken.isCancellationToken = isCancellationToken;
         CancellationToken.None = Object.freeze({
             isCancellationRequested: false,
-            onCancellationRequested: event_1.default.None
+            onCancellationRequested: event_1.Event.None
         });
         CancellationToken.Cancelled = Object.freeze({
             isCancellationRequested: true,
             onCancellationRequested: shortcutEvent
         });
     })(CancellationToken = exports.CancellationToken || (exports.CancellationToken = {}));
-    var MutableToken = (function () {
+    var MutableToken = /** @class */ (function () {
         function MutableToken() {
             this._isCancelled = false;
+            this._emitter = null;
         }
         MutableToken.prototype.cancel = function () {
             if (!this._isCancelled) {
                 this._isCancelled = true;
                 if (this._emitter) {
                     this._emitter.fire(undefined);
-                    this._emitter = undefined;
+                    this.dispose();
                 }
             }
         };
@@ -8054,9 +7263,15 @@ define(__m[13/*vs/base/common/cancellation*/], __M([1/*require*/,0/*exports*/,9/
             enumerable: true,
             configurable: true
         });
+        MutableToken.prototype.dispose = function () {
+            if (this._emitter) {
+                this._emitter.dispose();
+                this._emitter = null;
+            }
+        };
         return MutableToken;
     }());
-    var CancellationTokenSource = (function () {
+    var CancellationTokenSource = /** @class */ (function () {
         function CancellationTokenSource() {
         }
         Object.defineProperty(CancellationTokenSource.prototype, "token", {
@@ -8078,12 +7293,20 @@ define(__m[13/*vs/base/common/cancellation*/], __M([1/*require*/,0/*exports*/,9/
                 // before someone asks for the token
                 this._token = CancellationToken.Cancelled;
             }
-            else {
+            else if (this._token instanceof MutableToken) {
+                // actually cancel
                 this._token.cancel();
             }
         };
         CancellationTokenSource.prototype.dispose = function () {
-            this.cancel();
+            if (!this._token) {
+                // ensure to initialize with an empty token if we had none
+                this._token = CancellationToken.None;
+            }
+            else if (this._token instanceof MutableToken) {
+                // actually dispose
+                this._token.dispose();
+            }
         };
         return CancellationTokenSource;
     }());
@@ -8104,142 +7327,52 @@ define(__m[13/*vs/base/common/cancellation*/], __M([1/*require*/,0/*exports*/,9/
 
 
 
-define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/base/common/errors*/,4/*vs/base/common/platform*/,2/*vs/base/common/winjs.base*/,13/*vs/base/common/cancellation*/,10/*vs/base/common/lifecycle*/,9/*vs/base/common/event*/]), function (require, exports, errors, platform, winjs_base_1, cancellation_1, lifecycle_1, event_1) {
-    'use strict';
+
+
+
+define(__m[14/*vs/base/common/async*/], __M([0/*require*/,1/*exports*/,10/*vs/base/common/cancellation*/,4/*vs/base/common/errors*/,7/*vs/base/common/lifecycle*/,8/*vs/base/common/winjs.base*/]), function (require, exports, cancellation_1, errors, lifecycle_1, winjs_base_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     function isThenable(obj) {
         return obj && typeof obj.then === 'function';
     }
-    function toThenable(arg) {
-        if (isThenable(arg)) {
-            return arg;
-        }
-        else {
-            return winjs_base_1.TPromise.as(arg);
-        }
-    }
-    exports.toThenable = toThenable;
-    function asWinJsPromise(callback) {
+    exports.isThenable = isThenable;
+    function createCancelablePromise(callback) {
         var source = new cancellation_1.CancellationTokenSource();
-        return new winjs_base_1.TPromise(function (resolve, reject, progress) {
-            var item = callback(source.token);
-            if (item instanceof winjs_base_1.TPromise) {
-                item.then(resolve, reject, progress);
-            }
-            else if (isThenable(item)) {
-                item.then(resolve, reject);
-            }
-            else {
-                resolve(item);
-            }
-        }, function () {
-            source.cancel();
+        var thenable = callback(source.token);
+        var promise = new Promise(function (resolve, reject) {
+            source.token.onCancellationRequested(function () {
+                reject(errors.canceled());
+            });
+            Promise.resolve(thenable).then(function (value) {
+                source.dispose();
+                resolve(value);
+            }, function (err) {
+                source.dispose();
+                reject(err);
+            });
         });
-    }
-    exports.asWinJsPromise = asWinJsPromise;
-    /**
-     * Hook a cancellation token to a WinJS Promise
-     */
-    function wireCancellationToken(token, promise, resolveAsUndefinedWhenCancelled) {
-        var subscription = token.onCancellationRequested(function () { return promise.cancel(); });
-        if (resolveAsUndefinedWhenCancelled) {
-            promise = promise.then(undefined, function (err) {
-                if (!errors.isPromiseCanceledError(err)) {
-                    return winjs_base_1.TPromise.wrapError(err);
-                }
-                return undefined;
-            });
-        }
-        return always(promise, function () { return subscription.dispose(); });
-    }
-    exports.wireCancellationToken = wireCancellationToken;
-    /**
-     * A helper to prevent accumulation of sequential async tasks.
-     *
-     * Imagine a mail man with the sole task of delivering letters. As soon as
-     * a letter submitted for delivery, he drives to the destination, delivers it
-     * and returns to his base. Imagine that during the trip, N more letters were submitted.
-     * When the mail man returns, he picks those N letters and delivers them all in a
-     * single trip. Even though N+1 submissions occurred, only 2 deliveries were made.
-     *
-     * The throttler implements this via the queue() method, by providing it a task
-     * factory. Following the example:
-     *
-     * 		const throttler = new Throttler();
-     * 		const letters = [];
-     *
-     * 		function deliver() {
-     * 			const lettersToDeliver = letters;
-     * 			letters = [];
-     * 			return makeTheTrip(lettersToDeliver);
-     * 		}
-     *
-     * 		function onLetterReceived(l) {
-     * 			letters.push(l);
-     * 			throttler.queue(deliver);
-     * 		}
-     */
-    var Throttler = (function () {
-        function Throttler() {
-            this.activePromise = null;
-            this.queuedPromise = null;
-            this.queuedPromiseFactory = null;
-        }
-        Throttler.prototype.queue = function (promiseFactory) {
-            var _this = this;
-            if (this.activePromise) {
-                this.queuedPromiseFactory = promiseFactory;
-                if (!this.queuedPromise) {
-                    var onComplete_1 = function () {
-                        _this.queuedPromise = null;
-                        var result = _this.queue(_this.queuedPromiseFactory);
-                        _this.queuedPromiseFactory = null;
-                        return result;
-                    };
-                    this.queuedPromise = new winjs_base_1.TPromise(function (c, e, p) {
-                        _this.activePromise.then(onComplete_1, onComplete_1, p).done(c);
-                    }, function () {
-                        _this.activePromise.cancel();
-                    });
-                }
-                return new winjs_base_1.TPromise(function (c, e, p) {
-                    _this.queuedPromise.then(c, e, p);
-                }, function () {
-                    // no-op
-                });
+        return new /** @class */ (function () {
+            function class_1() {
             }
-            this.activePromise = promiseFactory();
-            return new winjs_base_1.TPromise(function (c, e, p) {
-                _this.activePromise.done(function (result) {
-                    _this.activePromise = null;
-                    c(result);
-                }, function (err) {
-                    _this.activePromise = null;
-                    e(err);
-                }, p);
-            }, function () {
-                _this.activePromise.cancel();
-            });
-        };
-        return Throttler;
-    }());
-    exports.Throttler = Throttler;
-    // TODO@Joao: can the previous throttler be replaced with this?
-    var SimpleThrottler = (function () {
-        function SimpleThrottler() {
-            this.current = winjs_base_1.TPromise.as(null);
-        }
-        SimpleThrottler.prototype.queue = function (promiseTask) {
-            return this.current = this.current.then(function () { return promiseTask(); });
-        };
-        return SimpleThrottler;
-    }());
-    exports.SimpleThrottler = SimpleThrottler;
+            class_1.prototype.cancel = function () {
+                source.cancel();
+            };
+            class_1.prototype.then = function (resolve, reject) {
+                return promise.then(resolve, reject);
+            };
+            class_1.prototype.catch = function (reject) {
+                return this.then(undefined, reject);
+            };
+            return class_1;
+        }());
+    }
+    exports.createCancelablePromise = createCancelablePromise;
     /**
      * A helper to delay execution of a task that is being requested often.
      *
      * Following the throttler, now imagine the mail man wants to optimize the number of
-     * trips proactively. The trip itself can be long, so the he decides not to make the trip
+     * trips proactively. The trip itself can be long, so he decides not to make the trip
      * as soon as a letter is submitted. Instead he waits a while, in case more
      * letters are submitted. After said waiting period, if no letters were submitted, he
      * decides to make the trip. Imagine that N more letters were submitted after the first
@@ -8258,12 +7391,12 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
      * 			delayer.trigger(() => { return makeTheTrip(); });
      * 		}
      */
-    var Delayer = (function () {
+    var Delayer = /** @class */ (function () {
         function Delayer(defaultDelay) {
             this.defaultDelay = defaultDelay;
             this.timeout = null;
             this.completionPromise = null;
-            this.onSuccess = null;
+            this.doResolve = null;
             this.task = null;
         }
         Delayer.prototype.trigger = function (task, delay) {
@@ -8272,13 +7405,12 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
             this.task = task;
             this.cancelTimeout();
             if (!this.completionPromise) {
-                this.completionPromise = new winjs_base_1.TPromise(function (c) {
-                    _this.onSuccess = c;
-                }, function () {
-                    // no-op
+                this.completionPromise = new winjs_base_1.TPromise(function (c, e) {
+                    _this.doResolve = c;
+                    _this.doReject = e;
                 }).then(function () {
                     _this.completionPromise = null;
-                    _this.onSuccess = null;
+                    _this.doResolve = null;
                     var task = _this.task;
                     _this.task = null;
                     return task();
@@ -8286,17 +7418,14 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
             }
             this.timeout = setTimeout(function () {
                 _this.timeout = null;
-                _this.onSuccess(null);
+                _this.doResolve(null);
             }, delay);
             return this.completionPromise;
-        };
-        Delayer.prototype.isTriggered = function () {
-            return this.timeout !== null;
         };
         Delayer.prototype.cancel = function () {
             this.cancelTimeout();
             if (this.completionPromise) {
-                this.completionPromise.cancel();
+                this.doReject(errors.canceled());
                 this.completionPromise = null;
             }
         };
@@ -8306,173 +7435,59 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
                 this.timeout = null;
             }
         };
+        Delayer.prototype.dispose = function () {
+            this.cancelTimeout();
+        };
         return Delayer;
     }());
     exports.Delayer = Delayer;
-    /**
-     * A helper to delay execution of a task that is being requested often, while
-     * preventing accumulation of consecutive executions, while the task runs.
-     *
-     * Simply combine the two mail man strategies from the Throttler and Delayer
-     * helpers, for an analogy.
-     */
-    var ThrottledDelayer = (function (_super) {
-        __extends(ThrottledDelayer, _super);
-        function ThrottledDelayer(defaultDelay) {
-            var _this = _super.call(this, defaultDelay) || this;
-            _this.throttler = new Throttler();
-            return _this;
+    function timeout(millis, token) {
+        if (!token) {
+            return createCancelablePromise(function (token) { return timeout(millis, token); });
         }
-        ThrottledDelayer.prototype.trigger = function (promiseFactory, delay) {
-            var _this = this;
-            return _super.prototype.trigger.call(this, function () { return _this.throttler.queue(promiseFactory); }, delay);
-        };
-        return ThrottledDelayer;
-    }(Delayer));
-    exports.ThrottledDelayer = ThrottledDelayer;
-    /**
-     * Similar to the ThrottledDelayer, except it also guarantees that the promise
-     * factory doesn't get called more often than every `minimumPeriod` milliseconds.
-     */
-    var PeriodThrottledDelayer = (function (_super) {
-        __extends(PeriodThrottledDelayer, _super);
-        function PeriodThrottledDelayer(defaultDelay, minimumPeriod) {
-            if (minimumPeriod === void 0) { minimumPeriod = 0; }
-            var _this = _super.call(this, defaultDelay) || this;
-            _this.minimumPeriod = minimumPeriod;
-            _this.periodThrottler = new Throttler();
-            return _this;
-        }
-        PeriodThrottledDelayer.prototype.trigger = function (promiseFactory, delay) {
-            var _this = this;
-            return _super.prototype.trigger.call(this, function () {
-                return _this.periodThrottler.queue(function () {
-                    return winjs_base_1.Promise.join([
-                        winjs_base_1.TPromise.timeout(_this.minimumPeriod),
-                        promiseFactory()
-                    ]).then(function (r) { return r[1]; });
-                });
-            }, delay);
-        };
-        return PeriodThrottledDelayer;
-    }(ThrottledDelayer));
-    exports.PeriodThrottledDelayer = PeriodThrottledDelayer;
-    var PromiseSource = (function () {
-        function PromiseSource() {
-            var _this = this;
-            this._value = new winjs_base_1.TPromise(function (c, e) {
-                _this._completeCallback = c;
-                _this._errorCallback = e;
+        return new Promise(function (resolve, reject) {
+            var handle = setTimeout(resolve, millis);
+            token.onCancellationRequested(function () {
+                clearTimeout(handle);
+                reject(errors.canceled());
             });
-        }
-        Object.defineProperty(PromiseSource.prototype, "value", {
-            get: function () {
-                return this._value;
-            },
-            enumerable: true,
-            configurable: true
         });
-        PromiseSource.prototype.complete = function (value) {
-            this._completeCallback(value);
-        };
-        PromiseSource.prototype.error = function (err) {
-            this._errorCallback(err);
-        };
-        return PromiseSource;
-    }());
-    exports.PromiseSource = PromiseSource;
-    var ShallowCancelThenPromise = (function (_super) {
-        __extends(ShallowCancelThenPromise, _super);
-        function ShallowCancelThenPromise(outer) {
-            var _this = this;
-            var completeCallback, errorCallback, progressCallback;
-            _this = _super.call(this, function (c, e, p) {
-                completeCallback = c;
-                errorCallback = e;
-                progressCallback = p;
-            }, function () {
-                // cancel this promise but not the
-                // outer promise
-                errorCallback(errors.canceled());
-            }) || this;
-            outer.then(completeCallback, errorCallback, progressCallback);
-            return _this;
-        }
-        return ShallowCancelThenPromise;
-    }(winjs_base_1.TPromise));
-    exports.ShallowCancelThenPromise = ShallowCancelThenPromise;
+    }
+    exports.timeout = timeout;
     /**
      * Returns a new promise that joins the provided promise. Upon completion of
      * the provided promise the provided function will always be called. This
      * method is comparable to a try-finally code block.
      * @param promise a promise
-     * @param f a function that will be call in the success and error case.
+     * @param callback a function that will be call in the success and error case.
      */
-    function always(promise, f) {
-        return new winjs_base_1.TPromise(function (c, e, p) {
-            promise.done(function (result) {
-                try {
-                    f(result);
-                }
-                catch (e1) {
-                    errors.onUnexpectedError(e1);
-                }
-                c(result);
-            }, function (err) {
-                try {
-                    f(err);
-                }
-                catch (e1) {
-                    errors.onUnexpectedError(e1);
-                }
-                e(err);
-            }, function (progress) {
-                p(progress);
-            });
-        }, function () {
-            promise.cancel();
-        });
+    function always(promise, callback) {
+        function safeCallback() {
+            try {
+                callback();
+            }
+            catch (err) {
+                errors.onUnexpectedError(err);
+            }
+        }
+        promise.then(function (_) { return safeCallback(); }, function (_) { return safeCallback(); });
+        return Promise.resolve(promise);
     }
     exports.always = always;
-    /**
-     * Runs the provided list of promise factories in sequential order. The returned
-     * promise will complete to an array of results from each promise.
-     */
-    function sequence(promiseFactories) {
-        var results = [];
-        // reverse since we start with last element using pop()
-        promiseFactories = promiseFactories.reverse();
-        function next() {
-            if (promiseFactories.length) {
-                return promiseFactories.pop()();
-            }
-            return null;
-        }
-        function thenHandler(result) {
-            if (result !== undefined && result !== null) {
-                results.push(result);
-            }
-            var n = next();
-            if (n) {
-                return n.then(thenHandler);
-            }
-            return winjs_base_1.TPromise.as(results);
-        }
-        return winjs_base_1.TPromise.as(null).then(thenHandler);
-    }
-    exports.sequence = sequence;
-    function first(promiseFactories, shouldStop) {
+    function first(promiseFactories, shouldStop, defaultValue) {
         if (shouldStop === void 0) { shouldStop = function (t) { return !!t; }; }
-        promiseFactories = promiseFactories.reverse().slice();
+        if (defaultValue === void 0) { defaultValue = null; }
+        var index = 0;
+        var len = promiseFactories.length;
         var loop = function () {
-            if (promiseFactories.length === 0) {
-                return winjs_base_1.TPromise.as(null);
+            if (index >= len) {
+                return Promise.resolve(defaultValue);
             }
-            var factory = promiseFactories.pop();
-            var promise = factory();
+            var factory = promiseFactories[index++];
+            var promise = Promise.resolve(factory());
             return promise.then(function (result) {
                 if (shouldStop(result)) {
-                    return winjs_base_1.TPromise.as(result);
+                    return Promise.resolve(result);
                 }
                 return loop();
             });
@@ -8480,86 +7495,14 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
         return loop();
     }
     exports.first = first;
-    /**
-     * A helper to queue N promises and run them all with a max degree of parallelism. The helper
-     * ensures that at any time no more than M promises are running at the same time.
-     */
-    var Limiter = (function () {
-        function Limiter(maxDegreeOfParalellism) {
-            this.maxDegreeOfParalellism = maxDegreeOfParalellism;
-            this.outstandingPromises = [];
-            this.runningPromises = 0;
-            this._onFinished = new event_1.Emitter();
-        }
-        Object.defineProperty(Limiter.prototype, "onFinished", {
-            get: function () {
-                return this._onFinished.event;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        Limiter.prototype.queue = function (promiseFactory) {
-            var _this = this;
-            return new winjs_base_1.TPromise(function (c, e, p) {
-                _this.outstandingPromises.push({
-                    factory: promiseFactory,
-                    c: c,
-                    e: e,
-                    p: p
-                });
-                _this.consume();
-            });
-        };
-        Limiter.prototype.consume = function () {
-            var _this = this;
-            while (this.outstandingPromises.length && this.runningPromises < this.maxDegreeOfParalellism) {
-                var iLimitedTask = this.outstandingPromises.shift();
-                this.runningPromises++;
-                var promise = iLimitedTask.factory();
-                promise.done(iLimitedTask.c, iLimitedTask.e, iLimitedTask.p);
-                promise.done(function () { return _this.consumed(); }, function () { return _this.consumed(); });
-            }
-        };
-        Limiter.prototype.consumed = function () {
-            this.runningPromises--;
-            if (this.outstandingPromises.length > 0) {
-                this.consume();
-            }
-            else {
-                this._onFinished.fire();
-            }
-        };
-        Limiter.prototype.dispose = function () {
-            this._onFinished.dispose();
-        };
-        return Limiter;
-    }());
-    exports.Limiter = Limiter;
-    /**
-     * A queue is handles one promise at a time and guarantees that at any time only one promise is executing.
-     */
-    var Queue = (function (_super) {
-        __extends(Queue, _super);
-        function Queue() {
-            return _super.call(this, 1) || this;
-        }
-        return Queue;
-    }(Limiter));
-    exports.Queue = Queue;
-    function setDisposableTimeout(handler, timeout) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
-        }
-        var handle = setTimeout.apply(void 0, [handler, timeout].concat(args));
-        return { dispose: function () { clearTimeout(handle); } };
-    }
-    exports.setDisposableTimeout = setDisposableTimeout;
-    var TimeoutTimer = (function (_super) {
+    var TimeoutTimer = /** @class */ (function (_super) {
         __extends(TimeoutTimer, _super);
-        function TimeoutTimer() {
+        function TimeoutTimer(runner, timeout) {
             var _this = _super.call(this) || this;
             _this._token = -1;
+            if (typeof runner === 'function' && typeof timeout === 'number') {
+                _this.setIfNotSet(runner, timeout);
+            }
             return _this;
         }
         TimeoutTimer.prototype.dispose = function () {
@@ -8568,14 +7511,14 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
         };
         TimeoutTimer.prototype.cancel = function () {
             if (this._token !== -1) {
-                platform.clearTimeout(this._token);
+                clearTimeout(this._token);
                 this._token = -1;
             }
         };
         TimeoutTimer.prototype.cancelAndSet = function (runner, timeout) {
             var _this = this;
             this.cancel();
-            this._token = platform.setTimeout(function () {
+            this._token = setTimeout(function () {
                 _this._token = -1;
                 runner();
             }, timeout);
@@ -8586,7 +7529,7 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
                 // timer is already set
                 return;
             }
-            this._token = platform.setTimeout(function () {
+            this._token = setTimeout(function () {
                 _this._token = -1;
                 runner();
             }, timeout);
@@ -8594,7 +7537,7 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
         return TimeoutTimer;
     }(lifecycle_1.Disposable));
     exports.TimeoutTimer = TimeoutTimer;
-    var IntervalTimer = (function (_super) {
+    var IntervalTimer = /** @class */ (function (_super) {
         __extends(IntervalTimer, _super);
         function IntervalTimer() {
             var _this = _super.call(this) || this;
@@ -8607,20 +7550,20 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
         };
         IntervalTimer.prototype.cancel = function () {
             if (this._token !== -1) {
-                platform.clearInterval(this._token);
+                clearInterval(this._token);
                 this._token = -1;
             }
         };
         IntervalTimer.prototype.cancelAndSet = function (runner, interval) {
             this.cancel();
-            this._token = platform.setInterval(function () {
+            this._token = setInterval(function () {
                 runner();
             }, interval);
         };
         return IntervalTimer;
     }(lifecycle_1.Disposable));
     exports.IntervalTimer = IntervalTimer;
-    var RunOnceScheduler = (function () {
+    var RunOnceScheduler = /** @class */ (function () {
         function RunOnceScheduler(runner, timeout) {
             this.timeoutToken = -1;
             this.runner = runner;
@@ -8639,15 +7582,9 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
          */
         RunOnceScheduler.prototype.cancel = function () {
             if (this.isScheduled()) {
-                platform.clearTimeout(this.timeoutToken);
+                clearTimeout(this.timeoutToken);
                 this.timeoutToken = -1;
             }
-        };
-        /**
-         * Replace runner. If there is a runner already scheduled, the new runner will be called.
-         */
-        RunOnceScheduler.prototype.setRunner = function (runner) {
-            this.runner = runner;
         };
         /**
          * Cancel previous runner (if any) & schedule a new runner.
@@ -8655,7 +7592,7 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
         RunOnceScheduler.prototype.schedule = function (delay) {
             if (delay === void 0) { delay = this.timeout; }
             this.cancel();
-            this.timeoutToken = platform.setTimeout(this.timeoutHandler, delay);
+            this.timeoutToken = setTimeout(this.timeoutHandler, delay);
         };
         /**
          * Returns true if scheduled.
@@ -8666,30 +7603,217 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
         RunOnceScheduler.prototype.onTimeout = function () {
             this.timeoutToken = -1;
             if (this.runner) {
+                this.doRun();
+            }
+        };
+        RunOnceScheduler.prototype.doRun = function () {
+            if (this.runner) {
                 this.runner();
             }
         };
         return RunOnceScheduler;
     }());
     exports.RunOnceScheduler = RunOnceScheduler;
-    function nfcall(fn) {
-        var args = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            args[_i - 1] = arguments[_i];
+    (function () {
+        if (typeof requestIdleCallback !== 'function' || typeof cancelIdleCallback !== 'function') {
+            var dummyIdle_1 = Object.freeze({
+                didTimeout: true,
+                timeRemaining: function () { return 15; }
+            });
+            exports.runWhenIdle = function (runner, timeout) {
+                if (timeout === void 0) { timeout = 0; }
+                var handle = setTimeout(function () { return runner(dummyIdle_1); }, timeout);
+                var disposed = false;
+                return {
+                    dispose: function () {
+                        if (disposed) {
+                            return;
+                        }
+                        disposed = true;
+                        clearTimeout(handle);
+                    }
+                };
+            };
         }
-        return new winjs_base_1.TPromise(function (c, e) { return fn.apply(void 0, args.concat([function (err, result) { return err ? e(err) : c(result); }])); }, function () { return null; });
-    }
-    exports.nfcall = nfcall;
-    function ninvoke(thisArg, fn) {
-        var args = [];
-        for (var _i = 2; _i < arguments.length; _i++) {
-            args[_i - 2] = arguments[_i];
+        else {
+            exports.runWhenIdle = function (runner, timeout) {
+                var handle = requestIdleCallback(runner, typeof timeout === 'number' ? { timeout: timeout } : undefined);
+                var disposed = false;
+                return {
+                    dispose: function () {
+                        if (disposed) {
+                            return;
+                        }
+                        disposed = true;
+                        cancelIdleCallback(handle);
+                    }
+                };
+            };
         }
-        return new winjs_base_1.TPromise(function (c, e) { return fn.call.apply(fn, [thisArg].concat(args, [function (err, result) { return err ? e(err) : c(result); }])); }, function () { return null; });
+    })();
+    /**
+     * An implementation of the "idle-until-urgent"-strategy as introduced
+     * here: https://philipwalton.com/articles/idle-until-urgent/
+     */
+    var IdleValue = /** @class */ (function () {
+        function IdleValue(executor) {
+            var _this = this;
+            this._executor = function () {
+                try {
+                    _this._value = executor();
+                }
+                catch (err) {
+                    _this._error = err;
+                }
+                finally {
+                    _this._didRun = true;
+                }
+            };
+            this._handle = exports.runWhenIdle(function () { return _this._executor(); });
+        }
+        IdleValue.prototype.dispose = function () {
+            this._handle.dispose();
+        };
+        IdleValue.prototype.getValue = function () {
+            if (!this._didRun) {
+                this._handle.dispose();
+                this._executor();
+            }
+            if (this._error) {
+                throw this._error;
+            }
+            return this._value;
+        };
+        return IdleValue;
+    }());
+    exports.IdleValue = IdleValue;
+});
+//#endregion
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[18/*vs/base/common/winjs.polyfill.promise*/], __M([0/*require*/,1/*exports*/,8/*vs/base/common/winjs.base*/,3/*vs/base/common/platform*/,14/*vs/base/common/async*/]), function (require, exports, winjs_base_1, platform, async_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    function isWinJSPromise(candidate) {
+        return async_1.isThenable(candidate) && typeof candidate.done === 'function';
     }
-    exports.ninvoke = ninvoke;
+    /**
+     * A polyfill for the native promises. The implementation is based on
+     * WinJS promises but tries to gap differences between winjs promises
+     * and native promises.
+     */
+    var PolyfillPromise = /** @class */ (function () {
+        function PolyfillPromise(initOrPromise) {
+            if (isWinJSPromise(initOrPromise)) {
+                this._winjsPromise = initOrPromise;
+            }
+            else {
+                this._winjsPromise = new winjs_base_1.Promise(function (resolve, reject) {
+                    var initializing = true;
+                    initOrPromise(function (value) {
+                        if (!initializing) {
+                            resolve(value);
+                        }
+                        else {
+                            platform.setImmediate(function () { return resolve(value); });
+                        }
+                    }, function (err) {
+                        if (!initializing) {
+                            reject(err);
+                        }
+                        else {
+                            platform.setImmediate(function () { return reject(err); });
+                        }
+                    });
+                    initializing = false;
+                });
+            }
+        }
+        PolyfillPromise.all = function (thenables) {
+            return new PolyfillPromise(winjs_base_1.Promise.join(thenables).then(null, function (values) {
+                // WinJSPromise returns a sparse array whereas
+                // native promises return the *first* error
+                for (var key in values) {
+                    if (values.hasOwnProperty(key)) {
+                        return values[key];
+                    }
+                }
+            }));
+        };
+        PolyfillPromise.race = function (thenables) {
+            // WinJSPromise returns `{ key: <index/key>, value: <promise> }`
+            // from the `any` call and Promise.race just wants the value
+            return new PolyfillPromise(winjs_base_1.Promise.any(thenables).then(function (entry) { return entry.value; }, function (err) { return err.value; }));
+        };
+        PolyfillPromise.resolve = function (value) {
+            return new PolyfillPromise(winjs_base_1.Promise.wrap(value));
+        };
+        PolyfillPromise.reject = function (value) {
+            return new PolyfillPromise(winjs_base_1.Promise.wrapError(value));
+        };
+        PolyfillPromise.prototype.then = function (onFulfilled, onRejected) {
+            var sync = true;
+            // To support chaining, we need to return the value of the
+            // onFulfilled and onRejected callback.
+            // WinJSPromise supports a flat-map style #then, ie. the callbacks
+            // passed to WinJSPromise#then can return a Promise.
+            var promise = new PolyfillPromise(this._winjsPromise.then(onFulfilled && function (value) {
+                if (!sync) {
+                    return onFulfilled(value);
+                }
+                else {
+                    return new winjs_base_1.Promise(function (resolve, reject) {
+                        platform.setImmediate(function () {
+                            var result;
+                            try {
+                                result = onFulfilled(value);
+                            }
+                            catch (err2) {
+                                reject(err2);
+                                return;
+                            }
+                            resolve(result);
+                        });
+                    });
+                }
+            }, onRejected && function (err) {
+                if (!sync) {
+                    return onRejected(err);
+                }
+                else {
+                    return new winjs_base_1.Promise(function (resolve, reject) {
+                        platform.setImmediate(function () {
+                            var result;
+                            try {
+                                result = onRejected(err);
+                            }
+                            catch (err2) {
+                                reject(err2);
+                                return;
+                            }
+                            resolve(result);
+                        });
+                    });
+                }
+            }));
+            sync = false;
+            return promise;
+        };
+        PolyfillPromise.prototype.catch = function (onRejected) {
+            return this.then(null, onRejected);
+        };
+        return PolyfillPromise;
+    }());
+    exports.PolyfillPromise = PolyfillPromise;
 });
 
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 
 
@@ -8700,13 +7824,18 @@ define(__m[18/*vs/base/common/async*/], __M([1/*require*/,0/*exports*/,8/*vs/bas
 
 
 
-define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*exports*/,8/*vs/base/common/errors*/,10/*vs/base/common/lifecycle*/,2/*vs/base/common/winjs.base*/,18/*vs/base/common/async*/,4/*vs/base/common/platform*/]), function (require, exports, errors_1, lifecycle_1, winjs_base_1, async_1, platform_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+
+
+
+define(__m[33/*vs/base/common/worker/simpleWorker*/], __M([0/*require*/,1/*exports*/,4/*vs/base/common/errors*/,7/*vs/base/common/lifecycle*/,3/*vs/base/common/platform*/,18/*vs/base/common/winjs.polyfill.promise*/]), function (require, exports, errors_1, lifecycle_1, platform_1, winjs_polyfill_promise_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    var global = self;
+    // When missing, polyfill the native promise
+    // with our winjs-based polyfill
+    if (typeof global.Promise === 'undefined') {
+        global.Promise = winjs_polyfill_promise_1.PolyfillPromise;
+    }
     var INITIALIZE = '$initialize';
     var webWorkerWarningLogged = false;
     function logOnceWebWorkerWarning(err) {
@@ -8721,7 +7850,7 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
         console.warn(err.message);
     }
     exports.logOnceWebWorkerWarning = logOnceWebWorkerWarning;
-    var SimpleWorkerProtocol = (function () {
+    var SimpleWorkerProtocol = /** @class */ (function () {
         function SimpleWorkerProtocol(handler) {
             this._workerId = -1;
             this._handler = handler;
@@ -8732,25 +7861,20 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
             this._workerId = workerId;
         };
         SimpleWorkerProtocol.prototype.sendMessage = function (method, args) {
+            var _this = this;
             var req = String(++this._lastSentReq);
-            var reply = {
-                c: null,
-                e: null
-            };
-            var result = new winjs_base_1.TPromise(function (c, e, p) {
-                reply.c = c;
-                reply.e = e;
-            }, function () {
-                // Cancel not supported
+            return new Promise(function (resolve, reject) {
+                _this._pendingReplies[req] = {
+                    resolve: resolve,
+                    reject: reject
+                };
+                _this._send({
+                    vsWorker: _this._workerId,
+                    req: req,
+                    method: method,
+                    args: args
+                });
             });
-            this._pendingReplies[req] = reply;
-            this._send({
-                vsWorker: this._workerId,
-                req: req,
-                method: method,
-                args: args
-            });
-            return result;
         };
         SimpleWorkerProtocol.prototype.handleMessage = function (serializedMessage) {
             var message;
@@ -8759,8 +7883,9 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
             }
             catch (e) {
                 // nothing
+                return;
             }
-            if (!message.vsWorker) {
+            if (!message || !message.vsWorker) {
                 return;
             }
             if (this._workerId !== -1 && message.vsWorker !== this._workerId) {
@@ -8786,10 +7911,10 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
                         err.message = replyMessage.err.message;
                         err.stack = replyMessage.err.stack;
                     }
-                    reply.e(err);
+                    reply.reject(err);
                     return;
                 }
-                reply.c(replyMessage.res);
+                reply.resolve(replyMessage.res);
                 return;
             }
             var requestMessage = msg;
@@ -8803,6 +7928,10 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
                     err: undefined
                 });
             }, function (e) {
+                if (e.detail instanceof Error) {
+                    // Loading errors have a detail property that points to the actual error
+                    e.detail = errors_1.transformErrorForSerialization(e.detail);
+                }
                 _this._send({
                     vsWorker: _this._workerId,
                     seq: req,
@@ -8821,19 +7950,19 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
     /**
      * Main thread side
      */
-    var SimpleWorkerClient = (function (_super) {
+    var SimpleWorkerClient = /** @class */ (function (_super) {
         __extends(SimpleWorkerClient, _super);
         function SimpleWorkerClient(workerFactory, moduleId) {
             var _this = _super.call(this) || this;
-            _this._lastRequestTimestamp = -1;
-            var lazyProxyFulfill = null;
             var lazyProxyReject = null;
             _this._worker = _this._register(workerFactory.create('vs/base/common/worker/simpleWorker', function (msg) {
                 _this._protocol.handleMessage(msg);
             }, function (err) {
                 // in Firefox, web workers fail lazily :(
                 // we will reject the proxy
-                lazyProxyReject(err);
+                if (lazyProxyReject) {
+                    lazyProxyReject(err);
+                }
             }));
             _this._protocol = new SimpleWorkerProtocol({
                 sendMessage: function (msg) {
@@ -8841,40 +7970,38 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
                 },
                 handleMessage: function (method, args) {
                     // Intentionally not supporting worker -> main requests
-                    return winjs_base_1.TPromise.as(null);
+                    return Promise.resolve(null);
                 }
             });
             _this._protocol.setWorkerId(_this._worker.getId());
             // Gather loader configuration
             var loaderConfiguration = null;
-            var globalRequire = self.require;
-            if (typeof globalRequire.getConfig === 'function') {
+            if (typeof self.require !== 'undefined' && typeof self.require.getConfig === 'function') {
                 // Get the configuration from the Monaco AMD Loader
-                loaderConfiguration = globalRequire.getConfig();
+                loaderConfiguration = self.require.getConfig();
             }
             else if (typeof self.requirejs !== 'undefined') {
                 // Get the configuration from requirejs
                 loaderConfiguration = self.requirejs.s.contexts._.config;
             }
-            _this._lazyProxy = new winjs_base_1.TPromise(function (c, e, p) {
-                lazyProxyFulfill = c;
-                lazyProxyReject = e;
-            }, function () { });
             // Send initialize message
             _this._onModuleLoaded = _this._protocol.sendMessage(INITIALIZE, [
                 _this._worker.getId(),
                 moduleId,
                 loaderConfiguration
             ]);
-            _this._onModuleLoaded.then(function (availableMethods) {
-                var proxy = {};
-                for (var i = 0; i < availableMethods.length; i++) {
-                    proxy[availableMethods[i]] = createProxyMethod(availableMethods[i], proxyMethodRequest);
-                }
-                lazyProxyFulfill(proxy);
-            }, function (e) {
-                lazyProxyReject(e);
-                _this._onError('Worker failed to load ' + moduleId, e);
+            _this._lazyProxy = new Promise(function (resolve, reject) {
+                lazyProxyReject = reject;
+                _this._onModuleLoaded.then(function (availableMethods) {
+                    var proxy = {};
+                    for (var i = 0; i < availableMethods.length; i++) {
+                        proxy[availableMethods[i]] = createProxyMethod(availableMethods[i], proxyMethodRequest);
+                    }
+                    resolve(proxy);
+                }, function (e) {
+                    reject(e);
+                    _this._onError('Worker failed to load ' + moduleId, e);
+                });
             });
             // Create proxy to loaded code
             var proxyMethodRequest = function (method, args) {
@@ -8889,21 +8016,14 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
             return _this;
         }
         SimpleWorkerClient.prototype.getProxyObject = function () {
-            // Do not allow chaining promises to cancel the proxy creation
-            return new async_1.ShallowCancelThenPromise(this._lazyProxy);
-        };
-        SimpleWorkerClient.prototype.getLastRequestTimestamp = function () {
-            return this._lastRequestTimestamp;
+            return this._lazyProxy;
         };
         SimpleWorkerClient.prototype._request = function (method, args) {
             var _this = this;
-            return new winjs_base_1.TPromise(function (c, e, p) {
+            return new Promise(function (resolve, reject) {
                 _this._onModuleLoaded.then(function () {
-                    _this._lastRequestTimestamp = Date.now();
-                    _this._protocol.sendMessage(method, args).then(c, e);
-                }, e);
-            }, function () {
-                // Cancel intentionally not supported
+                    _this._protocol.sendMessage(method, args).then(resolve, reject);
+                }, reject);
             });
         };
         SimpleWorkerClient.prototype._onError = function (message, error) {
@@ -8916,9 +8036,10 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
     /**
      * Worker side
      */
-    var SimpleWorkerServer = (function () {
-        function SimpleWorkerServer(postSerializedMessage) {
+    var SimpleWorkerServer = /** @class */ (function () {
+        function SimpleWorkerServer(postSerializedMessage, requestHandler) {
             var _this = this;
+            this._requestHandler = requestHandler;
             this._protocol = new SimpleWorkerProtocol({
                 sendMessage: function (msg) {
                     postSerializedMessage(msg);
@@ -8934,18 +8055,28 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
                 return this.initialize(args[0], args[1], args[2]);
             }
             if (!this._requestHandler || typeof this._requestHandler[method] !== 'function') {
-                return winjs_base_1.TPromise.wrapError(new Error('Missing requestHandler or method: ' + method));
+                return Promise.reject(new Error('Missing requestHandler or method: ' + method));
             }
             try {
-                return winjs_base_1.TPromise.as(this._requestHandler[method].apply(this._requestHandler, args));
+                return Promise.resolve(this._requestHandler[method].apply(this._requestHandler, args));
             }
             catch (e) {
-                return winjs_base_1.TPromise.wrapError(e);
+                return Promise.reject(e);
             }
         };
         SimpleWorkerServer.prototype.initialize = function (workerId, moduleId, loaderConfig) {
             var _this = this;
             this._protocol.setWorkerId(workerId);
+            if (this._requestHandler) {
+                // static request handler
+                var methods = [];
+                for (var prop in this._requestHandler) {
+                    if (typeof this._requestHandler[prop] === 'function') {
+                        methods.push(prop);
+                    }
+                }
+                return Promise.resolve(methods);
+            }
             if (loaderConfig) {
                 // Remove 'baseUrl', handling it is beyond scope for now
                 if (typeof loaderConfig.baseUrl !== 'undefined') {
@@ -8956,40 +8087,32 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
                         delete loaderConfig.paths['vs'];
                     }
                 }
-                var nlsConfig_1 = loaderConfig['vs/nls'];
-                // We need to have pseudo translation
-                if (nlsConfig_1 && nlsConfig_1.pseudo) {
-                    require(['vs/nls'], function (nlsPlugin) {
-                        nlsPlugin.setPseudoTranslation(nlsConfig_1.pseudo);
-                    });
-                }
                 // Since this is in a web worker, enable catching errors
                 loaderConfig.catchError = true;
                 self.require.config(loaderConfig);
             }
-            var cc;
-            var ee;
-            var r = new winjs_base_1.TPromise(function (c, e, p) {
-                cc = c;
-                ee = e;
-            });
-            // Use the global require to be sure to get the global config
-            self.require([moduleId], function () {
-                var result = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    result[_i] = arguments[_i];
-                }
-                var handlerModule = result[0];
-                _this._requestHandler = handlerModule.create();
-                var methods = [];
-                for (var prop in _this._requestHandler) {
-                    if (typeof _this._requestHandler[prop] === 'function') {
-                        methods.push(prop);
+            return new Promise(function (resolve, reject) {
+                // Use the global require to be sure to get the global config
+                self.require([moduleId], function () {
+                    var result = [];
+                    for (var _i = 0; _i < arguments.length; _i++) {
+                        result[_i] = arguments[_i];
                     }
-                }
-                cc(methods);
-            }, ee);
-            return r;
+                    var handlerModule = result[0];
+                    _this._requestHandler = handlerModule.create();
+                    if (!_this._requestHandler) {
+                        reject(new Error("No RequestHandler!"));
+                        return;
+                    }
+                    var methods = [];
+                    for (var prop in _this._requestHandler) {
+                        if (typeof _this._requestHandler[prop] === 'function') {
+                            methods.push(prop);
+                        }
+                    }
+                    resolve(methods);
+                }, reject);
+            });
         };
         return SimpleWorkerServer;
     }());
@@ -8998,26 +8121,53 @@ define(__m[31/*vs/base/common/worker/simpleWorker*/], __M([1/*require*/,0/*expor
      * Called on the worker side
      */
     function create(postMessage) {
-        return new SimpleWorkerServer(postMessage);
+        return new SimpleWorkerServer(postMessage, null);
     }
     exports.create = create;
 });
 
-define(__m[3/*vs/editor/common/core/position*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[2/*vs/editor/common/core/position*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * A position in the editor.
      */
-    var Position = (function () {
+    var Position = /** @class */ (function () {
         function Position(lineNumber, column) {
             this.lineNumber = lineNumber;
             this.column = column;
         }
+        /**
+         * Create a new postion from this position.
+         *
+         * @param newLineNumber new line number
+         * @param newColumn new column
+         */
+        Position.prototype.with = function (newLineNumber, newColumn) {
+            if (newLineNumber === void 0) { newLineNumber = this.lineNumber; }
+            if (newColumn === void 0) { newColumn = this.column; }
+            if (newLineNumber === this.lineNumber && newColumn === this.column) {
+                return this;
+            }
+            else {
+                return new Position(newLineNumber, newColumn);
+            }
+        };
+        /**
+         * Derive a new position from this position.
+         *
+         * @param deltaLineNumber line number delta
+         * @param deltaColumn column delta
+         */
+        Position.prototype.delta = function (deltaLineNumber, deltaColumn) {
+            if (deltaLineNumber === void 0) { deltaLineNumber = 0; }
+            if (deltaColumn === void 0) { deltaColumn = 0; }
+            return this.with(this.lineNumber + deltaLineNumber, this.column + deltaColumn);
+        };
         /**
          * Test if this position equals other position
          */
@@ -9125,13 +8275,13 @@ define(__m[3/*vs/editor/common/core/position*/], __M([1/*require*/,0/*exports*/]
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*vs/editor/common/core/position*/]), function (require, exports, position_1) {
-    'use strict';
+define(__m[5/*vs/editor/common/core/range*/], __M([0/*require*/,1/*exports*/,2/*vs/editor/common/core/position*/]), function (require, exports, position_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * A range in the editor. (startLineNumber,startColumn) is <= (endLineNumber,endColumn)
      */
-    var Range = (function () {
+    var Range = /** @class */ (function () {
         function Range(startLineNumber, startColumn, endLineNumber, endColumn) {
             if ((startLineNumber > endLineNumber) || (startLineNumber === endLineNumber && startColumn > endColumn)) {
                 this.startLineNumber = endLineNumber;
@@ -9215,7 +8365,10 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
          * The smallest position will be used as the start point, and the largest one as the end point.
          */
         Range.plusRange = function (a, b) {
-            var startLineNumber, startColumn, endLineNumber, endColumn;
+            var startLineNumber;
+            var startColumn;
+            var endLineNumber;
+            var endColumn;
             if (b.startLineNumber < a.startLineNumber) {
                 startLineNumber = b.startLineNumber;
                 startColumn = b.startColumn;
@@ -9252,7 +8405,14 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
          * A intersection of the two ranges.
          */
         Range.intersectRanges = function (a, b) {
-            var resultStartLineNumber = a.startLineNumber, resultStartColumn = a.startColumn, resultEndLineNumber = a.endLineNumber, resultEndColumn = a.endColumn, otherStartLineNumber = b.startLineNumber, otherStartColumn = b.startColumn, otherEndLineNumber = b.endLineNumber, otherEndColumn = b.endColumn;
+            var resultStartLineNumber = a.startLineNumber;
+            var resultStartColumn = a.startColumn;
+            var resultEndLineNumber = a.endLineNumber;
+            var resultEndColumn = a.endColumn;
+            var otherStartLineNumber = b.startLineNumber;
+            var otherStartColumn = b.startColumn;
+            var otherEndLineNumber = b.endLineNumber;
+            var otherEndColumn = b.endColumn;
             if (resultStartLineNumber < otherStartLineNumber) {
                 resultStartLineNumber = otherStartLineNumber;
                 resultStartColumn = otherStartColumn;
@@ -9306,12 +8466,6 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
             return new position_1.Position(this.startLineNumber, this.startColumn);
         };
         /**
-         * Clone this range.
-         */
-        Range.prototype.cloneRange = function () {
-            return new Range(this.startLineNumber, this.startColumn, this.endLineNumber, this.endColumn);
-        };
-        /**
          * Transform to a user presentable string representation.
          */
         Range.prototype.toString = function () {
@@ -9346,9 +8500,6 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
             if (end === void 0) { end = start; }
             return new Range(start.lineNumber, start.column, end.lineNumber, end.column);
         };
-        /**
-         * Create a `Range` from an `IRange`.
-         */
         Range.lift = function (range) {
             if (!range) {
                 return null;
@@ -9381,28 +8532,48 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
             return true;
         };
         /**
+         * Test if the two ranges are intersecting. If the ranges are touching it returns true.
+         */
+        Range.areIntersecting = function (a, b) {
+            // Check if `a` is before `b`
+            if (a.endLineNumber < b.startLineNumber || (a.endLineNumber === b.startLineNumber && a.endColumn <= b.startColumn)) {
+                return false;
+            }
+            // Check if `b` is before `a`
+            if (b.endLineNumber < a.startLineNumber || (b.endLineNumber === a.startLineNumber && b.endColumn <= a.startColumn)) {
+                return false;
+            }
+            // These ranges must intersect
+            return true;
+        };
+        /**
          * A function that compares ranges, useful for sorting ranges
          * It will first compare ranges on the startPosition and then on the endPosition
          */
         Range.compareRangesUsingStarts = function (a, b) {
-            var aStartLineNumber = a.startLineNumber | 0;
-            var bStartLineNumber = b.startLineNumber | 0;
-            if (aStartLineNumber === bStartLineNumber) {
-                var aStartColumn = a.startColumn | 0;
-                var bStartColumn = b.startColumn | 0;
-                if (aStartColumn === bStartColumn) {
-                    var aEndLineNumber = a.endLineNumber | 0;
-                    var bEndLineNumber = b.endLineNumber | 0;
-                    if (aEndLineNumber === bEndLineNumber) {
-                        var aEndColumn = a.endColumn | 0;
-                        var bEndColumn = b.endColumn | 0;
-                        return aEndColumn - bEndColumn;
+            if (a && b) {
+                var aStartLineNumber = a.startLineNumber | 0;
+                var bStartLineNumber = b.startLineNumber | 0;
+                if (aStartLineNumber === bStartLineNumber) {
+                    var aStartColumn = a.startColumn | 0;
+                    var bStartColumn = b.startColumn | 0;
+                    if (aStartColumn === bStartColumn) {
+                        var aEndLineNumber = a.endLineNumber | 0;
+                        var bEndLineNumber = b.endLineNumber | 0;
+                        if (aEndLineNumber === bEndLineNumber) {
+                            var aEndColumn = a.endColumn | 0;
+                            var bEndColumn = b.endColumn | 0;
+                            return aEndColumn - bEndColumn;
+                        }
+                        return aEndLineNumber - bEndLineNumber;
                     }
-                    return aEndLineNumber - bEndLineNumber;
+                    return aStartColumn - bStartColumn;
                 }
-                return aStartColumn - bStartColumn;
+                return aStartLineNumber - bStartLineNumber;
             }
-            return aStartLineNumber - bStartLineNumber;
+            var aExists = (a ? 1 : 0);
+            var bExists = (b ? 1 : 0);
+            return aExists - bExists;
         };
         /**
          * A function that compares ranges, useful for sorting ranges
@@ -9431,6 +8602,10 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
     exports.Range = Range;
 });
 
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 
 
 
@@ -9441,32 +8616,17 @@ define(__m[5/*vs/editor/common/core/range*/], __M([1/*require*/,0/*exports*/,3/*
 
 
 
-define(__m[22/*vs/editor/common/core/selection*/], __M([1/*require*/,0/*exports*/,5/*vs/editor/common/core/range*/,3/*vs/editor/common/core/position*/]), function (require, exports, range_1, position_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+
+
+
+define(__m[22/*vs/editor/common/core/selection*/], __M([0/*require*/,1/*exports*/,2/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/]), function (require, exports, position_1, range_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    /**
-     * The direction of a selection.
-     */
-    var SelectionDirection;
-    (function (SelectionDirection) {
-        /**
-         * The selection starts above where it ends.
-         */
-        SelectionDirection[SelectionDirection["LTR"] = 0] = "LTR";
-        /**
-         * The selection starts below where it ends.
-         */
-        SelectionDirection[SelectionDirection["RTL"] = 1] = "RTL";
-    })(SelectionDirection = exports.SelectionDirection || (exports.SelectionDirection = {}));
     /**
      * A selection in the editor.
      * The selection is a range that has an orientation.
      */
-    var Selection = (function (_super) {
+    var Selection = /** @class */ (function (_super) {
         __extends(Selection, _super);
         function Selection(selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn) {
             var _this = _super.call(this, selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn) || this;
@@ -9508,15 +8668,15 @@ define(__m[22/*vs/editor/common/core/selection*/], __M([1/*require*/,0/*exports*
          */
         Selection.prototype.getDirection = function () {
             if (this.selectionStartLineNumber === this.startLineNumber && this.selectionStartColumn === this.startColumn) {
-                return SelectionDirection.LTR;
+                return 0 /* LTR */;
             }
-            return SelectionDirection.RTL;
+            return 1 /* RTL */;
         };
         /**
          * Create a new selection with a different `positionLineNumber` and `positionColumn`.
          */
         Selection.prototype.setEndPosition = function (endLineNumber, endColumn) {
-            if (this.getDirection() === SelectionDirection.LTR) {
+            if (this.getDirection() === 0 /* LTR */) {
                 return new Selection(this.startLineNumber, this.startColumn, endLineNumber, endColumn);
             }
             return new Selection(endLineNumber, endColumn, this.startLineNumber, this.startColumn);
@@ -9531,7 +8691,7 @@ define(__m[22/*vs/editor/common/core/selection*/], __M([1/*require*/,0/*exports*
          * Create a new selection with a different `selectionStartLineNumber` and `selectionStartColumn`.
          */
         Selection.prototype.setStartPosition = function (startLineNumber, startColumn) {
-            if (this.getDirection() === SelectionDirection.LTR) {
+            if (this.getDirection() === 0 /* LTR */) {
                 return new Selection(startLineNumber, startColumn, this.endLineNumber, this.endColumn);
             }
             return new Selection(this.endLineNumber, this.endColumn, startLineNumber, startColumn);
@@ -9584,7 +8744,7 @@ define(__m[22/*vs/editor/common/core/selection*/], __M([1/*require*/,0/*exports*
          * Create with a direction.
          */
         Selection.createWithDirection = function (startLineNumber, startColumn, endLineNumber, endColumn, direction) {
-            if (direction === SelectionDirection.LTR) {
+            if (direction === 0 /* LTR */) {
                 return new Selection(startLineNumber, startColumn, endLineNumber, endColumn);
             }
             return new Selection(endLineNumber, endColumn, startLineNumber, startColumn);
@@ -9594,14 +8754,14 @@ define(__m[22/*vs/editor/common/core/selection*/], __M([1/*require*/,0/*exports*
     exports.Selection = Selection;
 });
 
-define(__m[23/*vs/editor/common/core/token*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[23/*vs/editor/common/core/token*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Token = (function () {
+    var Token = /** @class */ (function () {
         function Token(offset, type, language) {
             this.offset = offset | 0; // @perf
             this.type = type;
@@ -9613,7 +8773,7 @@ define(__m[23/*vs/editor/common/core/token*/], __M([1/*require*/,0/*exports*/]),
         return Token;
     }());
     exports.Token = Token;
-    var TokenizationResult = (function () {
+    var TokenizationResult = /** @class */ (function () {
         function TokenizationResult(tokens, endState) {
             this.tokens = tokens;
             this.endState = endState;
@@ -9621,7 +8781,7 @@ define(__m[23/*vs/editor/common/core/token*/], __M([1/*require*/,0/*exports*/]),
         return TokenizationResult;
     }());
     exports.TokenizationResult = TokenizationResult;
-    var TokenizationResult2 = (function () {
+    var TokenizationResult2 = /** @class */ (function () {
         function TokenizationResult2(tokens, endState) {
             this.tokens = tokens;
             this.endState = endState;
@@ -9631,61 +8791,32 @@ define(__m[23/*vs/editor/common/core/token*/], __M([1/*require*/,0/*exports*/]),
     exports.TokenizationResult2 = TokenizationResult2;
 });
 
-define(__m[7/*vs/editor/common/core/uint*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[6/*vs/editor/common/core/uint*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var Uint8Matrix = (function () {
+    var Uint8Matrix = /** @class */ (function () {
         function Uint8Matrix(rows, cols, defaultValue) {
             var data = new Uint8Array(rows * cols);
             for (var i = 0, len = rows * cols; i < len; i++) {
                 data[i] = defaultValue;
             }
             this._data = data;
-            this._rows = rows;
-            this._cols = cols;
+            this.rows = rows;
+            this.cols = cols;
         }
         Uint8Matrix.prototype.get = function (row, col) {
-            return this._data[row * this._cols + col];
+            return this._data[row * this.cols + col];
         };
         Uint8Matrix.prototype.set = function (row, col, value) {
-            this._data[row * this._cols + col] = value;
+            this._data[row * this.cols + col] = value;
         };
         return Uint8Matrix;
     }());
     exports.Uint8Matrix = Uint8Matrix;
-    var Constants;
-    (function (Constants) {
-        /**
-         * MAX SMI (SMall Integer) as defined in v8.
-         * one bit is lost for boxing/unboxing flag.
-         * one bit is lost for sign flag.
-         * See https://thibaultlaurens.github.io/javascript/2013/04/29/how-the-v8-engine-works/#tagged-values
-         */
-        Constants[Constants["MAX_SAFE_SMALL_INTEGER"] = 1073741824] = "MAX_SAFE_SMALL_INTEGER";
-        /**
-         * MIN SMI (SMall Integer) as defined in v8.
-         * one bit is lost for boxing/unboxing flag.
-         * one bit is lost for sign flag.
-         * See https://thibaultlaurens.github.io/javascript/2013/04/29/how-the-v8-engine-works/#tagged-values
-         */
-        Constants[Constants["MIN_SAFE_SMALL_INTEGER"] = -1073741824] = "MIN_SAFE_SMALL_INTEGER";
-        /**
-         * Max unsigned integer that fits on 8 bits.
-         */
-        Constants[Constants["MAX_UINT_8"] = 255] = "MAX_UINT_8";
-        /**
-         * Max unsigned integer that fits on 16 bits.
-         */
-        Constants[Constants["MAX_UINT_16"] = 65535] = "MAX_UINT_16";
-        /**
-         * Max unsigned integer that fits on 32 bits.
-         */
-        Constants[Constants["MAX_UINT_32"] = 4294967295] = "MAX_UINT_32";
-    })(Constants = exports.Constants || (exports.Constants = {}));
     function toUint8(v) {
         if (v < 0) {
             return 0;
@@ -9717,17 +8848,17 @@ define(__m[7/*vs/editor/common/core/uint*/], __M([1/*require*/,0/*exports*/]), f
     exports.toUint32Array = toUint32Array;
 });
 
-define(__m[25/*vs/editor/common/core/characterClassifier*/], __M([1/*require*/,0/*exports*/,7/*vs/editor/common/core/uint*/]), function (require, exports, uint_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[25/*vs/editor/common/core/characterClassifier*/], __M([0/*require*/,1/*exports*/,6/*vs/editor/common/core/uint*/]), function (require, exports, uint_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * A fast character classifier that uses a compact array for ASCII values.
      */
-    var CharacterClassifier = (function () {
+    var CharacterClassifier = /** @class */ (function () {
         function CharacterClassifier(_defaultValue) {
             var defaultValue = uint_1.toUint8(_defaultValue);
             this._defaultValue = defaultValue;
@@ -9761,12 +8892,7 @@ define(__m[25/*vs/editor/common/core/characterClassifier*/], __M([1/*require*/,0
         return CharacterClassifier;
     }());
     exports.CharacterClassifier = CharacterClassifier;
-    var Boolean;
-    (function (Boolean) {
-        Boolean[Boolean["False"] = 0] = "False";
-        Boolean[Boolean["True"] = 1] = "True";
-    })(Boolean || (Boolean = {}));
-    var CharacterSet = (function () {
+    var CharacterSet = /** @class */ (function () {
         function CharacterSet() {
             this._actual = new CharacterClassifier(0 /* False */);
         }
@@ -9781,22 +8907,12 @@ define(__m[25/*vs/editor/common/core/characterClassifier*/], __M([1/*require*/,0
     exports.CharacterSet = CharacterSet;
 });
 
-
-
-
-
-
-
-
-
-
-
-define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*exports*/,12/*vs/base/common/diff/diff*/,20/*vs/base/common/strings*/]), function (require, exports, diff_1, strings) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([0/*require*/,1/*exports*/,13/*vs/base/common/diff/diff*/,17/*vs/base/common/strings*/]), function (require, exports, diff_1, strings) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var MAXIMUM_RUN_TIME = 5000; // 5 seconds
     var MINIMUM_MATCHING_CHARACTER_LENGTH = 3;
@@ -9804,79 +8920,30 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
         var diffAlgo = new diff_1.LcsDiff(originalSequence, modifiedSequence, continueProcessingPredicate);
         return diffAlgo.ComputeDiff(pretty);
     }
-    var MarkerSequence = (function () {
-        function MarkerSequence(buffer, startMarkers, endMarkers) {
-            this.buffer = buffer;
-            this.startMarkers = startMarkers;
-            this.endMarkers = endMarkers;
-        }
-        MarkerSequence.prototype.equals = function (other) {
-            if (!(other instanceof MarkerSequence)) {
-                return false;
-            }
-            var otherMarkerSequence = other;
-            if (this.getLength() !== otherMarkerSequence.getLength()) {
-                return false;
-            }
-            for (var i = 0, len = this.getLength(); i < len; i++) {
-                var myElement = this.getElementHash(i);
-                var otherElement = otherMarkerSequence.getElementHash(i);
-                if (myElement !== otherElement) {
-                    return false;
-                }
-            }
-            return true;
-        };
-        MarkerSequence.prototype.getLength = function () {
-            return this.startMarkers.length;
-        };
-        MarkerSequence.prototype.getElementHash = function (i) {
-            return this.buffer.substring(this.startMarkers[i].offset, this.endMarkers[i].offset);
-        };
-        MarkerSequence.prototype.getStartLineNumber = function (i) {
-            if (i === this.startMarkers.length) {
-                // This is the special case where a change happened after the last marker
-                return this.startMarkers[i - 1].lineNumber + 1;
-            }
-            return this.startMarkers[i].lineNumber;
-        };
-        MarkerSequence.prototype.getStartColumn = function (i) {
-            return this.startMarkers[i].column;
-        };
-        MarkerSequence.prototype.getEndLineNumber = function (i) {
-            return this.endMarkers[i].lineNumber;
-        };
-        MarkerSequence.prototype.getEndColumn = function (i) {
-            return this.endMarkers[i].column;
-        };
-        return MarkerSequence;
-    }());
-    var LineMarkerSequence = (function (_super) {
-        __extends(LineMarkerSequence, _super);
+    var LineMarkerSequence = /** @class */ (function () {
         function LineMarkerSequence(lines) {
-            var _this = this;
-            var buffer = '';
-            var startMarkers = [];
-            var endMarkers = [];
-            for (var pos = 0, i = 0, length_1 = lines.length; i < length_1; i++) {
-                buffer += lines[i];
-                var startColumn = LineMarkerSequence._getFirstNonBlankColumn(lines[i], 1);
-                var endColumn = LineMarkerSequence._getLastNonBlankColumn(lines[i], 1);
-                startMarkers.push({
-                    offset: pos + startColumn - 1,
-                    lineNumber: i + 1,
-                    column: startColumn
-                });
-                endMarkers.push({
-                    offset: pos + endColumn - 1,
-                    lineNumber: i + 1,
-                    column: endColumn
-                });
-                pos += lines[i].length;
+            var startColumns = [];
+            var endColumns = [];
+            for (var i = 0, length_1 = lines.length; i < length_1; i++) {
+                startColumns[i] = LineMarkerSequence._getFirstNonBlankColumn(lines[i], 1);
+                endColumns[i] = LineMarkerSequence._getLastNonBlankColumn(lines[i], 1);
             }
-            _this = _super.call(this, buffer, startMarkers, endMarkers) || this;
-            return _this;
+            this._lines = lines;
+            this._startColumns = startColumns;
+            this._endColumns = endColumns;
         }
+        LineMarkerSequence.prototype.getLength = function () {
+            return this._lines.length;
+        };
+        LineMarkerSequence.prototype.getElementAtIndex = function (i) {
+            return this._lines[i].substring(this._startColumns[i] - 1, this._endColumns[i] - 1);
+        };
+        LineMarkerSequence.prototype.getStartLineNumber = function (i) {
+            return i + 1;
+        };
+        LineMarkerSequence.prototype.getEndLineNumber = function (i) {
+            return i + 1;
+        };
         LineMarkerSequence._getFirstNonBlankColumn = function (txt, defaultValue) {
             var r = strings.firstNonWhitespaceIndex(txt);
             if (r === -1) {
@@ -9891,30 +8958,53 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
             }
             return r + 2;
         };
-        LineMarkerSequence.prototype.getCharSequence = function (startIndex, endIndex) {
-            var startMarkers = [];
-            var endMarkers = [];
+        LineMarkerSequence.prototype.getCharSequence = function (shouldIgnoreTrimWhitespace, startIndex, endIndex) {
+            var charCodes = [];
+            var lineNumbers = [];
+            var columns = [];
+            var len = 0;
             for (var index = startIndex; index <= endIndex; index++) {
-                var startMarker = this.startMarkers[index];
-                var endMarker = this.endMarkers[index];
-                for (var i = startMarker.offset; i < endMarker.offset; i++) {
-                    startMarkers.push({
-                        offset: i,
-                        lineNumber: startMarker.lineNumber,
-                        column: startMarker.column + (i - startMarker.offset)
-                    });
-                    endMarkers.push({
-                        offset: i + 1,
-                        lineNumber: startMarker.lineNumber,
-                        column: startMarker.column + (i - startMarker.offset) + 1
-                    });
+                var lineContent = this._lines[index];
+                var startColumn = (shouldIgnoreTrimWhitespace ? this._startColumns[index] : 1);
+                var endColumn = (shouldIgnoreTrimWhitespace ? this._endColumns[index] : lineContent.length + 1);
+                for (var col = startColumn; col < endColumn; col++) {
+                    charCodes[len] = lineContent.charCodeAt(col - 1);
+                    lineNumbers[len] = index + 1;
+                    columns[len] = col;
+                    len++;
                 }
             }
-            return new MarkerSequence(this.buffer, startMarkers, endMarkers);
+            return new CharSequence(charCodes, lineNumbers, columns);
         };
         return LineMarkerSequence;
-    }(MarkerSequence));
-    var CharChange = (function () {
+    }());
+    var CharSequence = /** @class */ (function () {
+        function CharSequence(charCodes, lineNumbers, columns) {
+            this._charCodes = charCodes;
+            this._lineNumbers = lineNumbers;
+            this._columns = columns;
+        }
+        CharSequence.prototype.getLength = function () {
+            return this._charCodes.length;
+        };
+        CharSequence.prototype.getElementAtIndex = function (i) {
+            return this._charCodes[i];
+        };
+        CharSequence.prototype.getStartLineNumber = function (i) {
+            return this._lineNumbers[i];
+        };
+        CharSequence.prototype.getStartColumn = function (i) {
+            return this._columns[i];
+        };
+        CharSequence.prototype.getEndLineNumber = function (i) {
+            return this._lineNumbers[i];
+        };
+        CharSequence.prototype.getEndColumn = function (i) {
+            return this._columns[i] + 1;
+        };
+        return CharSequence;
+    }());
+    var CharChange = /** @class */ (function () {
         function CharChange(originalStartLineNumber, originalStartColumn, originalEndLineNumber, originalEndColumn, modifiedStartLineNumber, modifiedStartColumn, modifiedEndLineNumber, modifiedEndColumn) {
             this.originalStartLineNumber = originalStartLineNumber;
             this.originalStartColumn = originalStartColumn;
@@ -9987,7 +9077,7 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
         }
         return result;
     }
-    var LineChange = (function () {
+    var LineChange = /** @class */ (function () {
         function LineChange(originalStartLineNumber, originalEndLineNumber, modifiedStartLineNumber, modifiedEndLineNumber, charChanges) {
             this.originalStartLineNumber = originalStartLineNumber;
             this.originalEndLineNumber = originalEndLineNumber;
@@ -9995,12 +9085,12 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
             this.modifiedEndLineNumber = modifiedEndLineNumber;
             this.charChanges = charChanges;
         }
-        LineChange.createFromDiffResult = function (diffChange, originalLineSequence, modifiedLineSequence, continueProcessingPredicate, shouldPostProcessCharChanges) {
+        LineChange.createFromDiffResult = function (shouldIgnoreTrimWhitespace, diffChange, originalLineSequence, modifiedLineSequence, continueProcessingPredicate, shouldComputeCharChanges, shouldPostProcessCharChanges) {
             var originalStartLineNumber;
             var originalEndLineNumber;
             var modifiedStartLineNumber;
             var modifiedEndLineNumber;
-            var charChanges;
+            var charChanges = undefined;
             if (diffChange.originalLength === 0) {
                 originalStartLineNumber = originalLineSequence.getStartLineNumber(diffChange.originalStart) - 1;
                 originalEndLineNumber = 0;
@@ -10017,10 +9107,10 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
                 modifiedStartLineNumber = modifiedLineSequence.getStartLineNumber(diffChange.modifiedStart);
                 modifiedEndLineNumber = modifiedLineSequence.getEndLineNumber(diffChange.modifiedStart + diffChange.modifiedLength - 1);
             }
-            if (diffChange.originalLength !== 0 && diffChange.modifiedLength !== 0 && continueProcessingPredicate()) {
-                var originalCharSequence = originalLineSequence.getCharSequence(diffChange.originalStart, diffChange.originalStart + diffChange.originalLength - 1);
-                var modifiedCharSequence = modifiedLineSequence.getCharSequence(diffChange.modifiedStart, diffChange.modifiedStart + diffChange.modifiedLength - 1);
-                var rawChanges = computeDiff(originalCharSequence, modifiedCharSequence, continueProcessingPredicate, false);
+            if (shouldComputeCharChanges && diffChange.originalLength !== 0 && diffChange.modifiedLength !== 0 && continueProcessingPredicate()) {
+                var originalCharSequence = originalLineSequence.getCharSequence(shouldIgnoreTrimWhitespace, diffChange.originalStart, diffChange.originalStart + diffChange.originalLength - 1);
+                var modifiedCharSequence = modifiedLineSequence.getCharSequence(shouldIgnoreTrimWhitespace, diffChange.modifiedStart, diffChange.modifiedStart + diffChange.modifiedLength - 1);
+                var rawChanges = computeDiff(originalCharSequence, modifiedCharSequence, continueProcessingPredicate, true);
                 if (shouldPostProcessCharChanges) {
                     rawChanges = postProcessCharChanges(rawChanges);
                 }
@@ -10033,8 +9123,9 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
         };
         return LineChange;
     }());
-    var DiffComputer = (function () {
+    var DiffComputer = /** @class */ (function () {
         function DiffComputer(originalLines, modifiedLines, opts) {
+            this.shouldComputeCharChanges = opts.shouldComputeCharChanges;
             this.shouldPostProcessCharChanges = opts.shouldPostProcessCharChanges;
             this.shouldIgnoreTrimWhitespace = opts.shouldIgnoreTrimWhitespace;
             this.shouldMakePrettyDiff = opts.shouldMakePrettyDiff;
@@ -10043,13 +9134,9 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
             this.modifiedLines = modifiedLines;
             this.original = new LineMarkerSequence(originalLines);
             this.modified = new LineMarkerSequence(modifiedLines);
-            if (opts.shouldConsiderTrimWhitespaceInEmptyCase && this.shouldIgnoreTrimWhitespace && this.original.equals(this.modified)) {
-                // Diff would be empty with `shouldIgnoreTrimWhitespace`
-                this.shouldIgnoreTrimWhitespace = false;
-            }
         }
         DiffComputer.prototype.computeDiff = function () {
-            if (this.original.getLength() === 1 && this.original.getElementHash(0).length === 0) {
+            if (this.original.getLength() === 1 && this.original.getElementAtIndex(0).length === 0) {
                 // empty original => fast path
                 return [{
                         originalStartLineNumber: 1,
@@ -10068,7 +9155,7 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
                             }]
                     }];
             }
-            if (this.modified.getLength() === 1 && this.modified.getElementHash(0).length === 0) {
+            if (this.modified.getLength() === 1 && this.modified.getElementAtIndex(0).length === 0) {
                 // empty modified => fast path
                 return [{
                         originalStartLineNumber: 1,
@@ -10094,7 +9181,7 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
             if (this.shouldIgnoreTrimWhitespace) {
                 var lineChanges = [];
                 for (var i = 0, length_3 = rawChanges.length; i < length_3; i++) {
-                    lineChanges.push(LineChange.createFromDiffResult(rawChanges[i], this.original, this.modified, this._continueProcessingPredicate.bind(this), this.shouldPostProcessCharChanges));
+                    lineChanges.push(LineChange.createFromDiffResult(this.shouldIgnoreTrimWhitespace, rawChanges[i], this.original, this.modified, this._continueProcessingPredicate.bind(this), this.shouldComputeCharChanges, this.shouldPostProcessCharChanges));
                 }
                 return lineChanges;
             }
@@ -10154,7 +9241,7 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
                 }
                 if (nextChange) {
                     // Emit the actual change
-                    result.push(LineChange.createFromDiffResult(nextChange, this.original, this.modified, this._continueProcessingPredicate.bind(this), this.shouldPostProcessCharChanges));
+                    result.push(LineChange.createFromDiffResult(this.shouldIgnoreTrimWhitespace, nextChange, this.original, this.modified, this._continueProcessingPredicate.bind(this), this.shouldComputeCharChanges, this.shouldPostProcessCharChanges));
                     originalLineIndex += nextChange.originalLength;
                     modifiedLineIndex += nextChange.modifiedLength;
                 }
@@ -10166,9 +9253,11 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
                 // Merged into previous
                 return;
             }
-            result.push(new LineChange(originalLineNumber, originalLineNumber, modifiedLineNumber, modifiedLineNumber, [
-                new CharChange(originalLineNumber, originalStartColumn, originalLineNumber, originalEndColumn, modifiedLineNumber, modifiedStartColumn, modifiedLineNumber, modifiedEndColumn)
-            ]));
+            var charChanges = undefined;
+            if (this.shouldComputeCharChanges) {
+                charChanges = [new CharChange(originalLineNumber, originalStartColumn, originalLineNumber, originalEndColumn, modifiedLineNumber, modifiedStartColumn, modifiedLineNumber, modifiedEndColumn)];
+            }
+            result.push(new LineChange(originalLineNumber, originalLineNumber, modifiedLineNumber, modifiedLineNumber, charChanges));
         };
         DiffComputer.prototype._mergeTrimWhitespaceCharChange = function (result, originalLineNumber, originalStartColumn, originalEndColumn, modifiedLineNumber, modifiedStartColumn, modifiedEndColumn) {
             var len = result.length;
@@ -10183,7 +9272,9 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
             if (prevChange.originalEndLineNumber + 1 === originalLineNumber && prevChange.modifiedEndLineNumber + 1 === modifiedLineNumber) {
                 prevChange.originalEndLineNumber = originalLineNumber;
                 prevChange.modifiedEndLineNumber = modifiedLineNumber;
-                prevChange.charChanges.push(new CharChange(originalLineNumber, originalStartColumn, originalLineNumber, originalEndColumn, modifiedLineNumber, modifiedStartColumn, modifiedLineNumber, modifiedEndColumn));
+                if (this.shouldComputeCharChanges) {
+                    prevChange.charChanges.push(new CharChange(originalLineNumber, originalStartColumn, originalLineNumber, originalEndColumn, modifiedLineNumber, modifiedStartColumn, modifiedLineNumber, modifiedEndColumn));
+                }
                 return true;
             }
             return false;
@@ -10200,12 +9291,12 @@ define(__m[26/*vs/editor/common/diff/diffComputer*/], __M([1/*require*/,0/*expor
     exports.DiffComputer = DiffComputer;
 });
 
-define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[27/*vs/editor/common/model/wordHelper*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.USUAL_WORD_SEPARATORS = '`~!@#$%^&*()-=+[{]}\\|;:\'",.<>/?';
     /**
@@ -10217,13 +9308,12 @@ define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*export
      */
     function createWordRegExp(allowInWords) {
         if (allowInWords === void 0) { allowInWords = ''; }
-        var usualSeparators = exports.USUAL_WORD_SEPARATORS;
         var source = '(-?\\d*\\.\\d\\w*)|([^';
-        for (var i = 0; i < usualSeparators.length; i++) {
-            if (allowInWords.indexOf(usualSeparators[i]) >= 0) {
+        for (var i = 0; i < exports.USUAL_WORD_SEPARATORS.length; i++) {
+            if (allowInWords.indexOf(exports.USUAL_WORD_SEPARATORS[i]) >= 0) {
                 continue;
             }
-            source += '\\' + usualSeparators[i];
+            source += '\\' + exports.USUAL_WORD_SEPARATORS[i];
         }
         source += '\\s]+)';
         return new RegExp(source, 'g');
@@ -10262,10 +9352,11 @@ define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*export
         wordDefinition.lastIndex = start;
         var match;
         while (match = wordDefinition.exec(text)) {
-            if (match.index <= pos && wordDefinition.lastIndex >= pos) {
+            var matchIndex = match.index || 0;
+            if (matchIndex <= pos && wordDefinition.lastIndex >= pos) {
                 return {
                     word: match[0],
-                    startColumn: textOffset + 1 + match.index,
+                    startColumn: textOffset + 1 + matchIndex,
                     endColumn: textOffset + 1 + wordDefinition.lastIndex
                 };
             }
@@ -10280,7 +9371,8 @@ define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*export
         wordDefinition.lastIndex = 0;
         var match;
         while (match = wordDefinition.exec(text)) {
-            if (match.index > pos) {
+            var matchIndex = match.index || 0;
+            if (matchIndex > pos) {
                 // |nW -> matched only after the pos
                 return null;
             }
@@ -10288,7 +9380,7 @@ define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*export
                 // W|W -> match encloses pos
                 return {
                     word: match[0],
-                    startColumn: textOffset + 1 + match.index,
+                    startColumn: textOffset + 1 + matchIndex,
                     endColumn: textOffset + 1 + wordDefinition.lastIndex
                 };
             }
@@ -10305,7 +9397,9 @@ define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*export
         }
         // todo@joh the `match` could already be the (first) word
         var ret = match[0].indexOf(' ') >= 0
+            // did match a word which contains a space character -> use slow word find
             ? getWordAtPosSlow(column, wordDefinition, text, textOffset)
+            // sane word definition -> use fast word find
             : getWordAtPosFast(column, wordDefinition, text, textOffset);
         // both (getWordAtPosFast and getWordAtPosSlow) leave the wordDefinition-RegExp
         // in an undefined state and to not confuse other users of the wordDefinition
@@ -10316,31 +9410,14 @@ define(__m[27/*vs/editor/common/model/wordHelper*/], __M([1/*require*/,0/*export
     exports.getWordAtText = getWordAtText;
 });
 
-define(__m[28/*vs/editor/common/modes/linkComputer*/], __M([1/*require*/,0/*exports*/,25/*vs/editor/common/core/characterClassifier*/,7/*vs/editor/common/core/uint*/]), function (require, exports, characterClassifier_1, uint_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[28/*vs/editor/common/modes/linkComputer*/], __M([0/*require*/,1/*exports*/,25/*vs/editor/common/core/characterClassifier*/,6/*vs/editor/common/core/uint*/]), function (require, exports, characterClassifier_1, uint_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var State;
-    (function (State) {
-        State[State["Invalid"] = 0] = "Invalid";
-        State[State["Start"] = 1] = "Start";
-        State[State["H"] = 2] = "H";
-        State[State["HT"] = 3] = "HT";
-        State[State["HTT"] = 4] = "HTT";
-        State[State["HTTP"] = 5] = "HTTP";
-        State[State["F"] = 6] = "F";
-        State[State["FI"] = 7] = "FI";
-        State[State["FIL"] = 8] = "FIL";
-        State[State["BeforeColon"] = 9] = "BeforeColon";
-        State[State["AfterColon"] = 10] = "AfterColon";
-        State[State["AlmostThere"] = 11] = "AlmostThere";
-        State[State["End"] = 12] = "End";
-        State[State["Accept"] = 13] = "Accept";
-    })(State || (State = {}));
-    var StateMachine = (function () {
+    var StateMachine = /** @class */ (function () {
         function StateMachine(edges) {
             var maxCharCode = 0;
             var maxState = 0 /* Invalid */;
@@ -10405,12 +9482,6 @@ define(__m[28/*vs/editor/common/modes/linkComputer*/], __M([1/*require*/,0/*expo
         }
         return _stateMachine;
     }
-    var CharacterClass;
-    (function (CharacterClass) {
-        CharacterClass[CharacterClass["None"] = 0] = "None";
-        CharacterClass[CharacterClass["ForceTermination"] = 1] = "ForceTermination";
-        CharacterClass[CharacterClass["CannotEndIn"] = 2] = "CannotEndIn";
-    })(CharacterClass || (CharacterClass = {}));
     var _classifier = null;
     function getClassifier() {
         if (_classifier === null) {
@@ -10426,7 +9497,7 @@ define(__m[28/*vs/editor/common/modes/linkComputer*/], __M([1/*require*/,0/*expo
         }
         return _classifier;
     }
-    var LinkComputer = (function () {
+    var LinkComputer = /** @class */ (function () {
         function LinkComputer() {
         }
         LinkComputer._createLink = function (classifier, line, lineNumber, linkBeginIndex, linkEndIndex) {
@@ -10440,6 +9511,19 @@ define(__m[28/*vs/editor/common/modes/linkComputer*/], __M([1/*require*/,0/*expo
                 }
                 lastIncludedCharIndex--;
             } while (lastIncludedCharIndex > linkBeginIndex);
+            // Handle links enclosed in parens, square brackets and curlys.
+            if (linkBeginIndex > 0) {
+                var charCodeBeforeLink = line.charCodeAt(linkBeginIndex - 1);
+                var lastCharCodeInLink = line.charCodeAt(lastIncludedCharIndex);
+                if ((charCodeBeforeLink === 40 /* OpenParen */ && lastCharCodeInLink === 41 /* CloseParen */)
+                    || (charCodeBeforeLink === 91 /* OpenSquareBracket */ && lastCharCodeInLink === 93 /* CloseSquareBracket */)
+                    || (charCodeBeforeLink === 123 /* OpenCurlyBrace */ && lastCharCodeInLink === 125 /* CloseCurlyBrace */)) {
+                    // Do not end in ) if ( is before the link start
+                    // Do not end in ] if [ is before the link start
+                    // Do not end in } if { is before the link start
+                    lastIncludedCharIndex--;
+                }
+            }
             return {
                 range: {
                     startLineNumber: lineNumber,
@@ -10560,14 +9644,14 @@ define(__m[28/*vs/editor/common/modes/linkComputer*/], __M([1/*require*/,0/*expo
     exports.computeLinks = computeLinks;
 });
 
-define(__m[29/*vs/editor/common/modes/supports/inplaceReplaceSupport*/], __M([1/*require*/,0/*exports*/]), function (require, exports) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[29/*vs/editor/common/modes/supports/inplaceReplaceSupport*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var BasicInplaceReplace = (function () {
+    var BasicInplaceReplace = /** @class */ (function () {
         function BasicInplaceReplace() {
             this._defaultValueSet = [
                 ['true', 'false'],
@@ -10605,7 +9689,9 @@ define(__m[29/*vs/editor/common/modes/supports/inplaceReplaceSupport*/], __M([1/
             return this.textReplace(text, up);
         };
         BasicInplaceReplace.prototype.numberReplace = function (value, up) {
-            var precision = Math.pow(10, value.length - (value.lastIndexOf('.') + 1)), n1 = Number(value), n2 = parseFloat(value);
+            var precision = Math.pow(10, value.length - (value.lastIndexOf('.') + 1));
+            var n1 = Number(value);
+            var n2 = parseFloat(value);
             if (!isNaN(n1) && !isNaN(n2) && n1 === n2) {
                 if (n1 === 0 && !up) {
                     return null; // don't do negative
@@ -10650,45 +9736,25 @@ define(__m[29/*vs/editor/common/modes/supports/inplaceReplaceSupport*/], __M([1/
     exports.BasicInplaceReplace = BasicInplaceReplace;
 });
 
-define(__m[30/*vs/editor/common/standalone/standaloneBase*/], __M([1/*require*/,0/*exports*/,9/*vs/base/common/event*/,21/*vs/base/common/keyCodes*/,3/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/,22/*vs/editor/common/core/selection*/,2/*vs/base/common/winjs.base*/,13/*vs/base/common/cancellation*/,23/*vs/editor/common/core/token*/,6/*vs/base/common/uri*/]), function (require, exports, event_1, keyCodes_1, position_1, range_1, selection_1, winjs_base_1, cancellation_1, token_1, uri_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[30/*vs/editor/common/standalone/standaloneEnums*/], __M([0/*require*/,1/*exports*/]), function (require, exports) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    // --------------------------------------------
-    // This is repeated here so it can be exported
-    // because TS inlines const enums
-    // --------------------------------------------
-    var Severity;
-    (function (Severity) {
-        Severity[Severity["Ignore"] = 0] = "Ignore";
-        Severity[Severity["Info"] = 1] = "Info";
-        Severity[Severity["Warning"] = 2] = "Warning";
-        Severity[Severity["Error"] = 3] = "Error";
-    })(Severity = exports.Severity || (exports.Severity = {}));
-    // --------------------------------------------
-    // This is repeated here so it can be exported
-    // because TS inlines const enums
-    // --------------------------------------------
-    var KeyMod = (function () {
-        function KeyMod() {
-        }
-        KeyMod.chord = function (firstPart, secondPart) {
-            return keyCodes_1.KeyChord(firstPart, secondPart);
-        };
-        KeyMod.CtrlCmd = 2048 /* CtrlCmd */;
-        KeyMod.Shift = 1024 /* Shift */;
-        KeyMod.Alt = 512 /* Alt */;
-        KeyMod.WinCtrl = 256 /* WinCtrl */;
-        return KeyMod;
-    }());
-    exports.KeyMod = KeyMod;
-    // --------------------------------------------
-    // This is repeated here so it can be exported
-    // because TS inlines const enums
-    // --------------------------------------------
+    // THIS IS A GENERATED FILE. DO NOT EDIT DIRECTLY.
+    var MarkerTag;
+    (function (MarkerTag) {
+        MarkerTag[MarkerTag["Unnecessary"] = 1] = "Unnecessary";
+    })(MarkerTag = exports.MarkerTag || (exports.MarkerTag = {}));
+    var MarkerSeverity;
+    (function (MarkerSeverity) {
+        MarkerSeverity[MarkerSeverity["Hint"] = 1] = "Hint";
+        MarkerSeverity[MarkerSeverity["Info"] = 2] = "Info";
+        MarkerSeverity[MarkerSeverity["Warning"] = 4] = "Warning";
+        MarkerSeverity[MarkerSeverity["Error"] = 8] = "Error";
+    })(MarkerSeverity = exports.MarkerSeverity || (exports.MarkerSeverity = {}));
     /**
      * Virtual Key Codes, the value does not hold any inherent meaning.
      * Inspired somewhat from https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx
@@ -10870,35 +9936,510 @@ define(__m[30/*vs/editor/common/standalone/standaloneBase*/], __M([1/*require*/,
          */
         KeyCode[KeyCode["MAX_VALUE"] = 112] = "MAX_VALUE";
     })(KeyCode = exports.KeyCode || (exports.KeyCode = {}));
+    /**
+     * The direction of a selection.
+     */
+    var SelectionDirection;
+    (function (SelectionDirection) {
+        /**
+         * The selection starts above where it ends.
+         */
+        SelectionDirection[SelectionDirection["LTR"] = 0] = "LTR";
+        /**
+         * The selection starts below where it ends.
+         */
+        SelectionDirection[SelectionDirection["RTL"] = 1] = "RTL";
+    })(SelectionDirection = exports.SelectionDirection || (exports.SelectionDirection = {}));
+    var ScrollbarVisibility;
+    (function (ScrollbarVisibility) {
+        ScrollbarVisibility[ScrollbarVisibility["Auto"] = 1] = "Auto";
+        ScrollbarVisibility[ScrollbarVisibility["Hidden"] = 2] = "Hidden";
+        ScrollbarVisibility[ScrollbarVisibility["Visible"] = 3] = "Visible";
+    })(ScrollbarVisibility = exports.ScrollbarVisibility || (exports.ScrollbarVisibility = {}));
+    /**
+     * Vertical Lane in the overview ruler of the editor.
+     */
+    var OverviewRulerLane;
+    (function (OverviewRulerLane) {
+        OverviewRulerLane[OverviewRulerLane["Left"] = 1] = "Left";
+        OverviewRulerLane[OverviewRulerLane["Center"] = 2] = "Center";
+        OverviewRulerLane[OverviewRulerLane["Right"] = 4] = "Right";
+        OverviewRulerLane[OverviewRulerLane["Full"] = 7] = "Full";
+    })(OverviewRulerLane = exports.OverviewRulerLane || (exports.OverviewRulerLane = {}));
+    /**
+     * End of line character preference.
+     */
+    var EndOfLinePreference;
+    (function (EndOfLinePreference) {
+        /**
+         * Use the end of line character identified in the text buffer.
+         */
+        EndOfLinePreference[EndOfLinePreference["TextDefined"] = 0] = "TextDefined";
+        /**
+         * Use line feed (\n) as the end of line character.
+         */
+        EndOfLinePreference[EndOfLinePreference["LF"] = 1] = "LF";
+        /**
+         * Use carriage return and line feed (\r\n) as the end of line character.
+         */
+        EndOfLinePreference[EndOfLinePreference["CRLF"] = 2] = "CRLF";
+    })(EndOfLinePreference = exports.EndOfLinePreference || (exports.EndOfLinePreference = {}));
+    /**
+     * The default end of line to use when instantiating models.
+     */
+    var DefaultEndOfLine;
+    (function (DefaultEndOfLine) {
+        /**
+         * Use line feed (\n) as the end of line character.
+         */
+        DefaultEndOfLine[DefaultEndOfLine["LF"] = 1] = "LF";
+        /**
+         * Use carriage return and line feed (\r\n) as the end of line character.
+         */
+        DefaultEndOfLine[DefaultEndOfLine["CRLF"] = 2] = "CRLF";
+    })(DefaultEndOfLine = exports.DefaultEndOfLine || (exports.DefaultEndOfLine = {}));
+    /**
+     * End of line character preference.
+     */
+    var EndOfLineSequence;
+    (function (EndOfLineSequence) {
+        /**
+         * Use line feed (\n) as the end of line character.
+         */
+        EndOfLineSequence[EndOfLineSequence["LF"] = 0] = "LF";
+        /**
+         * Use carriage return and line feed (\r\n) as the end of line character.
+         */
+        EndOfLineSequence[EndOfLineSequence["CRLF"] = 1] = "CRLF";
+    })(EndOfLineSequence = exports.EndOfLineSequence || (exports.EndOfLineSequence = {}));
+    /**
+     * Describes the behavior of decorations when typing/editing near their edges.
+     * Note: Please do not edit the values, as they very carefully match `DecorationRangeBehavior`
+     */
+    var TrackedRangeStickiness;
+    (function (TrackedRangeStickiness) {
+        TrackedRangeStickiness[TrackedRangeStickiness["AlwaysGrowsWhenTypingAtEdges"] = 0] = "AlwaysGrowsWhenTypingAtEdges";
+        TrackedRangeStickiness[TrackedRangeStickiness["NeverGrowsWhenTypingAtEdges"] = 1] = "NeverGrowsWhenTypingAtEdges";
+        TrackedRangeStickiness[TrackedRangeStickiness["GrowsOnlyWhenTypingBefore"] = 2] = "GrowsOnlyWhenTypingBefore";
+        TrackedRangeStickiness[TrackedRangeStickiness["GrowsOnlyWhenTypingAfter"] = 3] = "GrowsOnlyWhenTypingAfter";
+    })(TrackedRangeStickiness = exports.TrackedRangeStickiness || (exports.TrackedRangeStickiness = {}));
+    var ScrollType;
+    (function (ScrollType) {
+        ScrollType[ScrollType["Smooth"] = 0] = "Smooth";
+        ScrollType[ScrollType["Immediate"] = 1] = "Immediate";
+    })(ScrollType = exports.ScrollType || (exports.ScrollType = {}));
+    /**
+     * Describes the reason the cursor has changed its position.
+     */
+    var CursorChangeReason;
+    (function (CursorChangeReason) {
+        /**
+         * Unknown or not set.
+         */
+        CursorChangeReason[CursorChangeReason["NotSet"] = 0] = "NotSet";
+        /**
+         * A `model.setValue()` was called.
+         */
+        CursorChangeReason[CursorChangeReason["ContentFlush"] = 1] = "ContentFlush";
+        /**
+         * The `model` has been changed outside of this cursor and the cursor recovers its position from associated markers.
+         */
+        CursorChangeReason[CursorChangeReason["RecoverFromMarkers"] = 2] = "RecoverFromMarkers";
+        /**
+         * There was an explicit user gesture.
+         */
+        CursorChangeReason[CursorChangeReason["Explicit"] = 3] = "Explicit";
+        /**
+         * There was a Paste.
+         */
+        CursorChangeReason[CursorChangeReason["Paste"] = 4] = "Paste";
+        /**
+         * There was an Undo.
+         */
+        CursorChangeReason[CursorChangeReason["Undo"] = 5] = "Undo";
+        /**
+         * There was a Redo.
+         */
+        CursorChangeReason[CursorChangeReason["Redo"] = 6] = "Redo";
+    })(CursorChangeReason = exports.CursorChangeReason || (exports.CursorChangeReason = {}));
+    var RenderMinimap;
+    (function (RenderMinimap) {
+        RenderMinimap[RenderMinimap["None"] = 0] = "None";
+        RenderMinimap[RenderMinimap["Small"] = 1] = "Small";
+        RenderMinimap[RenderMinimap["Large"] = 2] = "Large";
+        RenderMinimap[RenderMinimap["SmallBlocks"] = 3] = "SmallBlocks";
+        RenderMinimap[RenderMinimap["LargeBlocks"] = 4] = "LargeBlocks";
+    })(RenderMinimap = exports.RenderMinimap || (exports.RenderMinimap = {}));
+    /**
+     * Describes how to indent wrapped lines.
+     */
+    var WrappingIndent;
+    (function (WrappingIndent) {
+        /**
+         * No indentation => wrapped lines begin at column 1.
+         */
+        WrappingIndent[WrappingIndent["None"] = 0] = "None";
+        /**
+         * Same => wrapped lines get the same indentation as the parent.
+         */
+        WrappingIndent[WrappingIndent["Same"] = 1] = "Same";
+        /**
+         * Indent => wrapped lines get +1 indentation toward the parent.
+         */
+        WrappingIndent[WrappingIndent["Indent"] = 2] = "Indent";
+        /**
+         * DeepIndent => wrapped lines get +2 indentation toward the parent.
+         */
+        WrappingIndent[WrappingIndent["DeepIndent"] = 3] = "DeepIndent";
+    })(WrappingIndent = exports.WrappingIndent || (exports.WrappingIndent = {}));
+    /**
+     * The kind of animation in which the editor's cursor should be rendered.
+     */
+    var TextEditorCursorBlinkingStyle;
+    (function (TextEditorCursorBlinkingStyle) {
+        /**
+         * Hidden
+         */
+        TextEditorCursorBlinkingStyle[TextEditorCursorBlinkingStyle["Hidden"] = 0] = "Hidden";
+        /**
+         * Blinking
+         */
+        TextEditorCursorBlinkingStyle[TextEditorCursorBlinkingStyle["Blink"] = 1] = "Blink";
+        /**
+         * Blinking with smooth fading
+         */
+        TextEditorCursorBlinkingStyle[TextEditorCursorBlinkingStyle["Smooth"] = 2] = "Smooth";
+        /**
+         * Blinking with prolonged filled state and smooth fading
+         */
+        TextEditorCursorBlinkingStyle[TextEditorCursorBlinkingStyle["Phase"] = 3] = "Phase";
+        /**
+         * Expand collapse animation on the y axis
+         */
+        TextEditorCursorBlinkingStyle[TextEditorCursorBlinkingStyle["Expand"] = 4] = "Expand";
+        /**
+         * No-Blinking
+         */
+        TextEditorCursorBlinkingStyle[TextEditorCursorBlinkingStyle["Solid"] = 5] = "Solid";
+    })(TextEditorCursorBlinkingStyle = exports.TextEditorCursorBlinkingStyle || (exports.TextEditorCursorBlinkingStyle = {}));
+    /**
+     * The style in which the editor's cursor should be rendered.
+     */
+    var TextEditorCursorStyle;
+    (function (TextEditorCursorStyle) {
+        /**
+         * As a vertical line (sitting between two characters).
+         */
+        TextEditorCursorStyle[TextEditorCursorStyle["Line"] = 1] = "Line";
+        /**
+         * As a block (sitting on top of a character).
+         */
+        TextEditorCursorStyle[TextEditorCursorStyle["Block"] = 2] = "Block";
+        /**
+         * As a horizontal line (sitting under a character).
+         */
+        TextEditorCursorStyle[TextEditorCursorStyle["Underline"] = 3] = "Underline";
+        /**
+         * As a thin vertical line (sitting between two characters).
+         */
+        TextEditorCursorStyle[TextEditorCursorStyle["LineThin"] = 4] = "LineThin";
+        /**
+         * As an outlined block (sitting on top of a character).
+         */
+        TextEditorCursorStyle[TextEditorCursorStyle["BlockOutline"] = 5] = "BlockOutline";
+        /**
+         * As a thin horizontal line (sitting under a character).
+         */
+        TextEditorCursorStyle[TextEditorCursorStyle["UnderlineThin"] = 6] = "UnderlineThin";
+    })(TextEditorCursorStyle = exports.TextEditorCursorStyle || (exports.TextEditorCursorStyle = {}));
+    var RenderLineNumbersType;
+    (function (RenderLineNumbersType) {
+        RenderLineNumbersType[RenderLineNumbersType["Off"] = 0] = "Off";
+        RenderLineNumbersType[RenderLineNumbersType["On"] = 1] = "On";
+        RenderLineNumbersType[RenderLineNumbersType["Relative"] = 2] = "Relative";
+        RenderLineNumbersType[RenderLineNumbersType["Interval"] = 3] = "Interval";
+        RenderLineNumbersType[RenderLineNumbersType["Custom"] = 4] = "Custom";
+    })(RenderLineNumbersType = exports.RenderLineNumbersType || (exports.RenderLineNumbersType = {}));
+    /**
+     * A positioning preference for rendering content widgets.
+     */
+    var ContentWidgetPositionPreference;
+    (function (ContentWidgetPositionPreference) {
+        /**
+         * Place the content widget exactly at a position
+         */
+        ContentWidgetPositionPreference[ContentWidgetPositionPreference["EXACT"] = 0] = "EXACT";
+        /**
+         * Place the content widget above a position
+         */
+        ContentWidgetPositionPreference[ContentWidgetPositionPreference["ABOVE"] = 1] = "ABOVE";
+        /**
+         * Place the content widget below a position
+         */
+        ContentWidgetPositionPreference[ContentWidgetPositionPreference["BELOW"] = 2] = "BELOW";
+    })(ContentWidgetPositionPreference = exports.ContentWidgetPositionPreference || (exports.ContentWidgetPositionPreference = {}));
+    /**
+     * A positioning preference for rendering overlay widgets.
+     */
+    var OverlayWidgetPositionPreference;
+    (function (OverlayWidgetPositionPreference) {
+        /**
+         * Position the overlay widget in the top right corner
+         */
+        OverlayWidgetPositionPreference[OverlayWidgetPositionPreference["TOP_RIGHT_CORNER"] = 0] = "TOP_RIGHT_CORNER";
+        /**
+         * Position the overlay widget in the bottom right corner
+         */
+        OverlayWidgetPositionPreference[OverlayWidgetPositionPreference["BOTTOM_RIGHT_CORNER"] = 1] = "BOTTOM_RIGHT_CORNER";
+        /**
+         * Position the overlay widget in the top center
+         */
+        OverlayWidgetPositionPreference[OverlayWidgetPositionPreference["TOP_CENTER"] = 2] = "TOP_CENTER";
+    })(OverlayWidgetPositionPreference = exports.OverlayWidgetPositionPreference || (exports.OverlayWidgetPositionPreference = {}));
+    /**
+     * Type of hit element with the mouse in the editor.
+     */
+    var MouseTargetType;
+    (function (MouseTargetType) {
+        /**
+         * Mouse is on top of an unknown element.
+         */
+        MouseTargetType[MouseTargetType["UNKNOWN"] = 0] = "UNKNOWN";
+        /**
+         * Mouse is on top of the textarea used for input.
+         */
+        MouseTargetType[MouseTargetType["TEXTAREA"] = 1] = "TEXTAREA";
+        /**
+         * Mouse is on top of the glyph margin
+         */
+        MouseTargetType[MouseTargetType["GUTTER_GLYPH_MARGIN"] = 2] = "GUTTER_GLYPH_MARGIN";
+        /**
+         * Mouse is on top of the line numbers
+         */
+        MouseTargetType[MouseTargetType["GUTTER_LINE_NUMBERS"] = 3] = "GUTTER_LINE_NUMBERS";
+        /**
+         * Mouse is on top of the line decorations
+         */
+        MouseTargetType[MouseTargetType["GUTTER_LINE_DECORATIONS"] = 4] = "GUTTER_LINE_DECORATIONS";
+        /**
+         * Mouse is on top of the whitespace left in the gutter by a view zone.
+         */
+        MouseTargetType[MouseTargetType["GUTTER_VIEW_ZONE"] = 5] = "GUTTER_VIEW_ZONE";
+        /**
+         * Mouse is on top of text in the content.
+         */
+        MouseTargetType[MouseTargetType["CONTENT_TEXT"] = 6] = "CONTENT_TEXT";
+        /**
+         * Mouse is on top of empty space in the content (e.g. after line text or below last line)
+         */
+        MouseTargetType[MouseTargetType["CONTENT_EMPTY"] = 7] = "CONTENT_EMPTY";
+        /**
+         * Mouse is on top of a view zone in the content.
+         */
+        MouseTargetType[MouseTargetType["CONTENT_VIEW_ZONE"] = 8] = "CONTENT_VIEW_ZONE";
+        /**
+         * Mouse is on top of a content widget.
+         */
+        MouseTargetType[MouseTargetType["CONTENT_WIDGET"] = 9] = "CONTENT_WIDGET";
+        /**
+         * Mouse is on top of the decorations overview ruler.
+         */
+        MouseTargetType[MouseTargetType["OVERVIEW_RULER"] = 10] = "OVERVIEW_RULER";
+        /**
+         * Mouse is on top of a scrollbar.
+         */
+        MouseTargetType[MouseTargetType["SCROLLBAR"] = 11] = "SCROLLBAR";
+        /**
+         * Mouse is on top of an overlay widget.
+         */
+        MouseTargetType[MouseTargetType["OVERLAY_WIDGET"] = 12] = "OVERLAY_WIDGET";
+        /**
+         * Mouse is outside of the editor.
+         */
+        MouseTargetType[MouseTargetType["OUTSIDE_EDITOR"] = 13] = "OUTSIDE_EDITOR";
+    })(MouseTargetType = exports.MouseTargetType || (exports.MouseTargetType = {}));
+    /**
+     * Describes what to do with the indentation when pressing Enter.
+     */
+    var IndentAction;
+    (function (IndentAction) {
+        /**
+         * Insert new line and copy the previous line's indentation.
+         */
+        IndentAction[IndentAction["None"] = 0] = "None";
+        /**
+         * Insert new line and indent once (relative to the previous line's indentation).
+         */
+        IndentAction[IndentAction["Indent"] = 1] = "Indent";
+        /**
+         * Insert two new lines:
+         *  - the first one indented which will hold the cursor
+         *  - the second one at the same indentation level
+         */
+        IndentAction[IndentAction["IndentOutdent"] = 2] = "IndentOutdent";
+        /**
+         * Insert new line and outdent once (relative to the previous line's indentation).
+         */
+        IndentAction[IndentAction["Outdent"] = 3] = "Outdent";
+    })(IndentAction = exports.IndentAction || (exports.IndentAction = {}));
+    var CompletionItemKind;
+    (function (CompletionItemKind) {
+        CompletionItemKind[CompletionItemKind["Method"] = 0] = "Method";
+        CompletionItemKind[CompletionItemKind["Function"] = 1] = "Function";
+        CompletionItemKind[CompletionItemKind["Constructor"] = 2] = "Constructor";
+        CompletionItemKind[CompletionItemKind["Field"] = 3] = "Field";
+        CompletionItemKind[CompletionItemKind["Variable"] = 4] = "Variable";
+        CompletionItemKind[CompletionItemKind["Class"] = 5] = "Class";
+        CompletionItemKind[CompletionItemKind["Struct"] = 6] = "Struct";
+        CompletionItemKind[CompletionItemKind["Interface"] = 7] = "Interface";
+        CompletionItemKind[CompletionItemKind["Module"] = 8] = "Module";
+        CompletionItemKind[CompletionItemKind["Property"] = 9] = "Property";
+        CompletionItemKind[CompletionItemKind["Event"] = 10] = "Event";
+        CompletionItemKind[CompletionItemKind["Operator"] = 11] = "Operator";
+        CompletionItemKind[CompletionItemKind["Unit"] = 12] = "Unit";
+        CompletionItemKind[CompletionItemKind["Value"] = 13] = "Value";
+        CompletionItemKind[CompletionItemKind["Constant"] = 14] = "Constant";
+        CompletionItemKind[CompletionItemKind["Enum"] = 15] = "Enum";
+        CompletionItemKind[CompletionItemKind["EnumMember"] = 16] = "EnumMember";
+        CompletionItemKind[CompletionItemKind["Keyword"] = 17] = "Keyword";
+        CompletionItemKind[CompletionItemKind["Text"] = 18] = "Text";
+        CompletionItemKind[CompletionItemKind["Color"] = 19] = "Color";
+        CompletionItemKind[CompletionItemKind["File"] = 20] = "File";
+        CompletionItemKind[CompletionItemKind["Reference"] = 21] = "Reference";
+        CompletionItemKind[CompletionItemKind["Customcolor"] = 22] = "Customcolor";
+        CompletionItemKind[CompletionItemKind["Folder"] = 23] = "Folder";
+        CompletionItemKind[CompletionItemKind["TypeParameter"] = 24] = "TypeParameter";
+        CompletionItemKind[CompletionItemKind["Snippet"] = 25] = "Snippet";
+    })(CompletionItemKind = exports.CompletionItemKind || (exports.CompletionItemKind = {}));
+    var CompletionItemInsertTextRule;
+    (function (CompletionItemInsertTextRule) {
+        /**
+         * Adjust whitespace/indentation of multiline insert texts to
+         * match the current line indentation.
+         */
+        CompletionItemInsertTextRule[CompletionItemInsertTextRule["KeepWhitespace"] = 1] = "KeepWhitespace";
+        /**
+         * `insertText` is a snippet.
+         */
+        CompletionItemInsertTextRule[CompletionItemInsertTextRule["InsertAsSnippet"] = 4] = "InsertAsSnippet";
+    })(CompletionItemInsertTextRule = exports.CompletionItemInsertTextRule || (exports.CompletionItemInsertTextRule = {}));
+    /**
+     * How a suggest provider was triggered.
+     */
+    var CompletionTriggerKind;
+    (function (CompletionTriggerKind) {
+        CompletionTriggerKind[CompletionTriggerKind["Invoke"] = 0] = "Invoke";
+        CompletionTriggerKind[CompletionTriggerKind["TriggerCharacter"] = 1] = "TriggerCharacter";
+        CompletionTriggerKind[CompletionTriggerKind["TriggerForIncompleteCompletions"] = 2] = "TriggerForIncompleteCompletions";
+    })(CompletionTriggerKind = exports.CompletionTriggerKind || (exports.CompletionTriggerKind = {}));
+    var SignatureHelpTriggerReason;
+    (function (SignatureHelpTriggerReason) {
+        SignatureHelpTriggerReason[SignatureHelpTriggerReason["Invoke"] = 1] = "Invoke";
+        SignatureHelpTriggerReason[SignatureHelpTriggerReason["TriggerCharacter"] = 2] = "TriggerCharacter";
+        SignatureHelpTriggerReason[SignatureHelpTriggerReason["ContentChange"] = 3] = "ContentChange";
+    })(SignatureHelpTriggerReason = exports.SignatureHelpTriggerReason || (exports.SignatureHelpTriggerReason = {}));
+    /**
+     * A document highlight kind.
+     */
+    var DocumentHighlightKind;
+    (function (DocumentHighlightKind) {
+        /**
+         * A textual occurrence.
+         */
+        DocumentHighlightKind[DocumentHighlightKind["Text"] = 0] = "Text";
+        /**
+         * Read-access of a symbol, like reading a variable.
+         */
+        DocumentHighlightKind[DocumentHighlightKind["Read"] = 1] = "Read";
+        /**
+         * Write-access of a symbol, like writing to a variable.
+         */
+        DocumentHighlightKind[DocumentHighlightKind["Write"] = 2] = "Write";
+    })(DocumentHighlightKind = exports.DocumentHighlightKind || (exports.DocumentHighlightKind = {}));
+    /**
+     * A symbol kind.
+     */
+    var SymbolKind;
+    (function (SymbolKind) {
+        SymbolKind[SymbolKind["File"] = 0] = "File";
+        SymbolKind[SymbolKind["Module"] = 1] = "Module";
+        SymbolKind[SymbolKind["Namespace"] = 2] = "Namespace";
+        SymbolKind[SymbolKind["Package"] = 3] = "Package";
+        SymbolKind[SymbolKind["Class"] = 4] = "Class";
+        SymbolKind[SymbolKind["Method"] = 5] = "Method";
+        SymbolKind[SymbolKind["Property"] = 6] = "Property";
+        SymbolKind[SymbolKind["Field"] = 7] = "Field";
+        SymbolKind[SymbolKind["Constructor"] = 8] = "Constructor";
+        SymbolKind[SymbolKind["Enum"] = 9] = "Enum";
+        SymbolKind[SymbolKind["Interface"] = 10] = "Interface";
+        SymbolKind[SymbolKind["Function"] = 11] = "Function";
+        SymbolKind[SymbolKind["Variable"] = 12] = "Variable";
+        SymbolKind[SymbolKind["Constant"] = 13] = "Constant";
+        SymbolKind[SymbolKind["String"] = 14] = "String";
+        SymbolKind[SymbolKind["Number"] = 15] = "Number";
+        SymbolKind[SymbolKind["Boolean"] = 16] = "Boolean";
+        SymbolKind[SymbolKind["Array"] = 17] = "Array";
+        SymbolKind[SymbolKind["Object"] = 18] = "Object";
+        SymbolKind[SymbolKind["Key"] = 19] = "Key";
+        SymbolKind[SymbolKind["Null"] = 20] = "Null";
+        SymbolKind[SymbolKind["EnumMember"] = 21] = "EnumMember";
+        SymbolKind[SymbolKind["Struct"] = 22] = "Struct";
+        SymbolKind[SymbolKind["Event"] = 23] = "Event";
+        SymbolKind[SymbolKind["Operator"] = 24] = "Operator";
+        SymbolKind[SymbolKind["TypeParameter"] = 25] = "TypeParameter";
+    })(SymbolKind = exports.SymbolKind || (exports.SymbolKind = {}));
+});
+
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[31/*vs/editor/common/standalone/standaloneBase*/], __M([0/*require*/,1/*exports*/,10/*vs/base/common/cancellation*/,9/*vs/base/common/event*/,21/*vs/base/common/keyCodes*/,11/*vs/base/common/uri*/,8/*vs/base/common/winjs.base*/,2/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/,22/*vs/editor/common/core/selection*/,23/*vs/editor/common/core/token*/,30/*vs/editor/common/standalone/standaloneEnums*/]), function (require, exports, cancellation_1, event_1, keyCodes_1, uri_1, winjs_base_1, position_1, range_1, selection_1, token_1, standaloneEnums) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    var KeyMod = /** @class */ (function () {
+        function KeyMod() {
+        }
+        KeyMod.chord = function (firstPart, secondPart) {
+            return keyCodes_1.KeyChord(firstPart, secondPart);
+        };
+        KeyMod.CtrlCmd = 2048 /* CtrlCmd */;
+        KeyMod.Shift = 1024 /* Shift */;
+        KeyMod.Alt = 512 /* Alt */;
+        KeyMod.WinCtrl = 256 /* WinCtrl */;
+        return KeyMod;
+    }());
+    exports.KeyMod = KeyMod;
     function createMonacoBaseAPI() {
         return {
             editor: undefined,
             languages: undefined,
             CancellationTokenSource: cancellation_1.CancellationTokenSource,
             Emitter: event_1.Emitter,
-            KeyCode: KeyCode,
+            KeyCode: standaloneEnums.KeyCode,
             KeyMod: KeyMod,
             Position: position_1.Position,
             Range: range_1.Range,
             Selection: selection_1.Selection,
-            SelectionDirection: selection_1.SelectionDirection,
-            Severity: Severity,
+            SelectionDirection: standaloneEnums.SelectionDirection,
+            MarkerSeverity: standaloneEnums.MarkerSeverity,
+            MarkerTag: standaloneEnums.MarkerTag,
             Promise: winjs_base_1.TPromise,
-            Uri: uri_1.default,
+            Uri: uri_1.URI,
             Token: token_1.Token
         };
     }
     exports.createMonacoBaseAPI = createMonacoBaseAPI;
 });
 
-define(__m[19/*vs/editor/common/viewModel/prefixSumComputer*/], __M([1/*require*/,0/*exports*/,7/*vs/editor/common/core/uint*/]), function (require, exports, uint_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[32/*vs/editor/common/viewModel/prefixSumComputer*/], __M([0/*require*/,1/*exports*/,6/*vs/editor/common/core/uint*/]), function (require, exports, uint_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var PrefixSumIndexOfResult = (function () {
+    var PrefixSumIndexOfResult = /** @class */ (function () {
         function PrefixSumIndexOfResult(index, remainder) {
             this.index = index;
             this.remainder = remainder;
@@ -10906,7 +10447,7 @@ define(__m[19/*vs/editor/common/viewModel/prefixSumComputer*/], __M([1/*require*
         return PrefixSumIndexOfResult;
     }());
     exports.PrefixSumIndexOfResult = PrefixSumIndexOfResult;
-    var PrefixSumComputer = (function () {
+    var PrefixSumComputer = /** @class */ (function () {
         function PrefixSumComputer(values) {
             this.values = values;
             this.prefixSum = new Uint32Array(values.length);
@@ -11013,9 +10554,9 @@ define(__m[19/*vs/editor/common/viewModel/prefixSumComputer*/], __M([1/*require*
             this.getTotalValue();
             var low = 0;
             var high = this.values.length - 1;
-            var mid;
-            var midStop;
-            var midStart;
+            var mid = 0;
+            var midStop = 0;
+            var midStart = 0;
             while (low <= high) {
                 mid = low + ((high - low) / 2) | 0;
                 midStop = this.prefixSum[mid];
@@ -11035,7 +10576,7 @@ define(__m[19/*vs/editor/common/viewModel/prefixSumComputer*/], __M([1/*require*
         return PrefixSumComputer;
     }());
     exports.PrefixSumComputer = PrefixSumComputer;
-    var PrefixSumComputerWithCache = (function () {
+    var PrefixSumComputerWithCache = /** @class */ (function () {
         function PrefixSumComputerWithCache(values) {
             this._cacheAccumulatedValueStart = 0;
             this._cache = null;
@@ -11045,9 +10586,6 @@ define(__m[19/*vs/editor/common/viewModel/prefixSumComputer*/], __M([1/*require*
         PrefixSumComputerWithCache.prototype._bustCache = function () {
             this._cacheAccumulatedValueStart = 0;
             this._cache = null;
-        };
-        PrefixSumComputerWithCache.prototype.getCount = function () {
-            return this._actual.getCount();
         };
         PrefixSumComputerWithCache.prototype.insertValues = function (insertIndex, insertValues) {
             if (this._actual.insertValues(insertIndex, insertValues)) {
@@ -11098,34 +10636,28 @@ define(__m[19/*vs/editor/common/viewModel/prefixSumComputer*/], __M([1/*require*
     exports.PrefixSumComputerWithCache = PrefixSumComputerWithCache;
 });
 
-define(__m[24/*vs/editor/common/model/mirrorModel*/], __M([1/*require*/,0/*exports*/,19/*vs/editor/common/viewModel/prefixSumComputer*/]), function (require, exports, prefixSumComputer_1) {
-    /*---------------------------------------------------------------------------------------------
-     *  Copyright (c) Microsoft Corporation. All rights reserved.
-     *  Licensed under the MIT License. See License.txt in the project root for license information.
-     *--------------------------------------------------------------------------------------------*/
-    'use strict';
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+define(__m[19/*vs/editor/common/model/mirrorTextModel*/], __M([0/*require*/,1/*exports*/,2/*vs/editor/common/core/position*/,32/*vs/editor/common/viewModel/prefixSumComputer*/]), function (require, exports, position_1, prefixSumComputer_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
-    var MirrorModel = (function () {
-        function MirrorModel(uri, lines, eol, versionId) {
+    var MirrorTextModel = /** @class */ (function () {
+        function MirrorTextModel(uri, lines, eol, versionId) {
             this._uri = uri;
             this._lines = lines;
             this._eol = eol;
             this._versionId = versionId;
+            this._lineStarts = null;
         }
-        MirrorModel.prototype.dispose = function () {
+        MirrorTextModel.prototype.dispose = function () {
             this._lines.length = 0;
         };
-        Object.defineProperty(MirrorModel.prototype, "version", {
-            get: function () {
-                return this._versionId;
-            },
-            enumerable: true,
-            configurable: true
-        });
-        MirrorModel.prototype.getText = function () {
+        MirrorTextModel.prototype.getText = function () {
             return this._lines.join(this._eol);
         };
-        MirrorModel.prototype.onEvents = function (e) {
+        MirrorTextModel.prototype.onEvents = function (e) {
             if (e.eol && e.eol !== this._eol) {
                 this._eol = e.eol;
                 this._lineStarts = null;
@@ -11135,14 +10667,11 @@ define(__m[24/*vs/editor/common/model/mirrorModel*/], __M([1/*require*/,0/*expor
             for (var i = 0, len = changes.length; i < len; i++) {
                 var change = changes[i];
                 this._acceptDeleteRange(change.range);
-                this._acceptInsertText({
-                    lineNumber: change.range.startLineNumber,
-                    column: change.range.startColumn
-                }, change.text);
+                this._acceptInsertText(new position_1.Position(change.range.startLineNumber, change.range.startColumn), change.text);
             }
             this._versionId = e.versionId;
         };
-        MirrorModel.prototype._ensureLineStarts = function () {
+        MirrorTextModel.prototype._ensureLineStarts = function () {
             if (!this._lineStarts) {
                 var eolLength = this._eol.length;
                 var linesLength = this._lines.length;
@@ -11156,14 +10685,14 @@ define(__m[24/*vs/editor/common/model/mirrorModel*/], __M([1/*require*/,0/*expor
         /**
          * All changes to a line's text go through this method
          */
-        MirrorModel.prototype._setLineText = function (lineIndex, newValue) {
+        MirrorTextModel.prototype._setLineText = function (lineIndex, newValue) {
             this._lines[lineIndex] = newValue;
             if (this._lineStarts) {
                 // update prefix sum
                 this._lineStarts.changeValue(lineIndex, this._lines[lineIndex].length + this._eol.length);
             }
         };
-        MirrorModel.prototype._acceptDeleteRange = function (range) {
+        MirrorTextModel.prototype._acceptDeleteRange = function (range) {
             if (range.startLineNumber === range.endLineNumber) {
                 if (range.startColumn === range.endColumn) {
                     // Nothing to delete
@@ -11184,7 +10713,7 @@ define(__m[24/*vs/editor/common/model/mirrorModel*/], __M([1/*require*/,0/*expor
                 this._lineStarts.removeValues(range.startLineNumber, range.endLineNumber - range.startLineNumber);
             }
         };
-        MirrorModel.prototype._acceptInsertText = function (position, insertText) {
+        MirrorTextModel.prototype._acceptInsertText = function (position, insertText) {
             if (insertText.length === 0) {
                 // Nothing to insert
                 return;
@@ -11213,9 +10742,9 @@ define(__m[24/*vs/editor/common/model/mirrorModel*/], __M([1/*require*/,0/*expor
                 this._lineStarts.insertValues(position.lineNumber, newLengths);
             }
         };
-        return MirrorModel;
+        return MirrorTextModel;
     }());
-    exports.MirrorModel = MirrorModel;
+    exports.MirrorTextModel = MirrorTextModel;
 });
 
 /*---------------------------------------------------------------------------------------------
@@ -11232,13 +10761,16 @@ define(__m[24/*vs/editor/common/model/mirrorModel*/], __M([1/*require*/,0/*expor
 
 
 
-define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*/,0/*exports*/,6/*vs/base/common/uri*/,2/*vs/base/common/winjs.base*/,5/*vs/editor/common/core/range*/,26/*vs/editor/common/diff/diffComputer*/,12/*vs/base/common/diff/diff*/,3/*vs/editor/common/core/position*/,24/*vs/editor/common/model/mirrorModel*/,28/*vs/editor/common/modes/linkComputer*/,29/*vs/editor/common/modes/supports/inplaceReplaceSupport*/,27/*vs/editor/common/model/wordHelper*/,30/*vs/editor/common/standalone/standaloneBase*/]), function (require, exports, uri_1, winjs_base_1, range_1, diffComputer_1, diff_1, position_1, mirrorModel_1, linkComputer_1, inplaceReplaceSupport_1, wordHelper_1, standaloneBase_1) {
-    'use strict';
+
+
+
+define(__m[34/*vs/editor/common/services/editorSimpleWorker*/], __M([0/*require*/,1/*exports*/,24/*vs/base/common/arrays*/,13/*vs/base/common/diff/diff*/,12/*vs/base/common/iterator*/,3/*vs/base/common/platform*/,11/*vs/base/common/uri*/,2/*vs/editor/common/core/position*/,5/*vs/editor/common/core/range*/,26/*vs/editor/common/diff/diffComputer*/,19/*vs/editor/common/model/mirrorTextModel*/,27/*vs/editor/common/model/wordHelper*/,28/*vs/editor/common/modes/linkComputer*/,29/*vs/editor/common/modes/supports/inplaceReplaceSupport*/,31/*vs/editor/common/standalone/standaloneBase*/]), function (require, exports, arrays_1, diff_1, iterator_1, platform_1, uri_1, position_1, range_1, diffComputer_1, mirrorTextModel_1, wordHelper_1, linkComputer_1, inplaceReplaceSupport_1, standaloneBase_1) {
+    "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     /**
      * @internal
      */
-    var MirrorModel = (function (_super) {
+    var MirrorModel = /** @class */ (function (_super) {
         __extends(MirrorModel, _super);
         function MirrorModel() {
             return _super !== null && _super.apply(this, arguments) || this;
@@ -11298,32 +10830,51 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
                 endColumn: position.column
             };
         };
-        MirrorModel.prototype._getAllWords = function (wordDefinition) {
+        MirrorModel.prototype.createWordIterator = function (wordDefinition) {
             var _this = this;
-            var result = [];
-            this._lines.forEach(function (line) {
-                _this._wordenize(line, wordDefinition).forEach(function (info) {
-                    result.push(line.substring(info.start, info.end));
-                });
-            });
-            return result;
-        };
-        MirrorModel.prototype.getAllUniqueWords = function (wordDefinition, skipWordOnce) {
-            var foundSkipWord = false;
-            var uniqueWords = Object.create(null);
-            return this._getAllWords(wordDefinition).filter(function (word) {
-                if (skipWordOnce && !foundSkipWord && skipWordOnce === word) {
-                    foundSkipWord = true;
-                    return false;
+            var obj;
+            var lineNumber = 0;
+            var lineText;
+            var wordRangesIdx = 0;
+            var wordRanges = [];
+            var next = function () {
+                if (wordRangesIdx < wordRanges.length) {
+                    var value = lineText.substring(wordRanges[wordRangesIdx].start, wordRanges[wordRangesIdx].end);
+                    wordRangesIdx += 1;
+                    if (!obj) {
+                        obj = { done: false, value: value };
+                    }
+                    else {
+                        obj.value = value;
+                    }
+                    return obj;
                 }
-                else if (uniqueWords[word]) {
-                    return false;
+                else if (lineNumber >= _this._lines.length) {
+                    return iterator_1.FIN;
                 }
                 else {
-                    uniqueWords[word] = true;
-                    return true;
+                    lineText = _this._lines[lineNumber];
+                    wordRanges = _this._wordenize(lineText, wordDefinition);
+                    wordRangesIdx = 0;
+                    lineNumber += 1;
+                    return next();
                 }
-            });
+            };
+            return { next: next };
+        };
+        MirrorModel.prototype.getLineWords = function (lineNumber, wordDefinition) {
+            var content = this._lines[lineNumber - 1];
+            var ranges = this._wordenize(content, wordDefinition);
+            var words = [];
+            for (var _i = 0, ranges_1 = ranges; _i < ranges_1.length; _i++) {
+                var range = ranges_1[_i];
+                words.push({
+                    word: content.substring(range.start, range.end),
+                    startColumn: range.start + 1,
+                    endColumn: range.end + 1
+                });
+            }
+            return words;
         };
         MirrorModel.prototype._wordenize = function (content, wordDefinition) {
             var result = [];
@@ -11343,7 +10894,10 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
             if (range.startLineNumber === range.endLineNumber) {
                 return this._lines[range.startLineNumber - 1].substring(range.startColumn - 1, range.endColumn - 1);
             }
-            var lineEnding = this._eol, startLineIndex = range.startLineNumber - 1, endLineIndex = range.endLineNumber - 1, resultLines = [];
+            var lineEnding = this._eol;
+            var startLineIndex = range.startLineNumber - 1;
+            var endLineIndex = range.endLineNumber - 1;
+            var resultLines = [];
             resultLines.push(this._lines[startLineIndex].substring(range.startColumn - 1));
             for (var i = startLineIndex + 1; i < endLineIndex; i++) {
                 resultLines.push(this._lines[i]);
@@ -11419,12 +10973,13 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
             }
         };
         return MirrorModel;
-    }(mirrorModel_1.MirrorModel));
+    }(mirrorTextModel_1.MirrorTextModel));
     /**
      * @internal
      */
-    var BaseEditorSimpleWorker = (function () {
-        function BaseEditorSimpleWorker() {
+    var BaseEditorSimpleWorker = /** @class */ (function () {
+        function BaseEditorSimpleWorker(foreignModuleFactory) {
+            this._foreignModuleFactory = foreignModuleFactory;
             this._foreignModule = null;
         }
         // ---- BEGIN diff --------------------------------------------------------------------------
@@ -11432,41 +10987,54 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
             var original = this._getModel(originalUrl);
             var modified = this._getModel(modifiedUrl);
             if (!original || !modified) {
-                return null;
+                return Promise.resolve(null);
             }
             var originalLines = original.getLinesContent();
             var modifiedLines = modified.getLinesContent();
             var diffComputer = new diffComputer_1.DiffComputer(originalLines, modifiedLines, {
+                shouldComputeCharChanges: true,
                 shouldPostProcessCharChanges: true,
                 shouldIgnoreTrimWhitespace: ignoreTrimWhitespace,
-                shouldConsiderTrimWhitespaceInEmptyCase: true,
                 shouldMakePrettyDiff: true
             });
-            return winjs_base_1.TPromise.as(diffComputer.computeDiff());
+            var changes = diffComputer.computeDiff();
+            var identical = (changes.length > 0 ? false : this._modelsAreIdentical(original, modified));
+            return Promise.resolve({
+                identical: identical,
+                changes: changes
+            });
         };
-        BaseEditorSimpleWorker.prototype.computeDirtyDiff = function (originalUrl, modifiedUrl, ignoreTrimWhitespace) {
-            var original = this._getModel(originalUrl);
-            var modified = this._getModel(modifiedUrl);
-            if (!original || !modified) {
-                return null;
+        BaseEditorSimpleWorker.prototype._modelsAreIdentical = function (original, modified) {
+            var originalLineCount = original.getLineCount();
+            var modifiedLineCount = modified.getLineCount();
+            if (originalLineCount !== modifiedLineCount) {
+                return false;
             }
-            var originalLines = original.getLinesContent();
-            var modifiedLines = modified.getLinesContent();
-            var diffComputer = new diffComputer_1.DiffComputer(originalLines, modifiedLines, {
-                shouldPostProcessCharChanges: false,
-                shouldIgnoreTrimWhitespace: ignoreTrimWhitespace,
-                shouldConsiderTrimWhitespaceInEmptyCase: false,
-                shouldMakePrettyDiff: true
-            });
-            return winjs_base_1.TPromise.as(diffComputer.computeDiff());
+            for (var line = 1; line <= originalLineCount; line++) {
+                var originalLine = original.getLineContent(line);
+                var modifiedLine = modified.getLineContent(line);
+                if (originalLine !== modifiedLine) {
+                    return false;
+                }
+            }
+            return true;
         };
-        BaseEditorSimpleWorker.prototype.computeMoreMinimalEdits = function (modelUrl, edits, ranges) {
+        BaseEditorSimpleWorker.prototype.computeMoreMinimalEdits = function (modelUrl, edits) {
             var model = this._getModel(modelUrl);
             if (!model) {
-                return winjs_base_1.TPromise.as(edits);
+                return Promise.resolve(edits);
             }
             var result = [];
-            var lastEol;
+            var lastEol = undefined;
+            edits = arrays_1.mergeSort(edits, function (a, b) {
+                if (a.range && b.range) {
+                    return range_1.Range.compareRangesUsingStarts(a.range, b.range);
+                }
+                // eol only changes should go to the end
+                var aRng = a.range ? 0 : 1;
+                var bRng = b.range ? 0 : 1;
+                return aRng - bRng;
+            });
             for (var _i = 0, edits_1 = edits; _i < edits_1.length; _i++) {
                 var _a = edits_1[_i], range = _a.range, text = _a.text, eol = _a.eol;
                 if (typeof eol === 'number') {
@@ -11506,44 +11074,80 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
             if (typeof lastEol === 'number') {
                 result.push({ eol: lastEol, text: undefined, range: undefined });
             }
-            return winjs_base_1.TPromise.as(result);
+            return Promise.resolve(result);
         };
         // ---- END minimal edits ---------------------------------------------------------------
         BaseEditorSimpleWorker.prototype.computeLinks = function (modelUrl) {
             var model = this._getModel(modelUrl);
             if (!model) {
-                return null;
+                return Promise.resolve(null);
             }
-            return winjs_base_1.TPromise.as(linkComputer_1.computeLinks(model));
+            return Promise.resolve(linkComputer_1.computeLinks(model));
         };
-        // ---- BEGIN suggest --------------------------------------------------------------------------
         BaseEditorSimpleWorker.prototype.textualSuggest = function (modelUrl, position, wordDef, wordDefFlags) {
             var model = this._getModel(modelUrl);
-            if (model) {
-                var suggestions = [];
-                var wordDefRegExp = new RegExp(wordDef, wordDefFlags);
-                var currentWord = model.getWordUntilPosition(position, wordDefRegExp).word;
-                for (var _i = 0, _a = model.getAllUniqueWords(wordDefRegExp); _i < _a.length; _i++) {
-                    var word = _a[_i];
-                    if (word !== currentWord && isNaN(Number(word))) {
-                        suggestions.push({
-                            type: 'text',
-                            label: word,
-                            insertText: word,
-                            noAutoAccept: true,
-                            overwriteBefore: currentWord.length
-                        });
-                    }
-                }
-                return winjs_base_1.TPromise.as({ suggestions: suggestions });
+            if (!model) {
+                return Promise.resolve(null);
             }
-            return undefined;
+            var suggestions = [];
+            var wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+            var currentWord = model.getWordUntilPosition(position, wordDefRegExp);
+            var seen = Object.create(null);
+            seen[currentWord.word] = true;
+            for (var iter = model.createWordIterator(wordDefRegExp), e = iter.next(); !e.done && suggestions.length <= BaseEditorSimpleWorker._suggestionsLimit; e = iter.next()) {
+                var word = e.value;
+                if (seen[word]) {
+                    continue;
+                }
+                seen[word] = true;
+                if (!isNaN(Number(word))) {
+                    continue;
+                }
+                suggestions.push({
+                    kind: 18 /* Text */,
+                    label: word,
+                    insertText: word,
+                    range: { startLineNumber: position.lineNumber, startColumn: currentWord.startColumn, endLineNumber: position.lineNumber, endColumn: currentWord.endColumn }
+                });
+            }
+            return Promise.resolve({ suggestions: suggestions });
         };
         // ---- END suggest --------------------------------------------------------------------------
+        //#region -- word ranges --
+        BaseEditorSimpleWorker.prototype.computeWordRanges = function (modelUrl, range, wordDef, wordDefFlags) {
+            var model = this._getModel(modelUrl);
+            if (!model) {
+                return Promise.resolve(Object.create(null));
+            }
+            var wordDefRegExp = new RegExp(wordDef, wordDefFlags);
+            var result = Object.create(null);
+            for (var line = range.startLineNumber; line < range.endLineNumber; line++) {
+                var words = model.getLineWords(line, wordDefRegExp);
+                for (var _i = 0, words_1 = words; _i < words_1.length; _i++) {
+                    var word = words_1[_i];
+                    if (!isNaN(Number(word.word))) {
+                        continue;
+                    }
+                    var array = result[word.word];
+                    if (!array) {
+                        array = [];
+                        result[word.word] = array;
+                    }
+                    array.push({
+                        startLineNumber: line,
+                        startColumn: word.startColumn,
+                        endLineNumber: line,
+                        endColumn: word.endColumn
+                    });
+                }
+            }
+            return Promise.resolve(result);
+        };
+        //#endregion
         BaseEditorSimpleWorker.prototype.navigateValueSet = function (modelUrl, range, up, wordDef, wordDefFlags) {
             var model = this._getModel(modelUrl);
             if (!model) {
-                return null;
+                return Promise.resolve(null);
             }
             var wordDefRegExp = new RegExp(wordDef, wordDefFlags);
             if (range.startColumn === range.endColumn) {
@@ -11556,24 +11160,35 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
             }
             var selectionText = model.getValueInRange(range);
             var wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
-            var word = null;
-            if (wordRange !== null) {
-                word = model.getValueInRange(wordRange);
+            if (!wordRange) {
+                return Promise.resolve(null);
             }
+            var word = model.getValueInRange(wordRange);
             var result = inplaceReplaceSupport_1.BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
-            return winjs_base_1.TPromise.as(result);
+            return Promise.resolve(result);
         };
         // ---- BEGIN foreign module support --------------------------------------------------------------------------
         BaseEditorSimpleWorker.prototype.loadForeignModule = function (moduleId, createData) {
             var _this = this;
-            return new winjs_base_1.TPromise(function (c, e) {
-                // Use the global require to be sure to get the global config
-                self.require([moduleId], function (foreignModule) {
-                    var ctx = {
-                        getMirrorModels: function () {
-                            return _this._getModels();
-                        }
-                    };
+            var ctx = {
+                getMirrorModels: function () {
+                    return _this._getModels();
+                }
+            };
+            if (this._foreignModuleFactory) {
+                this._foreignModule = this._foreignModuleFactory(ctx, createData);
+                // static foreing module
+                var methods = [];
+                for (var prop in this._foreignModule) {
+                    if (typeof this._foreignModule[prop] === 'function') {
+                        methods.push(prop);
+                    }
+                }
+                return Promise.resolve(methods);
+            }
+            // ESM-comment-begin
+            return new Promise(function (resolve, reject) {
+                require([moduleId], function (foreignModule) {
                     _this._foreignModule = foreignModule.create(ctx, createData);
                     var methods = [];
                     for (var prop in _this._foreignModule) {
@@ -11581,35 +11196,41 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
                             methods.push(prop);
                         }
                     }
-                    c(methods);
-                }, e);
+                    resolve(methods);
+                }, reject);
             });
+            // ESM-comment-end
+            // ESM-uncomment-begin
+            // return Promise.reject(new Error(`Unexpected usage`));
+            // ESM-uncomment-end
         };
         // foreign method request
         BaseEditorSimpleWorker.prototype.fmr = function (method, args) {
             if (!this._foreignModule || typeof this._foreignModule[method] !== 'function') {
-                return winjs_base_1.TPromise.wrapError(new Error('Missing requestHandler or method: ' + method));
+                return Promise.reject(new Error('Missing requestHandler or method: ' + method));
             }
             try {
-                return winjs_base_1.TPromise.as(this._foreignModule[method].apply(this._foreignModule, args));
+                return Promise.resolve(this._foreignModule[method].apply(this._foreignModule, args));
             }
             catch (e) {
-                return winjs_base_1.TPromise.wrapError(e);
+                return Promise.reject(e);
             }
         };
         // ---- END diff --------------------------------------------------------------------------
         // ---- BEGIN minimal edits ---------------------------------------------------------------
         BaseEditorSimpleWorker._diffLimit = 10000;
+        // ---- BEGIN suggest --------------------------------------------------------------------------
+        BaseEditorSimpleWorker._suggestionsLimit = 10000;
         return BaseEditorSimpleWorker;
     }());
     exports.BaseEditorSimpleWorker = BaseEditorSimpleWorker;
     /**
      * @internal
      */
-    var EditorSimpleWorkerImpl = (function (_super) {
+    var EditorSimpleWorkerImpl = /** @class */ (function (_super) {
         __extends(EditorSimpleWorkerImpl, _super);
-        function EditorSimpleWorkerImpl() {
-            var _this = _super.call(this) || this;
+        function EditorSimpleWorkerImpl(foreignModuleFactory) {
+            var _this = _super.call(this, foreignModuleFactory) || this;
             _this._models = Object.create(null);
             return _this;
         }
@@ -11626,7 +11247,7 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
             return all;
         };
         EditorSimpleWorkerImpl.prototype.acceptNewModel = function (data) {
-            this._models[data.url] = new MirrorModel(uri_1.default.parse(data.url), data.lines, data.EOL, data.versionId);
+            this._models[data.url] = new MirrorModel(uri_1.URI.parse(data.url), data.lines, data.EOL, data.versionId);
         };
         EditorSimpleWorkerImpl.prototype.acceptModelChanged = function (strURL, e) {
             if (!this._models[strURL]) {
@@ -11649,16 +11270,16 @@ define(__m[33/*vs/editor/common/services/editorSimpleWorker*/], __M([1/*require*
      * @internal
      */
     function create() {
-        return new EditorSimpleWorkerImpl();
+        return new EditorSimpleWorkerImpl(null);
     }
     exports.create = create;
-    var global = self;
-    var isWebWorker = (typeof global.importScripts === 'function');
-    if (isWebWorker) {
-        global.monaco = standaloneBase_1.createMonacoBaseAPI();
+    if (typeof importScripts === 'function') {
+        // Running in a web worker
+        platform_1.globals.monaco = standaloneBase_1.createMonacoBaseAPI();
     }
 });
 
+"use strict";
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
