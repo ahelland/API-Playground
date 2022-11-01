@@ -34,7 +34,7 @@
   "devDependencies": {
     "clean-css": "^4.2.1",
     "event-stream": "3.3.4",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-typedoc": "^2.2.0",
     "http-server": "^0.11.1",
     "monaco-css": "2.3.0",
