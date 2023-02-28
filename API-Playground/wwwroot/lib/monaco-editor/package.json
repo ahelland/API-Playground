@@ -36,7 +36,7 @@
     "event-stream": "3.3.4",
     "gulp": "^3.9.1",
     "gulp-typedoc": "^2.2.0",
-    "http-server": "^0.11.1",
+    "http-server": "^14.1.1",
     "monaco-css": "2.3.0",
     "monaco-editor-core": "0.15.5",
     "monaco-html": "2.3.0",
